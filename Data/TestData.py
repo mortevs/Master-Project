@@ -15,9 +15,9 @@ def TestData() -> list:
     C_R = 1000 #inflow backpressure coefficient
     n = 1 #Inflow backpressure exponent
     upTime = 365
-
     list = [qFieldTarget, PRi, abandonmentRate, TR, gasMolecularWeight, C_R, n, N_temp, NWellsPerTemplate, upTime, C_t, S, C_FL, C_PL, P_sep, IGIP]
     return list
+
 
 
 

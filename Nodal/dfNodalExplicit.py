@@ -1,9 +1,9 @@
 import pandas as pd
 import numpy as np
-from Utilities.ZfacStanding import ZfacStanding
-import Utilities.DryGasFlowEquations as DGFE
-from Utilities.MBgastank_PR import MBgastank_PR
-from Utilities.RF import RF
+from Equations.ZfacStanding import ZfacStanding
+import Equations.DryGasFlowEquations as DGFE
+from Equations.MBgastank_PR import MBgastank_PR
+from Equations.RF import RF
 from scipy.optimize import fsolve
 import matplotlib.pyplot as plt
 

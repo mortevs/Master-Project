@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-import Utilities.DryGasFlowEquations as DGFE
+import Equations.DryGasFlowEquations as DGFE
 from scipy.optimize import minimize
 import warnings
 #Network of two gas fields

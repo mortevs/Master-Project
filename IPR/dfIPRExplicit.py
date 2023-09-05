@@ -1,11 +1,11 @@
 import pandas as pd
 import numpy as np
-from Utilities.ZfacStanding import ZfacStanding
-from Utilities.pWfMinEstimation import pWfMinEstimation
+from Equations.ZfacStanding import ZfacStanding
+from Equations.pWfMinEstimation import pWfMinEstimation
 from IPR.qPotWell import qPotWell
-import Utilities.DryGasFlowEquations as DGFE
-from Utilities.MBgastank_PR import MBgastank_PR
-from Utilities.RF import RF
+import Equations.DryGasFlowEquations as DGFE
+from Equations.MBgastank_PR import MBgastank_PR
+from Equations.RF import RF
 from scipy.optimize import fsolve
 
 

@@ -1,4 +1,4 @@
-from Utilities.DryGasFlowEquations import Linep1, Tubingp1
+from Equations.DryGasFlowEquations import Linep1, Tubingp1
 def pWfMinEstimation(C_t: float, S: float, C_FL: float, C_PL:float , fieldRate: float, p_sep: float, N_temp: int, NWellsPerTemplate: int)->float:
     """
     Returns a minimum estimation of bottomhole pressure based on the following data. Assumes pressure at wellhead equal to pressure at template.  

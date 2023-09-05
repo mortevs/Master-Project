@@ -1,4 +1,4 @@
-from Utilities.DryGasFlowEquations import IPRqg
+from Equations.DryGasFlowEquations import IPRqg
 def qPotWell(C_R, n, P_R_PreviousYear, PWfMin):
     """
     Returns potential wellflow given:

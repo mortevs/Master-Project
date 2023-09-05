@@ -1,4 +1,4 @@
-from Utilities.multi_plot import multi_plot
+from Plotting.multi_plot import multi_plot
 from Data.pullData import pullData
 from Data.TestData import TestData
 
