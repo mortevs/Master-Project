@@ -1,4 +1,4 @@
-def TestData() -> list:
+def manualData() -> list:
     qFieldTarget = 20e6 #target rate sm3/d
     PRi = 276 #reservoir pressure bara
     IGIP = 270e9 #Initial gas in place

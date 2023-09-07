@@ -1,6 +1,6 @@
 from Plotting.multi_plot import multi_plot
 from Data.pullData import pullData
-from Data.TestData import TestData
+from Data.ManualData import manualData
 
 def IPRAnalysis(precision: str, field: str, file_id):
     
@@ -16,8 +16,8 @@ def IPRAnalysis(precision: str, field: str, file_id):
     else: 
         raise ValueError('you chose ', precision, " precision, but the only options are implicit and explicit.")
     
-    if field.lower() == "my data":
-        parameters = TestData()
+    if field.lower() == "manual data" or field.lower() == "manualdata":
+        parameters = manualData()
     elif file_id is None:
         parameters = pullData(field)
         

@@ -1,8 +1,4 @@
 import math 
-    
-#valid = {1, 2}
-
-
 def ZfacStanding(p1: float, T1: float, gasMolecularWeight: float) ->float:
     """
     Returns Z-factor based on Hall&Yarborough equation fitted to Standing-Katz Chart. Use psia and °F or bara and °C.
