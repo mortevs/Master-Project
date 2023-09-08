@@ -8,6 +8,9 @@ def runAnalysis(method: str, precision: str, field:str, file_id: str):
     field = field with data avaiable at NPD. 
     
     """    
+    #
+    # fetch production data from NPD should be inserted here
+    #
     if method.lower() == 'ipr':
         from IPR.IPRAnalysis import IPRAnalysis
         return IPRAnalysis(precision, field, file_id)

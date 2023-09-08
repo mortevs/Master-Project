@@ -434,7 +434,6 @@ def fieldStatus(fieldName: str) -> str:
         df = pd.read_csv(zf.open(csvName))
         index = fieldList.index(fieldName.upper())
         status = df['fldCurrentActivitySatus'].values[index]
-        
         return status
     raise ValueError("No field with name ", fieldName, " at NPD")
     
@@ -480,7 +479,35 @@ def CSVwellsStatus(fieldName: str) -> str:
             statusList.append("NO DATA")
     return statusList
 
-        
+# def CSVProductionMonthly(fieldName: str) -> list:
+#     zipFileUrl = "https://hotell.difi.no/download/npd/field/production-monthly-by-field"
+#     zf = CacheZip("productionMonthly", zipFileUrl)
+#     csvName = zf.namelist()[0]
+#     wbs = wellboreName(fieldName)
+#     df = pd.read_csv(zf.open(csvName), low_memory=False)
+#     mylist = df['prfPrdGasNetBillSm3'].tolist()
+#     mylist2 = df['wlbStatus'].tolist()
+#     wbs = wellboreName(fieldName)
+#     index = fieldList.index(fieldName.upper())
+#     area = df['fldMainArea'].values[index]
+#     statusList = []
+#     return statusList
+
+def CSVProductionYearly(fieldName: str) -> str:
+    fieldList = fieldNames()
+    mylist=[]
+    if fieldName.upper() in fieldList:
+        CSVURL = "https://hotell.difi.no/download/npd/field/production-yearly-by-field"
+        #zf = CacheZip("productionYearly", zipFileUrl)
+        #csvName = zf.namelist()[0] #is this correct?
+        df = pd.read_csv(CSVURL, low_memory=False)
+        # mylist1 = df['prfPrdGasNetBillSm3'].tolist()
+        # mylist2 = df['prfPrdNGLNetMillSm3'].tolist()
+        # mylist3 = df['prfPrdOilNetMillSm3'].tolist()
+        # mylist4 = df['prfPrdCondensateNetMillSm3'].tolist()
+        # mylist5 = df['prfPrdOeNetMillSm3'].tolist()
+        # mylist6 = df['prfPrdProducedWaterInFieldMillSm3'].tolist()
+        return mylist
+    raise ValueError("No field with name ", fieldName, " at NPD")
 
 
-    
