@@ -4,6 +4,7 @@ from Data.NPDgetURL import *
 from Data.classPage import Page
 import zipfile, wget
 import pandas as pd
+import shelve
 
 cacheURL = dict()
 cachePage = dict()
@@ -11,7 +12,8 @@ cacheWellURLs = dict()
 cacheDiscovery = dict()
 cacheStatus = dict()
 cacheZip = dict()
-
+cacheCSV = dict()
+cacheDF = dict()
 
 def CacheURL(key: str) -> str:
     if key in cacheURL:
@@ -50,7 +52,43 @@ def CacheDiscovery(key: str) ->list:
 
 def CacheZip(key: str, zipFileUrl: str):
     if key in cacheZip:
+        print("great success")
         return cacheZip[key]
     zf = zipfile.ZipFile(wget.download(zipFileUrl)) 
     cacheZip[key] = zf
-    return cacheZip[key]
+    return cacheZip[key] 
+
+def csvURLtoDF(key: str, csvURL: str) ->pd.DataFrame:
+    df = pd.read_csv((csvURL), sep = ";", low_memory=False)
+    return df
+
+def CacheDF(df: pd.DataFrame, key: str) ->pd.DataFrame:
+    if checkKeyinDict(key) == 0:
+        df = gd.ZiptoDF(zipFileUrl = "https://factpages.npd.no/downloads/csv/fldArea.zip")
+        dumpDict(df, key)
+    loaded = loadDict(key)
+    return loaded
+
+def dumpDict(dict: dict, name: str) ->None:
+    d = shelve.open("savedDictionary")
+    d[name] = dict
+    d.close()
+    return None
+
+def checkKeyinDict(key: str)->bool:
+    d = shelve.open("savedDictionary")
+    if key in d:
+        d.close()   
+        return True
+    d.close()
+    return False
+
+    
+def loadDict(name: str) ->dict:
+    d = shelve.open("savedDictionary")
+    if name not in d:
+        return 0
+    dict = d[name]
+    d.close()
+    return dict
+    

@@ -1,4 +1,4 @@
-
+import shelve
 if __name__ == "__main__":
     from dryGasAnalysis.DryGasAnalysis import DryGasAnalysis
     # results = DryGasAnalysis(method = 'Nodal', precision = 'explicit', field = "manual data").runAnalysis()
@@ -7,7 +7,12 @@ if __name__ == "__main__":
     # results.to_excel(file_name)
 
     import Data.getData as get
-
+    #print(get.fieldNames())
     print(get.CSVProductionYearly("Snøhvit"))
+
+
+
     
+
+
     

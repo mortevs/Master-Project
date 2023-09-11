@@ -412,27 +412,30 @@ def initialLiquidInPlace(field: str) -> float:
 
 #CSV files
 
+def ZiptoDF(zipFileUrl):
+    zf = CacheZip('fldArea', zipFileUrl)
+    df = pd.read_csv(zf.open(zf.namelist()[0]))
+    return df
 
 def fieldNames():
     """
     Returns a list with all fieldnames listed at NPD
-    """ 
-    zipFileUrl = "https://factpages.npd.no/downloads/csv/fldArea.zip"
-    zf = CacheZip("fldArea", zipFileUrl)
-    csvName = zf.namelist()[0]
-    df = pd.read_csv(zf.open(csvName))
-    fieldNames = list(df["fldName"])
-    return (fieldNames)
+    """
+    if checkKeyinDict("fldArea") == 0:
+        df = gd.ZiptoDF(zipFileUrl = "https://factpages.npd.no/downloads/csv/fldArea.zip")
+    else:
+        df = loadDict("fldArea")
+    CacheDF(df, "fldArea")
+    return (list(df["fldName"]))
+
 
 
 def fieldStatus(fieldName: str) -> str:
     fieldList = fieldNames()
     if fieldName.upper() in fieldList:
         zipFileUrl = "https://factpages.npd.no/downloads/csv/fldArea.zip"
-        zf = CacheZip("fldArea", zipFileUrl)
-        csvName = zf.namelist()[0]
-        df = pd.read_csv(zf.open(csvName))
         index = fieldList.index(fieldName.upper())
+        df = CacheDF("fldArea")
         status = df['fldCurrentActivitySatus'].values[index]
         return status
     raise ValueError("No field with name ", fieldName, " at NPD")
@@ -441,10 +444,7 @@ def fieldStatus(fieldName: str) -> str:
 def mainArea(fieldName: str) -> str:        
     fieldList = fieldNames()
     if fieldName.upper() in fieldList:
-        zipFileUrl = "https://factpages.npd.no/downloads/csv/fldArea.zip"
-        zf = CacheZip("fldArea", zipFileUrl)
-        csvName = zf.namelist()[0]
-        df = pd.read_csv(zf.open(csvName))
+        df = CacheDF("fldArea")
         index = fieldList.index(fieldName.upper())
         area = df['fldMainArea'].values[index]
         return area
@@ -453,20 +453,14 @@ def mainArea(fieldName: str) -> str:
 def fldMainSupplyBase(fieldName: str) -> str:        
     fieldList = fieldNames()
     if fieldName.upper() in fieldList:
-        zipFileUrl = "https://factpages.npd.no/downloads/csv/fldArea.zip"
-        zf = CacheZip("fldArea", zipFileUrl)
-        csvName = zf.namelist()[0]
-        df = pd.read_csv(zf.open(csvName))
+        df = CacheDF("fldArea")
         index = fieldList.index(fieldName.upper())
         base = df['fldMainSupplyBase'].values[index]
         return base
     raise ValueError("No field with name ", fieldName, " at NPD")
 
 def CSVwellsStatus(fieldName: str) -> str:
-    zipFileUrl = "https://factpages.npd.no/downloads/csv/wlbPoint.zip"
-    zf = CacheZip("wlbPoint", zipFileUrl)
-    csvName = zf.namelist()[0]
-    df = pd.read_csv(zf.open(csvName), low_memory=False)
+    df = CacheDF("fldArea")
     mylist = df['wlbWellboreName'].tolist()
     mylist2 = df['wlbStatus'].tolist()
     wbs = wellboreName(fieldName)
@@ -495,19 +489,17 @@ def CSVwellsStatus(fieldName: str) -> str:
 
 def CSVProductionYearly(fieldName: str) -> str:
     fieldList = fieldNames()
-    mylist=[]
     if fieldName.upper() in fieldList:
-        CSVURL = "https://hotell.difi.no/download/npd/field/production-yearly-by-field"
-        #zf = CacheZip("productionYearly", zipFileUrl)
-        #csvName = zf.namelist()[0] #is this correct?
-        df = pd.read_csv(CSVURL, low_memory=False)
-        # mylist1 = df['prfPrdGasNetBillSm3'].tolist()
-        # mylist2 = df['prfPrdNGLNetMillSm3'].tolist()
-        # mylist3 = df['prfPrdOilNetMillSm3'].tolist()
-        # mylist4 = df['prfPrdCondensateNetMillSm3'].tolist()
-        # mylist5 = df['prfPrdOeNetMillSm3'].tolist()
-        # mylist6 = df['prfPrdProducedWaterInFieldMillSm3'].tolist()
-        return mylist
+        csvURL = "https://hotell.difi.no/download/npd/field/production-yearly-by-field"
+        df = csvURLtoDF("monthlyProduction", csvURL)
+        prfIC = df['prfInformationCarrier'].tolist()
+        gas = df['prfPrdGasNetBillSm3'].tolist()
+        NGL = df['prfPrdNGLNetMillSm3'].tolist()
+        oil = df['prfPrdOilNetMillSm3'].tolist()
+        cond = df['prfPrdCondensateNetMillSm3'].tolist()
+        Oe = df['prfPrdOeNetMillSm3'].tolist()
+        w = df['prfPrdProducedWaterInFieldMillSm3'].tolist()
+        return gas
     raise ValueError("No field with name ", fieldName, " at NPD")
 
 
