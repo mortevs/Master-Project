@@ -1,3 +1,5 @@
+import Data.getData as get
+from pandas import DataFrame
 def ratesToTarget(startUp:str, producedRates: list, producedYears: list, upTime: int) -> float:
         startUpYear = int(startUp[-4:])
         index = producedYears.index(startUpYear)
@@ -44,7 +46,25 @@ def estimatedReservoirPressure(TVD: float) -> float:
     """
     pressure = TVD/10 * 1.1
     return pressure
-    
+
+
+def addActualProdtoPlot(field: str, df: DataFrame) ->DataFrame:
+    pmonth = get.CSVProductionYearly(field)
+    while pmonth[0] == 0:
+        pmonth.pop(0)
+    del pmonth[len(df):]
+    while len(df) != len(pmonth):
+        pmonth.append(0)
+    pmonth = [i*10**9/365 for i in pmonth]
+    df = df.assign(ActualProducedRatesSM3perday=pmonth)
+    return df
+
+def BillionYtodailySm3(v: float)->float:
+    return v*10**9/365 #uptime considerations?
+
+
+
+
     
 
 

@@ -1,6 +1,7 @@
 from Plotting.multi_plot import multi_plot
 from Data.pullData import pullData
 from Data.ManualData import manualData
+import Data.dataProcessing.dataProcessing as dP 
 
 def IPRAnalysis(precision: str, field: str, file_id):
     
@@ -16,10 +17,10 @@ def IPRAnalysis(precision: str, field: str, file_id):
     else: 
         raise ValueError('you chose ', precision, " precision, but the only options are implicit and explicit.")
     
-    if field.lower() == "manual data" or field.lower() == "manualdata":
-        parameters = manualData()
-    elif file_id is None:
-        parameters = pullData(field)
+    #if field.lower() == "manual data" or field.lower() == "manualdata":
+    parameters = manualData()
+    #elif file_id is None:
+    #    parameters = pullData(field)
         
     def swapColumns(df, col1, col2):
         col_list = list(df.columns)
@@ -34,7 +35,8 @@ def IPRAnalysis(precision: str, field: str, file_id):
     abandonmentRate = parameters[2]
     
     df = swapColumns(df, 'QFieldTarget [sm3/d]', 'Field rates [sm3/d]')
-    ticker = 0 
+    df = dP.addActualProdtoPlot(field, df)
+    ticker = 0
     for i in range (len(df.index)):
         if (df.iloc[i, 0] < qFieldTarget and ticker == 0):
             print("Plateau length estimated to end in year ", i)

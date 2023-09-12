@@ -473,24 +473,10 @@ def CSVwellsStatus(fieldName: str) -> str:
             statusList.append("NO DATA")
     return statusList
 
-# def CSVProductionMonthly(fieldName: str) -> list:
-#     zipFileUrl = "https://hotell.difi.no/download/npd/field/production-monthly-by-field"
-#     zf = CacheZip("productionMonthly", zipFileUrl)
-#     csvName = zf.namelist()[0]
-#     wbs = wellboreName(fieldName)
-#     df = pd.read_csv(zf.open(csvName), low_memory=False)
-#     mylist = df['prfPrdGasNetBillSm3'].tolist()
-#     mylist2 = df['wlbStatus'].tolist()
-#     wbs = wellboreName(fieldName)
-#     index = fieldList.index(fieldName.upper())
-#     area = df['fldMainArea'].values[index]
-#     statusList = []
-#     return statusList
-
-def CSVProductionYearly(fieldName: str) -> str:
+def CSVProductionMonthly(fieldName: str) -> list:
     fieldList = fieldNames()
     if fieldName.upper() in fieldList:
-        csvURL = "https://hotell.difi.no/download/npd/field/production-yearly-by-field"
+        csvURL = "https://hotell.difi.no/download/npd/field/production-monthly-by-field"
         df = csvURLtoDF("monthlyProduction", csvURL)
         prfIC = df['prfInformationCarrier'].tolist()
         gas = df['prfPrdGasNetBillSm3'].tolist()
@@ -501,5 +487,23 @@ def CSVProductionYearly(fieldName: str) -> str:
         w = df['prfPrdProducedWaterInFieldMillSm3'].tolist()
         return gas
     raise ValueError("No field with name ", fieldName, " at NPD")
+
+
+def CSVProductionYearly(fieldName: str) -> list:
+    fieldList = fieldNames()
+    if fieldName.upper() in fieldList:
+        csvURL = "https://hotell.difi.no/download/npd/field/production-yearly-by-field"
+        df = csvURLtoDF("yearlyProduction", csvURL)
+        prfIC = df['prfInformationCarrier'].tolist()
+        gas = df['prfPrdGasNetBillSm3'].tolist()
+        NGL = df['prfPrdNGLNetMillSm3'].tolist()
+        oil = df['prfPrdOilNetMillSm3'].tolist()
+        cond = df['prfPrdCondensateNetMillSm3'].tolist()
+        Oe = df['prfPrdOeNetMillSm3'].tolist()
+        w = df['prfPrdProducedWaterInFieldMillSm3'].tolist()
+        return gas
+    raise ValueError("No field with name ", fieldName, " at NPD")
+
+
 
 
