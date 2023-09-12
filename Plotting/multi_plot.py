@@ -1,8 +1,7 @@
 import plotly.graph_objects as go
 def multi_plot(df, title, addAll = True):
     fig = go.Figure()
-    
-#    plotList = (list(df.columns))[0:1]
+
     for column in df.columns.to_list():
         fig.add_trace(
             go.Scatter(

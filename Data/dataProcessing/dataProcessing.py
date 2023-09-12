@@ -48,19 +48,17 @@ def estimatedReservoirPressure(TVD: float) -> float:
     return pressure
 
 
-def addActualProdtoPlot(field: str, df: DataFrame) ->DataFrame:
-    pmonth = get.CSVProductionYearly(field)
-    while pmonth[0] == 0:
-        pmonth.pop(0)
-    del pmonth[len(df):]
-    while len(df) != len(pmonth):
-        pmonth.append(0)
-    pmonth = [i*10**9/365 for i in pmonth]
-    df = df.assign(ActualProducedRatesSM3perday=pmonth)
+def addActualProdYtoPlot(field: str, df: DataFrame) ->DataFrame:
+    pyear = get.CSVProductionYearly(field)
+    while pyear[0] == 0:
+        pyear.pop(0)
+    del pyear[len(df):]
+    while len(df) != len(pyear):
+        pyear.append(0)
+    pyear = [i*10**9/365 for i in pyear] #should i consider adjusting for uptime?
+    df = df.assign(ActualProducedRatesSM3perday=pyear)
     return df
 
-def BillionYtodailySm3(v: float)->float:
-    return v*10**9/365 #uptime considerations?
 
 
 

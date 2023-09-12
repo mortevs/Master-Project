@@ -33,9 +33,9 @@ def IPRAnalysis(precision: str, field: str, file_id):
     df.columns=('QFieldTarget [sm3/d]', 'qWellTarget[sm3/d]', 'Reservoir pressure [bara]', 'Z-factor', ' Minimum bottomhole pressure [bara]', 'Potential rates per well [sm3/d]', 'Potential field rates [sm3/d]', 'Field rates [sm3/d]', 'Well production rates [sm3/d]', 'yearly gas offtake [sm3]', 'Cumulative gas offtake [sm3]', 'Recovery Factor', 'Bottomhole pressure [bara]')
     qFieldTarget = parameters[0]
     abandonmentRate = parameters[2]
-    
     df = swapColumns(df, 'QFieldTarget [sm3/d]', 'Field rates [sm3/d]')
-    df = dP.addActualProdtoPlot(field, df)
+    df = dP.addActualProdYtoPlot(field, df)
+    df2=df[['Field rates [sm3/d]', 'ActualProducedRatesSM3perday']].copy()
     ticker = 0
     for i in range (len(df.index)):
         if (df.iloc[i, 0] < qFieldTarget and ticker == 0):
@@ -44,9 +44,13 @@ def IPRAnalysis(precision: str, field: str, file_id):
         if (df.iloc[i, 0]) <= abandonmentRate:
             print ("Abandonment rates estimated to be reached in year ", i)
             multi_plot(df, title=precision + " IPR analysis")
+            multi_plot(df2, title=precision + " Nodal analysis")
+
             return df
         elif i == (df.shape[0]-1):
             multi_plot(df, title=precision + " IPR analysis")
+            multi_plot(df2, title=precision + " Nodal analysis")
+
             return df
      
 
