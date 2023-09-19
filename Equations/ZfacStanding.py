@@ -6,10 +6,7 @@ def ZfacStanding(p1: float, T1: float, gasMolecularWeight: float) ->float:
     T1 = Temperature [°F] or [°C],
     GasMolecularWeight = molecular weight of the gas at standard conditions (air=1)
     """
-    #Unit = If field units used (psia and °F): [1]. If Metric Units used (bara and °C): [2] 
-    #Unit check
-    #if unit not in valid:
-    #    raise ValueError('Zfacstanding unit must be one of %r' % valid)
+
         
     #Calculating Specific Gravity (air = 1) Yg
     massAir = 28.967 #g/mol (could use 28.967 instead)
@@ -21,12 +18,9 @@ def ZfacStanding(p1: float, T1: float, gasMolecularWeight: float) ->float:
     #Suttons suggestion for correlations for hydrocarbon gas mixtures
     Tpc = 169.2 + 349.5 * Yg - 74 * Yg**2
     Ppc = 756.8 - 131 * Yg - 3.6*Yg**2
-    #if unit == 2:
+
     T = 9/5 *T1 + 32
     p = 14.5038*p1
-    #else:
-        #T = T1
-        #p = p1
     
     #Calculating pseudo reduced properties
     Tpr = (T + 460) / Tpc
