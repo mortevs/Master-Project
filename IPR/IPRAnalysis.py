@@ -3,7 +3,7 @@ from Data.pullData import pullData
 from Data.ManualData import manualData
 import Data.dataProcessing.dataProcessing as dP 
 
-def IPRAnalysis(precision: str, field: str, file_id):
+def IPRAnalysis(precision: str, field:str = None):
     
     """
    
@@ -34,9 +34,11 @@ def IPRAnalysis(precision: str, field: str, file_id):
     qFieldTarget = parameters[0]
     abandonmentRate = parameters[2]
     df = swapColumns(df, 'QFieldTarget [sm3/d]', 'Field rates [sm3/d]')
-    df = dP.addActualProdYtoPlot(field, df)
-    df2=df[['Field rates [sm3/d]', 'ActualProducedRatesSM3perday']].copy()
     ticker = 0
+    if field != None:
+        df = dP.addActualProdYtoPlot(field, df)
+        df2=df[['Field rates [sm3/d]', 'ActualProducedRatesSM3perday']].copy()
+
     for i in range (len(df.index)):
         if (df.iloc[i, 0] < qFieldTarget and ticker == 0):
             print("Plateau length estimated to end in year ", i)
@@ -44,13 +46,14 @@ def IPRAnalysis(precision: str, field: str, file_id):
         if (df.iloc[i, 0]) <= abandonmentRate:
             print ("Abandonment rates estimated to be reached in year ", i)
             multi_plot(df, title=precision + " IPR analysis")
-            multi_plot(df2, title=precision + " Nodal analysis")
+            if field != None:
+                multi_plot(df2, title=precision + " IPR analysis")
 
             return df
         elif i == (df.shape[0]-1):
             multi_plot(df, title=precision + " IPR analysis")
-            multi_plot(df2, title=precision + " Nodal analysis")
-
+            if field != None:
+                multi_plot(df2, title=precision + " IPR analysis")
             return df
      
 

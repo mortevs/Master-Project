@@ -73,6 +73,16 @@ def CSVProductionYearly(fieldName: str) -> list:
         return gas
     raise ValueError("No field with name ", fieldName, " at NPD")
 
+def CSVProducedYears(fieldName: str) -> list:
+    fieldList = fieldNames()
+    if fieldName.upper() in fieldList:
+        csvURL = "https://hotell.difi.no/download/npd/field/production-yearly-by-field"
+        df = csvURLtoDF("yearlyProduction", csvURL)
+        df.drop(df[df['prfInformationCarrier'] != fieldName.upper()].index, inplace = True)
+        years = df['prfYear'].tolist()
+        return years
+    raise ValueError("No field with name ", fieldName, " at NPD")
+
 
 
 
