@@ -52,7 +52,6 @@ def CacheDiscovery(key: str) ->list:
 
 def CacheZip(key: str, zipFileUrl: str):
     if key in cacheZip:
-        print("great success")
         return cacheZip[key]
     zf = zipfile.ZipFile(wget.download(zipFileUrl)) 
     cacheZip[key] = zf
