@@ -37,6 +37,7 @@ def IPRAnalysis(precision: str, field:str = None):
     ticker = 0
     if field != None:
         df = dP.addActualProdYtoPlot(field, df)
+        df = dP.addProducedYears(field, df)
         df2=df[['Field rates [sm3/d]', 'ActualProducedRatesSM3perday']].copy()
 
     for i in range (len(df.index)):

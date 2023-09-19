@@ -29,6 +29,7 @@ def NodalAnalysis(precision: str, field:str = None):
     ticker = 0
     if field != None:
         df = dP.addActualProdYtoPlot(field, df)
+        df = dP.addProducedYears(field, df)
         df2=df[['Field rates [sm3/d]', 'ActualProducedRatesSM3perday']].copy()
     for i in range (df.shape[0]):
         if (df.iloc[i, 0] < qFieldTarget and ticker == 0):

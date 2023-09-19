@@ -40,6 +40,3 @@ def multi_plot(df, title, addAll = True):
     )
 
     fig.show()
-
-    
-

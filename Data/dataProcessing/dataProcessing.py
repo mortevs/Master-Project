@@ -59,6 +59,16 @@ def addActualProdYtoPlot(field: str, df: DataFrame) ->DataFrame:
     df = df.assign(ActualProducedRatesSM3perday=pyear)
     return df
 
+def addProducedYears(field: str, df: DataFrame) ->DataFrame:
+    sY = min(get.CSVProducedYears(field))
+    years = [sY]
+    i=1
+    while len(years) < len(df.iloc[:, 0]):
+        years.append(sY+i)
+        i+=1
+    df.index = years
+    return df
+
 
 
 
