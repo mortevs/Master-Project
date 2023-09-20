@@ -1,9 +1,8 @@
-from Plotting.multi_plot import multi_plot
-from Data.pullData import pullData
 from Data.ManualData import manualData
 import Data.getData as get 
-import Data.dataProcessing.dataProcessing as dP 
-
+import Data.dataProcessing.dataProcessing as dP
+import streamlit as st
+from Plotting.multi_plot import multi_plot
  
 def NodalAnalysis(precision: str, field:str = None):
     
@@ -31,21 +30,25 @@ def NodalAnalysis(precision: str, field:str = None):
         df = dP.addActualProdYtoPlot(field, df)
         df = dP.addProducedYears(field, df)
         df2=df[['Field rates [sm3/d]', 'ActualProducedRatesSM3perday']].copy()
-    for i in range (df.shape[0]):
-        if (df.iloc[i, 0] < qFieldTarget and ticker == 0):
-            print("Plateau length estimated to end in year ", i)
-            ticker = 1
-        if (df.iloc[i, 0]) <= abandonmentRate:
-            print ("Abandonment rates estimated to be reached in year ", i)
-            multi_plot(df, title=precision + " Nodal analysis")
-            if field != None:
-                multi_plot(df2, title=precision + " Nodal analysis")
+        multi_plot(df2, title=precision + " Nodal analysis")
+    multi_plot(df, title=precision + " Nodal analysis")
+    return df
 
-            return df  
-        elif i == (df.shape[0]-1):
-            multi_plot(df, title=precision + " Nodal analysis")
-            if field != None:
-                multi_plot(df2, title=precision + " Nodal analysis")
-            return df
+    # for i in range (df.shape[0]):
+    #     if (df.iloc[i, 0] < qFieldTarget and ticker == 0):
+    #         print("Plateau length estimated to end in year ", i)
+    #         ticker = 1
+    #     if (df.iloc[i, 0]) <= abandonmentRate:
+    #         print ("Abandonment rates estimated to be reached in year ", i)
+    #         #multi_plot(df, title=precision + " Nodal analysis")
+    #         #if field != None:
+    #             #multi_plot(df2, title=precision + " Nodal analysis")
+
+    #         return df  
+    #     elif i == (df.shape[0]-1):
+    #         #multi_plot(df, title=precision + " Nodal analysis")
+    #         #if field != None:
+    #             #multi_plot(df2, title=precision + " Nodal analysis")
+    #         return df
         
 

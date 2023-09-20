@@ -1,4 +1,5 @@
 import plotly.graph_objects as go
+import streamlit as st
 
 def multi_plot(df, title, addAll = True):
     fig = go.Figure()
@@ -39,4 +40,4 @@ def multi_plot(df, title, addAll = True):
         height=800
     )
 
-    fig.show()
+    st.plotly_chart(fig)

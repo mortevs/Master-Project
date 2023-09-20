@@ -1,5 +1,4 @@
 from Plotting.multi_plot import multi_plot
-from Data.pullData import pullData
 from Data.ManualData import manualData
 import Data.dataProcessing.dataProcessing as dP 
 

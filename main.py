@@ -1,7 +1,9 @@
 if __name__ == "__main__":
     
     from dryGasAnalysis.DryGasAnalysis import DryGasAnalysis
-    results = DryGasAnalysis(method = 'Nodal', field = 'snøhvit').runAnalysis()
+    df = DryGasAnalysis(method = 'Nodal', field = 'snøhvit').runAnalysis()
+
+    #streamlit._rerun(DryGasAnalysis(method = 'Nodal', field = 'snøhvit').runAnalysis())
     
     #file_name = 'productionProfile.xlsx'
     #results.to_excel(file_name)

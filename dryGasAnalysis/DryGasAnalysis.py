@@ -1,4 +1,3 @@
-
 def runAnalysis(method: str, precision: str, field:str):
     import warnings
     warnings.filterwarnings("ignore", category=DeprecationWarning)
