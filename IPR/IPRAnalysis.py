@@ -1,4 +1,4 @@
-from Plotting.multi_plot import multi_plot
+import Plotting.plotFunc as Plot
 from Data.ManualData import manualData
 import Data.dataProcessing.dataProcessing as dP 
 
@@ -38,23 +38,27 @@ def IPRAnalysis(precision: str, field:str = None):
         df = dP.addActualProdYtoPlot(field, df)
         df = dP.addProducedYears(field, df)
         df2=df[['Field rates [sm3/d]', 'ActualProducedRatesSM3perday']].copy()
+        Plot.multi_plot(df2, title=precision + " IPR analysis")
+    Plot.multi_plot(df, title=precision + " IPR analysis")
+    #Plot.display_table(list1, list2)
+    return df
 
-    for i in range (len(df.index)):
-        if (df.iloc[i, 0] < qFieldTarget and ticker == 0):
-            print("Plateau length estimated to end in year ", i)
-            ticker = 1
-        if (df.iloc[i, 0]) <= abandonmentRate:
-            print ("Abandonment rates estimated to be reached in year ", i)
-            multi_plot(df, title=precision + " IPR analysis")
-            if field != None:
-                multi_plot(df2, title=precision + " IPR analysis")
+    # for i in range (len(df.index)):
+    #     if (df.iloc[i, 0] < qFieldTarget and ticker == 0):
+    #         print("Plateau length estimated to end in year ", i)
+    #         ticker = 1
+    #     if (df.iloc[i, 0]) <= abandonmentRate:
+    #         print ("Abandonment rates estimated to be reached in year ", i)
+    #         multi_plot(df, title=precision + " IPR analysis")
+    #         if field != None:
+    #             multi_plot(df2, title=precision + " IPR analysis")
 
-            return df
-        elif i == (df.shape[0]-1):
-            multi_plot(df, title=precision + " IPR analysis")
-            if field != None:
-                multi_plot(df2, title=precision + " IPR analysis")
-            return df
+    #         return df
+    #     elif i == (df.shape[0]-1):
+    #         multi_plot(df, title=precision + " IPR analysis")
+    #         if field != None:
+    #             multi_plot(df2, title=precision + " IPR analysis")
+    #         return df
      
 
       

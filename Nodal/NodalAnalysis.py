@@ -2,7 +2,7 @@ from Data.ManualData import manualData
 import Data.getData as get 
 import Data.dataProcessing.dataProcessing as dP
 import streamlit as st
-from Plotting.multi_plot import multi_plot
+import Plotting.plotFunc as Plot
  
 def NodalAnalysis(precision: str, field:str = None):
     
@@ -30,8 +30,10 @@ def NodalAnalysis(precision: str, field:str = None):
         df = dP.addActualProdYtoPlot(field, df)
         df = dP.addProducedYears(field, df)
         df2=df[['Field rates [sm3/d]', 'ActualProducedRatesSM3perday']].copy()
-        multi_plot(df2, title=precision + " Nodal analysis")
-    multi_plot(df, title=precision + " Nodal analysis")
+        Plot.multi_plot(df2, title=precision + " Nodal analysis")
+    Plot.multi_plot(df, title=precision + " Nodal analysis")
+    list1= 'Field rates [sm3/d]', 'yearly gas of take [sm3]', 'cumulative gas of take [sm3]', 'Recovery Factor', 'Z-factor', 'Reservoir pressure [bara]', 'Rates per well [sm3/d]', 'Bottomhole pressure [bara]', 'Wellhead pressure [bara]', 'Template pressure [bara]', 'Pressure pipeline entry module [bara]', 'Seperator pressure [Bara]', 'Rates per template [sm3/d]', 'choke pressure [bara]', 'ratio PTemp to PWellHead', 'Production Potential rates [Sm3/d]' 
+    Plot.display_table(list1, parameters)
     return df
 
     # for i in range (df.shape[0]):

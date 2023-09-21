@@ -1,3 +1,4 @@
+import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
@@ -37,7 +38,18 @@ def multi_plot(df, title, addAll = True):
     # Update remaining layout properties
     fig.update_layout(
         title_text=title,
-        height=800
+        height=800,
+        width=1300
+    
     )
 
     st.plotly_chart(fig)
+def display_table(list1, list2):
+    # Create a DataFrame from the two lists
+    df_table = pd.DataFrame({
+        'Column1': list1,
+        'Column2': list2
+    })
+
+    # Display the DataFrame as a table in the sidebar
+    st.sidebar.table(df_table)
