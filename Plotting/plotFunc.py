@@ -53,9 +53,10 @@ def display_table(list1, list2):
 
     # Display the DataFrame as a table in the sidebar
     st.sidebar.table(df_table)
-def dropdown(options):
+def dropdown(options, index = 0)->str:
     # Define your list of options
     # Create the dropdown menu
-    selected_option = st.selectbox('Select an option:', options)
+    selected_option = st.selectbox('Select an option:', options, index)
     # Display the selected option
     st.write('You selected:', selected_option)
+    return selected_option

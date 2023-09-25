@@ -13,8 +13,6 @@ def IPRAnalysis(precision: str, field:str = None):
         from IPR.dfIPRImplicit import IPROnly
     elif precision.lower() == 'explicit':
         from IPR.dfIPRExplicit import IPROnly
-    else: 
-        raise ValueError('you chose ', precision, " precision, but the only options are implicit and explicit.")
     
     #if field.lower() == "manual data" or field.lower() == "manualdata":
     parameters = manualData()

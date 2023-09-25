@@ -1,7 +1,10 @@
 if __name__ == "__main__":
-    
+    import streamlit as st
     from dryGasAnalysis.DryGasAnalysis import DryGasAnalysis
-    df = DryGasAnalysis(method = 'Nodal', field = "Snøhvit").runAnalysis()
+    Analysis = DryGasAnalysis()
+    Analysis.updateFromDropdown()
+    Analysis.run()
+
 
     
     #file_name = 'productionProfile.xlsx'
