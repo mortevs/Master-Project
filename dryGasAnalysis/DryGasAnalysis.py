@@ -1,31 +1,34 @@
 class DryGasAnalysis:
+    import pandas as pd
     def __init__(self):
         import pandas as pd
         self.__result:pd.DataFrame = None
         self.__method = None
         self.__precision = None
+        self.__field = None
 
     def updateFromDropdown(self):
+        import Data.getData as get
         import Plotting.plotFunc as Plot
         self.__method=Plot.dropdown(['Nodal', 'IPR'])
         self.__precision=Plot.dropdown(['Implicit', 'Explicit'])
+        self.__field=Plot.dropdown(get.fieldNames(), index = 1)
 
     def run(self):
         if self.__method == 'IPR':
             from IPR.IPRAnalysis import IPRAnalysis
-            self.__result = IPRAnalysis(self.__precision, field = 'Snøhvit')
+            self.__result = IPRAnalysis(self.__precision, self.__field)
         else:
             from Nodal.NodalAnalysis import NodalAnalysis
-            self.__result = NodalAnalysis(self.__precision, field = 'Snøhvit')
+            self.__result = NodalAnalysis(self.__precision, self.__field)
 
             
 
-   
-    def getMethod(self):
+    def getMethod(self) -> str:
         return self.__method
-    def getPrecision(self):
+    def getPrecision(self) -> str:
         return self.__precision
-    def getResult(self):
+    def getResult(self) -> pd.DataFrame:
         return self.__result
 
             

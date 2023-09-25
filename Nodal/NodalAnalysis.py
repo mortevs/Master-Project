@@ -11,10 +11,10 @@ def NodalAnalysis(precision: str, field:str = None):
     precision = 'implicit' or 'explicit' and field. The implicit method is more accurate, but may fail due to root-finding problems. 
    
     """
-    if precision.lower() == 'implicit':
-        from Nodal.dfNodalImplicit import Nodal
-    elif precision.lower() == 'explicit':
+    if precision == 'Explicit':
         from Nodal.dfNodalExplicit import Nodal
+    else:
+        from Nodal.dfNodalImplicit import Nodal
 
     #Plot.dropdown(['Nodal', 'IPR'])
     #Plot.dropdown(['Implicit', 'Explicit'])
