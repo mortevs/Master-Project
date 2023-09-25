@@ -17,6 +17,9 @@ def NodalAnalysis(precision: str, field:str = None):
         from Nodal.dfNodalExplicit import Nodal
     else: 
         raise ValueError('you chose ', precision, " precision, but the only options are implicit and explicit.")  
+    Plot.dropdown(['Nodal', 'IPR'])
+    Plot.dropdown(['Implicit', 'Explicit'])
+    Plot.dropdown(get.fieldNames())
     #if field.lower() == "manual data" or field.lower() == "manualdata":
     parameters = manualData()
     #elif file_id is None:
@@ -32,8 +35,8 @@ def NodalAnalysis(precision: str, field:str = None):
         df2=df[['Field rates [sm3/d]', 'ActualProducedRatesSM3perday']].copy()
         Plot.multi_plot(df2, title=precision + " Nodal analysis")
     Plot.multi_plot(df, title=precision + " Nodal analysis")
-    list1= 'Field rates [sm3/d]', 'yearly gas of take [sm3]', 'cumulative gas of take [sm3]', 'Recovery Factor', 'Z-factor', 'Reservoir pressure [bara]', 'Rates per well [sm3/d]', 'Bottomhole pressure [bara]', 'Wellhead pressure [bara]', 'Template pressure [bara]', 'Pressure pipeline entry module [bara]', 'Seperator pressure [Bara]', 'Rates per template [sm3/d]', 'choke pressure [bara]', 'ratio PTemp to PWellHead', 'Production Potential rates [Sm3/d]' 
-    Plot.display_table(list1, parameters)
+    list1=['qFieldTarget', 'PRi', 'abandonmentRate', 'TR', 'gasMolecularWeight', 'C_R', 'n', 'N_temp', 'NWellsPerTemplate', 'upTime', 'C_t', 'S', 'C_FL', 'C_PL', 'P_sep', 'IGIP']
+    Plot.display_table(list1, manualData())
     return df
 
     # for i in range (df.shape[0]):

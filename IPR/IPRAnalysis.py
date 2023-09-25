@@ -40,8 +40,10 @@ def IPRAnalysis(precision: str, field:str = None):
         df2=df[['Field rates [sm3/d]', 'ActualProducedRatesSM3perday']].copy()
         Plot.multi_plot(df2, title=precision + " IPR analysis")
     Plot.multi_plot(df, title=precision + " IPR analysis")
-    #Plot.display_table(list1, list2)
+    list1=['qFieldTarget', 'PRi', 'abandonmentRate', 'TR', 'gasMolecularWeight', 'C_R', 'n', 'N_temp', 'NWellsPerTemplate', 'upTime', 'C_t', 'S', 'C_FL', 'C_PL', 'P_sep', 'IGIP']
+    Plot.display_table(list1, manualData())
     return df
+
 
     # for i in range (len(df.index)):
     #     if (df.iloc[i, 0] < qFieldTarget and ticker == 0):

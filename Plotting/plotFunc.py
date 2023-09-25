@@ -47,9 +47,15 @@ def multi_plot(df, title, addAll = True):
 def display_table(list1, list2):
     # Create a DataFrame from the two lists
     df_table = pd.DataFrame({
-        'Column1': list1,
-        'Column2': list2
+        'Input': list1,
+        'Value': list2
     })
 
     # Display the DataFrame as a table in the sidebar
     st.sidebar.table(df_table)
+def dropdown(options):
+    # Define your list of options
+    # Create the dropdown menu
+    selected_option = st.selectbox('Select an option:', options)
+    # Display the selected option
+    st.write('You selected:', selected_option)
