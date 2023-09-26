@@ -13,7 +13,15 @@ def fieldNames():
     else:
         df = loadDict("fldArea")
     CacheDF(df, "fldArea")
-    return (list(df["fldName"]))
+    
+    # Get the list of field names
+    field_names = list(df["fldName"])
+    
+    # Add 'NO FIELD CHOSEN' at the beginning of the list
+    field_names.insert(0, 'NO FIELD CHOSEN')
+    
+    return field_names
+
 
 def fieldStatus(fieldName: str) -> str:
     fieldList = fieldNames()

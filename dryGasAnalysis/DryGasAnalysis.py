@@ -8,11 +8,12 @@ class DryGasAnalysis:
         self.__field = None
 
     def updateFromDropdown(self):
+        
         import Data.getData as get
         import Plotting.plotFunc as Plot
         self.__method=Plot.dropdown(['Nodal', 'IPR'])
         self.__precision=Plot.dropdown(['Implicit', 'Explicit'])
-        self.__field=Plot.dropdown(get.fieldNames(), index = 1)
+        self.__field=Plot.dropdown(get.fieldNames())
 
     def run(self):
         if self.__method == 'IPR':
