@@ -16,10 +16,6 @@ def NodalAnalysis(precision: str, field:str = None):
     else:
         from Nodal.dfNodalImplicit import Nodal
 
-    #Plot.dropdown(['Nodal', 'IPR'])
-    #Plot.dropdown(['Implicit', 'Explicit'])
-    #Plot.dropdown(get.fieldNames())
-
     parameters = manualData()
 
     df = Nodal(*parameters)
@@ -31,8 +27,8 @@ def NodalAnalysis(precision: str, field:str = None):
         df = dP.addActualProdYtoPlot(field, df)
         df = dP.addProducedYears(field, df)
         df2=df[['Field rates [sm3/d]', 'ActualProducedRatesSM3perday']].copy()
-        Plot.multi_plot(df2, title=precision + " Nodal analysis")
-    Plot.multi_plot(df, title=precision + " Nodal analysis")
+        Plot.multi_plot(df2)
+    Plot.multi_plot(df)
     list1=['qFieldTarget', 'PRi', 'abandonmentRate', 'TR', 'gasMolecularWeight', 'C_R', 'n', 'N_temp', 'NWellsPerTemplate', 'upTime', 'C_t', 'S', 'C_FL', 'C_PL', 'P_sep', 'IGIP']
     Plot.display_table(list1, manualData())
     return df

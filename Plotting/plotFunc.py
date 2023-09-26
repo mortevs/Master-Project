@@ -2,7 +2,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
-def multi_plot(df, title, addAll = True):
+def multi_plot(df, addAll = True):
     fig = go.Figure()
 
     for column in df.columns.to_list():
@@ -37,9 +37,8 @@ def multi_plot(df, title, addAll = True):
 
     # Update remaining layout properties
     fig.update_layout(
-        title_text=title,
-        height=800,
-        width=1300
+        height=700,
+        width=1200
     
     )
 
@@ -54,9 +53,18 @@ def display_table(list1, list2):
     # Display the DataFrame as a table in the sidebar
     st.sidebar.table(df_table)
 def dropdown(options, index = 0)->str:
-    # Define your list of options
-    # Create the dropdown menu
-    selected_option = st.selectbox('Select an option:', options, index)
-    # Display the selected option
-    st.write('You selected:', selected_option)
+    selected_option = st.selectbox(' ', options, index, label_visibility='collapsed')
     return selected_option
+
+def columnDisplay(list1:list, list2:list):
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        selected_option1 = dropdown(list2[0])
+
+    with col2:
+        selected_option2 = dropdown(list2[1])
+
+    with col3:
+        selected_option3 = dropdown(list2[2])
+    return selected_option1, selected_option2, selected_option3

@@ -2,6 +2,7 @@ if __name__ == "__main__":
     import streamlit as st
     from dryGasAnalysis.DryGasAnalysis import DryGasAnalysis
     Analysis = DryGasAnalysis()
+    st.title('Production profile modelling')
     Analysis.updateFromDropdown()
     Analysis.run()
 
