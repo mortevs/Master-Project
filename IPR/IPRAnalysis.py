@@ -25,7 +25,7 @@ def IPRAnalysis(precision: str, field:str = None):
         df = dP.addProducedYears(field, df)
         df2=df[['Field rates [sm3/d]', 'ActualProducedRatesSM3perday']].copy()
         Plot.multi_plot(df2)
-    Plot.multi_plot(df)
+    Plot.multi_plot(df, addAll=False)
     list1=['qFieldTarget', 'PRi', 'abandonmentRate', 'TR', 'gasMolecularWeight', 'C_R', 'n', 'N_temp', 'NWellsPerTemplate', 'upTime', 'C_t', 'S', 'C_FL', 'C_PL', 'P_sep', 'IGIP']
     Plot.display_table(list1, manualData())
     return df
