@@ -2,6 +2,7 @@ class DryGasAnalysis:
     import pandas as pd
     def __init__(self):
         import pandas as pd
+        self.__inputs:list = None
         self.__result:pd.DataFrame = None
         self.__method = None
         self.__precision = None

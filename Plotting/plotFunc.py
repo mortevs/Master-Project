@@ -51,19 +51,22 @@ def display_table(list1, list2):
         'Input': list1,
         'Value': list2
     })
-    edited_df = st.data_editor(df_table)
+    #edited_df = st.data_editor(df_table)
 
-    # Display the DataFrame as a table in the sidebar
-    st.sidebar.table(edited_df)
-    # row_to_edit = st.number_input('Name of the input you want to edit:', min_value=0, max_value=len(df_table)-1)
-    #     # Allow the user to enter new values
-    # new_value = st.text_input('Enter new Value:')
+    #Display the DataFrame as a table in the sidebar
+    #st.sidebar.table(edited_df)
+    st.sidebar.table(df_table)
 
-    # # Update the DataFrame if the user clicks the 'Update' button
-    # if st.button('Update'):
-    #     df_table.loc[row_to_edit, 'Value'] = new_value
-    #     # Display the updated DataFrame
-    #     st.sidebar.table(df_table)
+    row_to_edit = st.number_input('Row number of the input you want to edit:', min_value=0, max_value=len(df_table)-1)
+        # Allow the user to enter new values
+    new_value = st.number_input('Enter new value:')
+
+    # Update the DataFrame if the user clicks the 'Update' button
+    if st.button('Update'):
+        df_table.loc[row_to_edit, 'Value'] = new_value
+        # Display the updated DataFrame
+        st.sidebar.table(df_table)
+        
 
 def dropdown(label:str = ' ', options: list = None, index:int = 0, labelVisibility: str ='collapsed') ->str:
     selected_option = st.selectbox(label, options, index, label_visibility=labelVisibility)
