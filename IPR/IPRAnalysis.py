@@ -2,12 +2,11 @@ import Plotting.plotFunc as Plot
 from Data.ManualData import manualData
 import Data.dataProcessing.dataProcessing as dP 
 
-def IPRAnalysis(precision: str, field:str = None):
+def IPRAnalysis(precision: str, field:str = None, parameters: list = manualData()):
     if precision == 'Explicit':
         from IPR.dfIPRExplicit import IPROnly
     else: 
         from IPR.dfIPRImplicit import IPROnly
-    parameters = manualData()   
     def swapColumns(df, col1, col2):
         col_list = list(df.columns)
         x, y = col_list.index(col1), col_list.index(col2)
@@ -16,18 +15,16 @@ def IPRAnalysis(precision: str, field:str = None):
         return df
     df = IPROnly(*parameters)
     df.columns=('QFieldTarget [sm3/d]', 'qWellTarget[sm3/d]', 'Reservoir pressure [bara]', 'Z-factor', ' Minimum bottomhole pressure [bara]', 'Potential rates per well [sm3/d]', 'Potential field rates [sm3/d]', 'Field rates [sm3/d]', 'Well production rates [sm3/d]', 'yearly gas offtake [sm3]', 'Cumulative gas offtake [sm3]', 'Recovery Factor', 'Bottomhole pressure [bara]')
-    qFieldTarget = parameters[0]
-    abandonmentRate = parameters[2]
     df = swapColumns(df, 'QFieldTarget [sm3/d]', 'Field rates [sm3/d]')
     ticker = 0
     if field != 'NO FIELD CHOSEN':
         df = dP.addActualProdYtoPlot(field, df)
         df = dP.addProducedYears(field, df)
-        df2=df[['Field rates [sm3/d]', 'ActualProducedRatesSM3perday']].copy()
+        df2=df[['Field rates [sm3/d]', 'gasSM3perday', 'oilSM3perday', 'condensateSM3perday', 'OilEquivalentsSM3perday', 'WaterSM3perday']].copy()
         Plot.multi_plot(df2)
     Plot.multi_plot(df, addAll=False)
     list1=['qFieldTarget', 'PRi', 'abandonmentRate', 'TR', 'gasMolecularWeight', 'C_R', 'n', 'N_temp', 'NWellsPerTemplate', 'upTime', 'C_t', 'S', 'C_FL', 'C_PL', 'P_sep', 'IGIP']
-    Plot.display_table(list1, manualData())
+    Plot.display_table(list1, manualData(), method = 'IPR', precision = precision)
     return df
 
 

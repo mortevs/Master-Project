@@ -24,8 +24,6 @@ class DryGasAnalysis:
             from Nodal.NodalAnalysis import NodalAnalysis
             self.__result = NodalAnalysis(self.__precision, self.__field)
 
-            
-
     def getMethod(self) -> str:
         return self.__method
     def getPrecision(self) -> str:

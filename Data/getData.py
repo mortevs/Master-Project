@@ -70,12 +70,12 @@ def CSVProductionYearly(fieldName: str) -> list:
         df = csvURLtoDF("yearlyProduction", csvURL)
         df.drop(df[df['prfInformationCarrier'] != fieldName.upper()].index, inplace = True)
         gas = df['prfPrdGasNetBillSm3'].tolist()
-        # NGL = df['prfPrdNGLNetMillSm3'].tolist()
-        # oil = df['prfPrdOilNetMillSm3'].tolist()
-        # cond = df['prfPrdCondensateNetMillSm3'].tolist()
-        # Oe = df['prfPrdOeNetMillSm3'].tolist()
-        # w = df['prfPrdProducedWaterInFieldMillSm3'].tolist()
-        return gas
+        NGL = df['prfPrdNGLNetMillSm3'].tolist()
+        oil = df['prfPrdOilNetMillSm3'].tolist()
+        cond = df['prfPrdCondensateNetMillSm3'].tolist()
+        Oe = df['prfPrdOeNetMillSm3'].tolist()
+        w = df['prfPrdProducedWaterInFieldMillSm3'].tolist()
+        return gas, NGL, oil, cond, Oe, w
     raise ValueError("No field with name ", fieldName, " at NPD")
 
 def CSVProducedYears(fieldName: str) -> list:

@@ -49,14 +49,57 @@ def estimatedReservoirPressure(TVD: float) -> float:
 
 
 def addActualProdYtoPlot(field: str, df: DataFrame) ->DataFrame:
-    pyear = get.CSVProductionYearly(field)
-    while pyear[0] == 0:
-        pyear.pop(0)
-    del pyear[len(df):]
-    while len(df) != len(pyear):
-        pyear.append(0)
-    pyear = [i*10**9/365 for i in pyear] #should i consider adjusting for uptime?
-    df = df.assign(ActualProducedRatesSM3perday=pyear)
+    
+    gas, NGL, oil, cond, Oe, w = get.CSVProductionYearly(field)
+    # while gas[0] == 0:
+    #     gas.pop(0)
+    # del gas[len(df):]
+    while len(df) != len(gas):
+        gas.append(0)
+
+    # while NGL[0] == 0:
+    #     NGL.pop(0)
+    # del NGL[len(df):]
+    while len(df) != len(NGL):
+        NGL.append(0)
+
+    # while oil[0] == 0 or not oil:
+    #     oil.pop(0)
+    # del oil[len(df):]
+    while len(df) != len(oil):
+        oil.append(0)
+    
+    # while cond[0] == 0:
+    #     cond.pop(0)
+    # del cond[len(df):]
+    while len(df) != len(cond):
+        cond.append(0)
+
+    # while Oe[0] == 0:
+    #     Oe.pop(0)
+    # del Oe[len(df):]
+    while len(df) != len(Oe):
+        Oe.append(0)
+    
+    # while w[0] == 0:
+    #     w.pop(0)
+    # del w[len(df):]
+    while len(df) != len(w):
+        w.append(0)
+    
+    #should i consider adjusting for uptime?
+    gas = [i*10**9/365 for i in gas] #prfPrdGasNetBillSm3
+    NGL = [i*10**6/365 for i in NGL] #prfPrdOilNetMillSm3
+    oil = [i*10**6/365 for i in oil] #prfPrdCondensateNetMillSm3
+    cond = [i*10**6/365 for i in cond] #prfPrdOeNetMillSm3
+    Oe = [i*10**6/365 for i in Oe] #prfPrdOeNetMillSm3
+    w = [i*10**6/365 for i in w] #prfPrdProducedWaterInFieldMillSm3
+    df = df.assign(gasSM3perday=gas)
+    df = df.assign(NGLSM3perday=NGL)
+    df = df.assign(oilSM3perday=oil)
+    df = df.assign(condensateSM3perday=cond)
+    df = df.assign(OilEquivalentsSM3perday=Oe)
+    df = df.assign(WaterSM3perday=w)
     return df
 
 def addProducedYears(field: str, df: DataFrame) ->DataFrame:

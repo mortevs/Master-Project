@@ -11,7 +11,7 @@ def multi_plot(df, addAll = True):
                 x = df.index,
                 y = df[column],
                 name = column,
-                visible = True if column == df.columns[0] else 'legendonly'  # Change visibility here
+                visible = 'legendonly' if not addAll and column != df.columns[0] else True  # Change visibility here
             )
         )
 
@@ -34,18 +34,19 @@ def multi_plot(df, addAll = True):
             buttons = ([button_all] * addAll) + list(df.columns.map(lambda column: create_layout_button(column)))
             )
         ],
-        showlegend=addAll  # Change showlegend here
+        showlegend=addAll,  # Change showlegend here
+        xaxis_title="Year",  # X-axis title
+        yaxis_title="Cubic meter per day"  # Y-axis title
     )
 
     # Update remaining layout properties
     fig.update_layout(
-        height=700,
-        width=1200
+        height=600,
+        width=1000
     
     )
     st.plotly_chart(fig)
-
-def display_table(list1, list2):
+def display_table(list1, list2, method:str = 'NODAL', precision:str = 'IMPLICIT') ->list:
     # Create a DataFrame from the two lists
     df_table = pd.DataFrame({
         'Input': list1,
@@ -63,10 +64,15 @@ def display_table(list1, list2):
 
     # Update the DataFrame if the user clicks the 'Update' button
     if st.button('Update'):
+        from dryGasAnalysis.DryGasAnalysis import DryGasAnalysis
         df_table.loc[row_to_edit, 'Value'] = new_value
         # Display the updated DataFrame
         st.sidebar.table(df_table)
-        
+        parameters = df_table.iloc[:, 1].tolist()
+        return parameters
+    return False
+
+
 
 def dropdown(label:str = ' ', options: list = None, index:int = 0, labelVisibility: str ='collapsed') ->str:
     selected_option = st.selectbox(label, options, index, label_visibility=labelVisibility)
