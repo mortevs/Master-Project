@@ -25,7 +25,6 @@ def IPRpwf(C_R:float, n:float, p_R:float, q_g:float) -> float:
 
 def Tubingqg(C_T:float, s:float, p1:float, p2:float) -> float:
     import math
-
     """
     Returns gas rate tubingline.
     C_T = tubing coefficient [sm3/bar],
