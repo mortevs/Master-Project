@@ -22,7 +22,6 @@ def IPRpwf(C_R:float, n:float, p_R:float, q_g:float) -> float:
     IPRpwf=(p_R**2-(q_g/C_R)**(1/n))**0.5
     return IPRpwf
 
-
 def Tubingqg(C_T:float, s:float, p1:float, p2:float) -> float:
     import math
     """
