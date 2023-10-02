@@ -7,12 +7,16 @@ if __name__ == "__main__":
         Analysis = DryGasAnalysis()
         st.title('Production profile modelling')
         Analysis.updateFromDropdown()
-        Analysis.run()
     elif opt == 'PRODUCTION FORECASTING':
         None
     elif opt == 'RESERVOIR PRESSURE FROM PRODUCTION DATA':
-        
-        None
+        from ReservoirPressureAnalysis.dryGasRPAnalysis import ReservoirPressureAnalysis
+        from Data.StreamlitUpload import upload 
+        st.title('Reservoir pressure modelling')
+        upload(text = "Upload a CSV file / Excel file with the following format or choose field from dropdown menu below") 
+        Analysis = ReservoirPressureAnalysis()
+        Analysis.updateFromDropdown()
+        Analysis.run()
     elif opt == 'IPR TUNING':
         None
     elif opt == 'TPR TUNING':

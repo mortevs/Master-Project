@@ -46,7 +46,7 @@ def multi_plot(df, addAll = True):
     
     )
     st.plotly_chart(fig)
-def display_table(list1, list2, method:str = 'NODAL', precision:str = 'IMPLICIT') ->list:
+def display_table(list1, list2, method:str = 'NODAL', precision:str = 'IMPLICIT', type = 'sidebar') ->list:
     # Create a DataFrame from the two lists
     df_table = pd.DataFrame({
         'Input': list1,
@@ -56,7 +56,11 @@ def display_table(list1, list2, method:str = 'NODAL', precision:str = 'IMPLICIT'
 
     #Display the DataFrame as a table in the sidebar
     #st.sidebar.table(edited_df)
-    st.sidebar.table(df_table)
+    if type == 'sidebar':
+        st.sidebar.table(df_table)
+    else:
+        st.table(df_table)
+    
 
     row_to_edit = st.number_input('Row number of the input you want to edit:', min_value=0, max_value=len(df_table)-1)
         # Allow the user to enter new values
