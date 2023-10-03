@@ -48,7 +48,7 @@ def fldMainSupplyBase(fieldName: str) -> str:
         return base
     raise ValueError("No field with name ", fieldName, " at NPD")
 
-def CSVProductionMonthly(fieldName: str) -> list:
+def CSVProductionMonthly(fieldName: str):
     fieldList = fieldNames()
     if fieldName.upper() in fieldList:
         csvURL = "https://hotell.difi.no/download/npd/field/production-monthly-by-field"
@@ -60,10 +60,10 @@ def CSVProductionMonthly(fieldName: str) -> list:
         cond = df['prfPrdCondensateNetMillSm3'].tolist()
         Oe = df['prfPrdOeNetMillSm3'].tolist()
         w = df['prfPrdProducedWaterInFieldMillSm3'].tolist()
-        return gas
+        return gas, NGL, oil, cond, Oe, w
     raise ValueError("No field with name ", fieldName, " at NPD")
 
-def CSVProductionYearly(fieldName: str) -> list:
+def CSVProductionYearly(fieldName: str):
     fieldList = fieldNames()
     if fieldName.upper() in fieldList:
         csvURL = "https://hotell.difi.no/download/npd/field/production-yearly-by-field"

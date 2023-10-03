@@ -15,7 +15,6 @@ class DryGasAnalysis:
         fieldnames.insert(0, 'NO FIELD CHOSEN')
         self.__method, self.__precision, self.__field = Plot.columnDisplay(list1=[['NODAL', 'IPR'],['IMPLICIT', 'EXPLICIT'], fieldnames])
 
-
     def run(self):
         if self.__method == 'IPR':
             from IPR.IPRAnalysis import IPRAnalysis

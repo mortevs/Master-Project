@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 from io import StringIO
-def upload(text ='Upload a file')->None:
+def upload(text ='Upload a file')->pd.DataFrame:
     uploaded_file = st.file_uploader(text)
     if uploaded_file is not None:
         # To read file as bytes:
@@ -18,4 +18,4 @@ def upload(text ='Upload a file')->None:
 
         # Can be used wherever a "file-like" object is accepted:
         dataframe = pd.read_csv(uploaded_file)
-        st.write(dataframe)
+        return dataframe
