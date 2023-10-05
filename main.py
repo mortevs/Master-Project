@@ -1,4 +1,11 @@
 if __name__ == "__main__":
+    import os as os
+    if os.path.exists("savedDictionary.bak"):
+        os.remove("savedDictionary.bak")
+    if os.path.exists("savedDictionary.dat"):
+        os.remove("savedDictionary.dat")
+    if os.path.exists("savedDictionary.dir"):
+        os.remove("savedDictionary.dir")
     import streamlit as st
     import Plotting.plotFunc as Plot
     opt = Plot.dropdown(label = 'What do you want to use the application for?',options = ['NO OPTION CHOSEN', 'FIELD DEVELOPMENT', 'PRODUCTION FORECASTING', 'RESERVOIR PRESSURE FROM PRODUCTION DATA', 'IPR TUNING', 'TPR TUNING'], labelVisibility='visible')
