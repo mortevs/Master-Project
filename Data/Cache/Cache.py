@@ -13,20 +13,19 @@ cacheZip = dict()
 cacheCSV = dict()
 cacheDF = dict()
 
-def CacheZip(key: str, zipFileUrl: str):
+def CacheZip(key: str, zipFileUrl: str)->zipfile:
     if key in cacheZip:
         return cacheZip[key]
     zf = zipfile.ZipFile(wget.download(zipFileUrl)) 
     cacheZip[key] = zf
     return cacheZip[key] 
 
-def csvURLtoDF(key: str, csvURL: str) ->pd.DataFrame:
+def csvURLtoDF(csvURL: str) ->pd.DataFrame:
     df = pd.read_csv((csvURL), sep = ";", low_memory=False)
     return df
 
-def CacheDF(df: pd.DataFrame, key: str) ->pd.DataFrame:
+def CacheDF(df:None, key: str)->pd.DataFrame:
     if checkKeyinDict(key) == 0:
-        df = gd.ZiptoDF(zipFileUrl = "https://factpages.npd.no/downloads/csv/fldArea.zip")
         dumpDict(df, key)
     loaded = loadDict(key)
     return loaded

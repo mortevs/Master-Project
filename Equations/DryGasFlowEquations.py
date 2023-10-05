@@ -22,6 +22,19 @@ def IPRpwf(C_R:float, n:float, p_R:float, q_g:float) -> float:
     IPRpwf=(p_R**2-(q_g/C_R)**(1/n))**0.5
     return IPRpwf
 
+def IPR_PR(C_R:float, n:float, p_wf:float, q_g:float) -> float:
+    """
+    Returns reservoir pressure. Equation based on IPR equation solved for P_R with Pwf as input
+    pressure upstream wf (reservoir pressure) (moving counter stream from 2 to 1).
+.
+    C_R = backpressure coefficient [sm^3/bar^(2*n)], 
+    n = Backpressure exponent (typically assumed 1),
+    p_wf = pressure bottomhole well, wellflow [bar].
+    p_R = reservoir pressure [bar],
+    """
+    P_R=(p_wf**2+(q_g/C_R)**(1/n))**0.5
+    return P_R
+
 def Tubingqg(C_T:float, s:float, p1:float, p2:float) -> float:
     import math
     """
