@@ -53,3 +53,8 @@ def loadDict(name: str) ->dict:
     d.close()
     return dict
     
+def delete_files(files_to_delete = ["savedDictionary.bak", "savedDictionary.dat", "savedDictionary.dir"]):
+    import os
+    for file in files_to_delete:
+        if os.path.exists(file):
+            os.remove(file)

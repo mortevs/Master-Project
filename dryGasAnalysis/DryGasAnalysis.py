@@ -9,8 +9,7 @@ class DryGasAnalysis:
         self.__field = None
 
     def updateFromDropdown(self):
-        import Data.getData as get
-        import Plotting.plotFunc as Plot
+        import Data.getData as get, Plotting.plotFunc as Plot
         fieldnames = get.fieldNames()
         fieldnames.insert(0, 'NO FIELD CHOSEN')
         self.__method, self.__precision, self.__field = Plot.columnDisplay(list1=[['NODAL', 'IPR'],['IMPLICIT', 'EXPLICIT'], fieldnames])
@@ -31,16 +30,7 @@ class DryGasAnalysis:
         return self.__result
 
             
-            
-
-                    # import warnings
-        # warnings.filterwarnings("ignore", category=DeprecationWarning)
-        # """
-        # Runs dry gas field analysis provided method, precision and field.
-        # method = IPR or Nodal, precision = implicit or explicit. Implicit has higher precision, but may fail due to error in root-finding. 
-        # field = field with data avaiable at NPD. 
         
-        # """ 
 
 
     

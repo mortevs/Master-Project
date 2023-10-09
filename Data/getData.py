@@ -1,11 +1,12 @@
-from Data.Cache.Cache import *
-def ZiptoDF(zipFileUrl):
-    import os
-    #zf = CacheZip('fldArea', zipFileUrl) 
-    zf = zipfile.ZipFile(wget.download(zipFileUrl)) 
+import Data.getData as gd, zipfile, wget, Data.Cache.Cache as c,os
+
+def ZiptoDF(zipname = 'fldArea.zip', zipFileUrl=None):
+    import pandas as pd, Data.getData as gd, zipfile, wget, Data.Cache.Cache as c,os    #zf = CacheZip('fldArea', zipFileUrl) 
+    zf=zipfile.ZipFile(zipname)
+    if os.path.exists(zipname) == False:
+        zf = zipfile.ZipFile(wget.download(zipFileUrl)) 
     df = pd.read_csv(zf.open(zf.namelist()[0]))
     zf.close()
-    os.remove('fldArea.zip')
     return df
 
 def fieldNames():
@@ -13,18 +14,22 @@ def fieldNames():
     Returns a list with all fieldnames listed at NPD
     """
     df=None
-    if checkKeyinDict("fldArea") == 0:
+    import pandas as pd, Data.getData as gd, zipfile, wget, Data.Cache.Cache as c,os    #zf = CacheZip('fldArea', zipFileUrl) 
+    if c.checkKeyinDict("fldArea") == 0:
         df = gd.ZiptoDF(zipFileUrl = "https://factpages.npd.no/downloads/csv/fldArea.zip")
-    df = CacheDF(df, "fldArea")
+    import streamlit as st
+    df = c.CacheDF(df, "fldArea")
     field_names = list(df["fldName"])
     return field_names
 
 def CSVProductionMonthly(fieldName: str):
     df = None
-    if checkKeyinDict("monthlyProduction") == 0:
+    import pandas as pd, Data.getData as gd, zipfile, wget, Data.Cache.Cache as c,os    
+
+    if c.checkKeyinDict("monthlyProduction") == 0:
         csvURL = "https://hotell.difi.no/download/npd/field/production-monthly-by-field"
-        df = csvURLtoDF(csvURL)
-    df = CacheDF(df, 'monthlyProduction')  
+        df = c.csvURLtoDF(csvURL)
+    df = c.CacheDF(df, 'monthlyProduction')  
     df.drop(df[df['prfInformationCarrier'] != fieldName.upper()].index, inplace = True)
     gas = df['prfPrdGasNetBillSm3'].tolist()
     NGL = df['prfPrdNGLNetMillSm3'].tolist()
@@ -35,11 +40,12 @@ def CSVProductionMonthly(fieldName: str):
     return gas, NGL, oil, cond, Oe, w
 
 def CSVProductionYearly(fieldName: str):
+    import pandas as pd, Data.getData as gd, zipfile, wget, Data.Cache.Cache as c,os    
     df = None
-    if checkKeyinDict("yearlyProduction") == 0:
+    if c.checkKeyinDict("yearlyProduction") == 0:
         csvURL = "https://hotell.difi.no/download/npd/field/production-yearly-by-field"
-        df = csvURLtoDF(csvURL)
-    df = CacheDF(df, 'yearlyProduction')  
+        df = c.csvURLtoDF(csvURL)
+    df = c.CacheDF(df, 'yearlyProduction')  
     df.drop(df[df['prfInformationCarrier'] != fieldName.upper()].index, inplace = True)
     gas = df['prfPrdGasNetBillSm3'].tolist()
     NGL = df['prfPrdNGLNetMillSm3'].tolist()
@@ -51,20 +57,22 @@ def CSVProductionYearly(fieldName: str):
 
 def CSVProducedYears(fieldName: str) -> list:
     df = None
-    if checkKeyinDict("yearlyProduction") == 0:
+    import pandas as pd, Data.getData as gd, zipfile, wget, Data.Cache.Cache as c,os    #zf = CacheZip('fldArea', zipFileUrl) 
+    if c.checkKeyinDict("yearlyProduction") == 0:
         csvURL = "https://hotell.difi.no/download/npd/field/production-yearly-by-field"
-        df = csvURLtoDF(csvURL)
-    df = CacheDF(df, "yearlyProduction")
+        df = c.csvURLtoDF(csvURL)
+    df = c.CacheDF(df, "yearlyProduction")
     df.drop(df[df['prfInformationCarrier'] != fieldName.upper()].index, inplace = True)
     years = df['prfYear'].tolist()
     return years
 
 def CSVProducedMonths(fieldName: str) -> list:
     df = None
-    if checkKeyinDict("monthlyProduction") == 0:
+    import pandas as pd, Data.getData as gd, zipfile, wget, Data.Cache.Cache as c,os    #zf = CacheZip('fldArea', zipFileUrl) 
+    if c.checkKeyinDict("monthlyProduction") == 0:
         csvURL = "https://hotell.difi.no/download/npd/field/production-monthly-by-field"
-        df = csvURLtoDF(csvURL)
-    df = CacheDF(df, "monthlyProduction")
+        df = c.csvURLtoDF(csvURL)
+    df = c.CacheDF(df, "monthlyProduction")
     df.drop(df[df['prfInformationCarrier'] != fieldName.upper()].index, inplace = True)
     years = df['prfYear'].tolist()
     months = df['prfMonth'].tolist()

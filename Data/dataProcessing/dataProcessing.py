@@ -48,7 +48,7 @@ def estimatedReservoirPressure(TVD: float) -> float:
     return pressure
 
 
-def addActualProdYtoPlot(field: str, df: DataFrame,  adjustLength = True) ->DataFrame:
+def addActualProdYtoDF(field: str, df: DataFrame,  adjustLength = True) ->DataFrame:
     gas, NGL, oil, cond, Oe, w = get.CSVProductionYearly(field)
     if adjustLength == True: #should i remove 0 production
         while len(df) != len(gas):

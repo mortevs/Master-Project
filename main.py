@@ -1,18 +1,11 @@
+from Data.Cache.Cache import delete_files
+delete_files()
 if __name__ == "__main__":
-    import os as os
-    if os.path.exists("savedDictionary.bak"):
-        os.remove("savedDictionary.bak")
-    if os.path.exists("savedDictionary.dat"):
-        os.remove("savedDictionary.dat")
-    if os.path.exists("savedDictionary.dir"):
-        os.remove("savedDictionary.dir")
-    import streamlit as st
-    import Plotting.plotFunc as Plot
+    import streamlit as st, Plotting.plotFunc as Plot
     opt = Plot.dropdown(label = 'What do you want to use the application for?',options = ['NO OPTION CHOSEN', 'FIELD DEVELOPMENT', 'PRODUCTION FORECASTING', 'RESERVOIR PRESSURE FROM PRODUCTION DATA', 'IPR TUNING', 'TPR TUNING'], labelVisibility='visible')
     if opt == 'FIELD DEVELOPMENT':
         from dryGasAnalysis.DryGasAnalysis import DryGasAnalysis
         Analysis = DryGasAnalysis()
-        st.title('Production profile modelling')
         Analysis.updateFromDropdown()
         Analysis.run()
     elif opt == 'PRODUCTION FORECASTING':
@@ -38,6 +31,7 @@ if __name__ == "__main__":
     #df.to_excel(file_name)
     #import Data.getData as get 
     #print(get.CSVProductionYearly("Snøhvit"))
+
 
 
     

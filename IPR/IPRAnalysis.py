@@ -17,14 +17,21 @@ def IPRAnalysis(precision: str, field:str = None, parameters: list = manualData(
     df.columns=('QFieldTarget [sm3/d]', 'qWellTarget[sm3/d]', 'Reservoir pressure [bara]', 'Z-factor', ' Minimum bottomhole pressure [bara]', 'Potential rates per well [sm3/d]', 'Potential field rates [sm3/d]', 'Field rates [sm3/d]', 'Well production rates [sm3/d]', 'yearly gas offtake [sm3]', 'Cumulative gas offtake [sm3]', 'Recovery Factor', 'Bottomhole pressure [bara]')
     df = swapColumns(df, 'QFieldTarget [sm3/d]', 'Field rates [sm3/d]')
     ticker = 0
-    if field != 'NO FIELD CHOSEN':
-        df = dP.addActualProdYtoPlot(field, df)
-        df = dP.addProducedYears(field, df)
-        df2=df[['Field rates [sm3/d]', 'gasSM3perday', 'oilSM3perday', 'condensateSM3perday', 'OilEquivalentsSM3perday', 'WaterSM3perday']].copy()
-        Plot.multi_plot(df2)
-    Plot.multi_plot(df, addAll=False)
     list1=['qFieldTarget', 'PRi', 'abandonmentRate', 'TR', 'gasMolecularWeight', 'C_R', 'n', 'N_temp', 'NWellsPerTemplate', 'upTime', 'C_t', 'S', 'C_FL', 'C_PL', 'P_sep', 'IGIP']
-    Plot.display_table(list1, manualData(), method = 'IPR', precision = precision)
+    updatedParameters = Plot.display_table(list1, manualData(), method = 'IPR', precision = precision, edible=True)
+    if field != 'NO FIELD CHOSEN':
+        df = dP.addActualProdYtoDF(field, df)
+        df = dP.addProducedYears(field, df)
+        #df2=df[['Field rates [sm3/d]', 'gasSM3perday', 'oilSM3perday', 'condensateSM3perday', 'OilEquivalentsSM3perday', 'WaterSM3perday']].copy()
+        #Plot.multi_plot(df2)
+        Plot.multi_plot(df, addProduced=True)
+    if field == 'NO FIELD CHOSEN':
+        Plot.multi_plot(df, addAll = False)
+    if updatedParameters != False:
+        df2 = IPROnly(*updatedParameters)
+        df2.columns=('QFieldTarget [sm3/d]', 'qWellTarget[sm3/d]', 'Reservoir pressure [bara]', 'Z-factor', ' Minimum bottomhole pressure [bara]', 'Potential rates per well [sm3/d]', 'Potential field rates [sm3/d]', 'Field rates [sm3/d]', 'Well production rates [sm3/d]', 'yearly gas offtake [sm3]', 'Cumulative gas offtake [sm3]', 'Recovery Factor', 'Bottomhole pressure [bara]')
+        df2 = swapColumns(df, 'QFieldTarget [sm3/d]', 'Field rates [sm3/d]')
+        Plot.multi_plot(df2, addAll = False)
     return df
 
 

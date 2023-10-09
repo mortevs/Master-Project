@@ -1,11 +1,16 @@
-import pandas as pd
-import plotly.graph_objects as go
-import streamlit as st
+import pandas as pd, plotly.graph_objects as go, streamlit as st
 
-def multi_plot(df, addAll = True):
+def multi_plot(df, addAll = True, addProduced = False):
     fig = go.Figure()
 
-    for column in df.columns.to_list():
+    if addProduced:
+        columns_to_plot = ['Field rates [sm3/d]', 'gasSM3perday']
+        all_label = 'Estimated vs Actual produced rates'
+    else:
+        columns_to_plot = df.columns.to_list()
+        all_label = 'All'
+
+    for column in columns_to_plot:
         fig.add_trace(
             go.Scatter(
                 x = df.index,
@@ -15,23 +20,28 @@ def multi_plot(df, addAll = True):
             )
         )
 
-    button_all = dict(label = 'All',
+    button_all = dict(label = all_label,
                       method = 'update',
-                      args = [{'visible': [True]*len(df.columns),
-                               'title': 'All',
+                      args = [{'visible': [True]*len(columns_to_plot),
+                               'title': all_label,
                                'showlegend':True}])
 
     def create_layout_button(column):
         return dict(label = column,
                     method = 'update',
-                    args = [{'visible': df.columns==column,
+                    args = [{'visible': [column == col for col in columns_to_plot],
                              'title': column,
                              'showlegend': True}])
 
+    all_buttons = ([button_all] * addAll) + [create_layout_button(column) for column in columns_to_plot]
+    
+    # Add buttons for all columns in the dataframe
+    all_buttons += [create_layout_button(column) for column in df.columns if column not in columns_to_plot]
+
     fig.update_layout(
         updatemenus=[go.layout.Updatemenu(
-            active = 0 if addAll else df.columns.to_list().index(df.columns[0]),  # Change active button here
-            buttons = ([button_all] * addAll) + list(df.columns.map(lambda column: create_layout_button(column)))
+            active = 0 if addAll else columns_to_plot.index(columns_to_plot[0]),  # Change active button here
+            buttons = all_buttons
             )
         ],
         showlegend=addAll,  # Change showlegend here
@@ -46,35 +56,26 @@ def multi_plot(df, addAll = True):
     
     )
     st.plotly_chart(fig)
-def display_table(list1, list2, method:str = 'NODAL', precision:str = 'IMPLICIT', type = 'sidebar') ->list:
+
+
+
+
+def display_table(list1, list2, method:str = 'NODAL', precision:str = 'IMPLICIT', type = 'standard', edible = False) ->list:
     # Create a DataFrame from the two lists
     df_table = pd.DataFrame({
         'Input': list1,
         'Value': list2
     })
-    #edited_df = st.data_editor(df_table)
-
-    #Display the DataFrame as a table in the sidebar
-    #st.sidebar.table(edited_df)
-    if type == 'sidebar':
-        st.sidebar.table(df_table)
-    else:
+    if edible:
+        edited_df = st.data_editor(df_table, key='df_table_editor', width=800, height=600, hide_index=True)
+        if st.button('Update'):
+            return edited_df['Value'].to_list()
+    elif type == 'standard':
         st.table(df_table)
-    
-
-    row_to_edit = st.number_input('Row number of the input you want to edit:', min_value=0, max_value=len(df_table)-1)
-        # Allow the user to enter new values
-    new_value = st.number_input('Enter new value:')
-
-    # Update the DataFrame if the user clicks the 'Update' button
-    if st.button('Update'):
-        from dryGasAnalysis.DryGasAnalysis import DryGasAnalysis
-        df_table.loc[row_to_edit, 'Value'] = new_value
-        # Display the updated DataFrame
+    elif type == 'sidebar':
         st.sidebar.table(df_table)
-        parameters = df_table.iloc[:, 1].tolist()
-        return parameters
     return False
+
 
 
 
