@@ -3,7 +3,8 @@ import Data.getData as get
 import Data.dataProcessing.dataProcessing as dP
 import streamlit as st
 import Plotting.plotFunc as Plot
- 
+import pandas as pd
+
 def NodalAnalysis(precision: str, field:str = None, inputParameters: list = manualData()):
     
     """
@@ -26,14 +27,16 @@ def NodalAnalysis(precision: str, field:str = None, inputParameters: list = manu
     if field != 'NO FIELD CHOSEN':
         df = dP.addActualProdYtoDF(field, df)
         df = dP.addProducedYears(field, df)
-        #df2=df[['Field rates [sm3/d]', 'gasSM3perday', 'oilSM3perday', 'condensateSM3perday', 'OilEquivalentsSM3perday', 'WaterSM3perday']].copy()
-        #Plot.multi_plot(df2)
+        df2=df[['Field rates [sm3/d]', 'gasSM3perday', 'oilSM3perday', 'condensateSM3perday', 'OilEquivalentsSM3perday', 'WaterSM3perday']].copy()
+        Plot.multi_plot(df2)
         Plot.multi_plot(df, addProduced=True)
     if field == 'NO FIELD CHOSEN':
         Plot.multi_plot(df, addAll = False)
+    
     if updatedParameters != False:
-        df2 = Nodal(*updatedParameters)
-        df2.columns=('Field rates [sm3/d]', 'yearly gas of take [sm3]', 'cumulative gas of take [sm3]', 'Recovery Factor', 'Z-factor', 'Reservoir pressure [bara]', 'Rates per well [sm3/d]', 'Bottomhole pressure [bara]', 'Wellhead pressure [bara]', 'Template pressure [bara]', 'Pressure pipeline entry module [bara]', 'Seperator pressure [Bara]', 'Rates per template [sm3/d]', 'choke pressure [bara]', 'ratio PTemp to PWellHead', 'Production Potential rates [Sm3/d]' )
-        Plot.multi_plot(df2, addAll=False)
+        df = Nodal(*updatedParameters)
+        df.columns=('Field rates [sm3/d]', 'yearly gas of take [sm3]', 'cumulative gas of take [sm3]', 'Recovery Factor', 'Z-factor', 'Reservoir pressure [bara]', 'Rates per well [sm3/d]', 'Bottomhole pressure [bara]', 'Wellhead pressure [bara]', 'Template pressure [bara]', 'Pressure pipeline entry module [bara]', 'Seperator pressure [Bara]', 'Rates per template [sm3/d]', 'choke pressure [bara]', 'ratio PTemp to PWellHead', 'Production Potential rates [Sm3/d]' )
+        Plot.multi_plot(df, addAll=False)
     return df
+    
 

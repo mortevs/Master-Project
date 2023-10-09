@@ -30,7 +30,8 @@ def IPRAnalysis(precision: str, field:str = None, parameters: list = manualData(
     if updatedParameters != False:
         df2 = IPROnly(*updatedParameters)
         df2.columns=('QFieldTarget [sm3/d]', 'qWellTarget[sm3/d]', 'Reservoir pressure [bara]', 'Z-factor', ' Minimum bottomhole pressure [bara]', 'Potential rates per well [sm3/d]', 'Potential field rates [sm3/d]', 'Field rates [sm3/d]', 'Well production rates [sm3/d]', 'yearly gas offtake [sm3]', 'Cumulative gas offtake [sm3]', 'Recovery Factor', 'Bottomhole pressure [bara]')
-        df2 = swapColumns(df, 'QFieldTarget [sm3/d]', 'Field rates [sm3/d]')
+        df2 = swapColumns(df2, 'QFieldTarget [sm3/d]', 'Field rates [sm3/d]')
+
         Plot.multi_plot(df2, addAll = False)
     return df
 

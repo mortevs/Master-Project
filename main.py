@@ -8,6 +8,7 @@ if __name__ == "__main__":
         Analysis = DryGasAnalysis()
         Analysis.updateFromDropdown()
         Analysis.run()
+        #Analysis.plotDf()
     elif opt == 'PRODUCTION FORECASTING':
         None
     elif opt == 'RESERVOIR PRESSURE FROM PRODUCTION DATA':
@@ -16,6 +17,7 @@ if __name__ == "__main__":
         Analysis = ReservoirPressureAnalysis()
         Analysis.updateFromDropdown()
         Analysis.run()
+    
     elif opt == 'IPR TUNING':
         None
     elif opt == 'TPR TUNING':

@@ -3,7 +3,7 @@ class DryGasAnalysis:
     def __init__(self):
         import pandas as pd
         self.__inputs:list = None
-        self.__result:pd.DataFrame = None
+        self.__result = []
         self.__method = None
         self.__precision = None
         self.__field = None
@@ -17,10 +17,20 @@ class DryGasAnalysis:
     def run(self):
         if self.__method == 'IPR':
             from IPR.IPRAnalysis import IPRAnalysis
-            self.__result = IPRAnalysis(self.__precision, self.__field)
+            self.__result.append(IPRAnalysis(self.__precision, self.__field))
         else:
             from Nodal.NodalAnalysis import NodalAnalysis
-            self.__result = NodalAnalysis(self.__precision, self.__field)
+            self.__result.append(NodalAnalysis(self.__precision, self.__field))
+    
+    
+    def plotDf(self)->None:
+        import Plotting.plotFunc as Plot
+        for df in self.__result:
+            Plot.multi_plot(df)
+        return None
+
+
+        
 
     def getMethod(self) -> str:
         return self.__method
@@ -28,6 +38,7 @@ class DryGasAnalysis:
         return self.__precision
     def getResult(self) -> pd.DataFrame:
         return self.__result
+
 
             
         
