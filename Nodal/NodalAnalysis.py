@@ -21,7 +21,7 @@ def NodalAnalysis(precision: str, field:str = None, inputParameters: list = manu
     qFieldTarget = inputParameters[0]
     abandonmentRate = inputParameters[2]
     ticker = 0
-    list1=['qFieldTarget', 'PRi', 'abandonmentRate', 'TR', 'gasMolecularWeight', 'C_R', 'n', 'N_temp', 'NWellsPerTemplate', 'upTime', 'C_t', 'S', 'C_FL', 'C_PL', 'P_sep', 'IGIP']
+    list1=['Target Rate [sm3/d]', 'Initial Reservoir Pressure [bara]', 'Rate of Abandonment [sm3/d]', 'Reservoir Temperature [degree C]', 'Gas Molecular Weight [g/mol]', 'Inflow backpressure coefficient', 'Inflow backpressure exponent', 'Numper of Templates', 'Number of Wells per Template', 'Uptime [days]', 'Tubing Flow Coefficient', 'Tubing Elevation Coefficient', 'Flowline Coefficient from Template-PLEM', 'Pipeline coefficient from PLEM-Shore', 'Seperator Pressure [bara]', 'Initial Gas in Place [sm3]']
     updatedParameters = Plot.display_table(list1, manualData(), method = 'IPR', precision = precision, edible=True)
     st.title('Estimated Production profile')
     if field != 'NO FIELD CHOSEN':
