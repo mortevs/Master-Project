@@ -60,7 +60,7 @@ def multi_plot(df, addAll = True, addProduced = False):
 
 
 
-def display_table(list1, list2, method:str = 'NODAL', precision:str = 'IMPLICIT', type = 'standard', edible = False) ->list:
+def display_table(list1, list2, edible = False) ->list:
     # Create a DataFrame from the two lists
     df_table = pd.DataFrame({
         'Input': list1,
@@ -68,13 +68,11 @@ def display_table(list1, list2, method:str = 'NODAL', precision:str = 'IMPLICIT'
     })
     if edible:
         edited_df = st.data_editor(df_table, key='df_table_editor', width=800, height=600, hide_index=True)
-        if st.button('Update'):
-            return edited_df['Value'].to_list()
-    elif type == 'standard':
-        st.table(df_table)
+        #if st.button('Run Analysis', key = 'Run Analysis'):
+        return edited_df['Value'].to_list()
     elif type == 'sidebar':
         st.sidebar.table(df_table)
-    return False
+ 
 
 
 
