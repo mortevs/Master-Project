@@ -53,8 +53,24 @@ def loadDict(name: str) ->dict:
     d.close()
     return dict
     
+
+import streamlit as st
+class SessionState:
+    def __init__(self, **kwargs):
+        for key, val in kwargs.items():
+            setattr(self, key, val)
+    def get(**kwargs):
+        # Get a SessionState object for the current session
+        if not hasattr(st, '_session_state'):
+            st._session_state = SessionState(**kwargs)
+        return st._session_state
+    
 def delete_files(files_to_delete = ["savedDictionary.bak", "savedDictionary.dat", "savedDictionary.dir"]):
     import os
     for file in files_to_delete:
         if os.path.exists(file):
             os.remove(file)
+def clear_state(state:SessionState):
+    state.my_list = []
+
+    

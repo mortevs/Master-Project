@@ -56,30 +56,6 @@ class DryGasAnalysis:
     def getParameters(self) -> pd.DataFrame:
         return self.__parameters
 
-        
-
-
-
-class analysisResult(DryGasAnalysis):
-    def __init__(self):
-        super().__init__()
-
-
-
-import streamlit as st
-
-# This is the SessionState implementation
-class SessionState:
-    def __init__(self, **kwargs):
-        for key, val in kwargs.items():
-            setattr(self, key, val)
-
-    def get(**kwargs):
-        # Get a SessionState object for the current session
-        if not hasattr(st, '_session_state'):
-            st._session_state = SessionState(**kwargs)
-        return st._session_state
-
 
             
         
