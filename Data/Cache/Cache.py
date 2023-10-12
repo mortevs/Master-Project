@@ -71,6 +71,6 @@ def delete_files(files_to_delete = ["savedDictionary.bak", "savedDictionary.dat"
         if os.path.exists(file):
             os.remove(file)
 def clear_state(state:SessionState):
-    state.my_list = []
+    state.result = []
 
     

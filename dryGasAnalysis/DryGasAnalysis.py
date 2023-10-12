@@ -6,7 +6,9 @@ class DryGasAnalysis:
         self.__method = method
         self.__precision = precision
         self.__field = field
-        self.__result = []
+        from Data.Cache.Cache import SessionState
+        self.__state = SessionState.get(result=[])
+
 
     def updateFromDropdown(self):
         import Data.getData as get, Plotting.plotFunc as Plot
@@ -29,23 +31,25 @@ class DryGasAnalysis:
             from Nodal.NodalAnalysis import NodalAnalysis
             return NodalAnalysis(self.__precision, self.__field, self.__parameters[-1])
     
-    def plotDf(self)->None:
-        import streamlit as st
-        import Plotting.plotFunc as Plot
+    def plot(self):
+        import Plotting.plotFunc as Plot, streamlit as st
         from pandas import DataFrame
-        for df in self.__result:
+        for df in self.__state.result:
             if isinstance(df, DataFrame):
+                st.title('Production profile: ')
                 Plot.multi_plot(df, addAll=False)
+                
 
     def getMethod(self) -> str:
         return self.__method
     def getPrecision(self) -> str:
         return self.__precision
     def getResult(self) -> list:
-        return self.__result
+        return self.__state.result
     def getParameters(self) -> pd.DataFrame:
         return self.__parameters
-
+    def getState(self) -> pd.DataFrame:
+            return self.__state
 
             
         
