@@ -28,16 +28,6 @@ class DryGasAnalysis:
         else:
             from Nodal.NodalAnalysis import NodalAnalysis
             return NodalAnalysis(self.__precision, self.__field, self.__parameters[-1])
-
-
-
-
-        
-        # if self.__field != 'NO FIELD CHOSEN':
-        #     import Data.dataProcessing.dataProcessing as dP
-
-        #     import Plotting.plotFunc as Plot
-            #Plot.multi_plot(self.__result, addProduced=True)
     
     def plotDf(self)->None:
         import streamlit as st
