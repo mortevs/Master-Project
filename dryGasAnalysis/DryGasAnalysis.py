@@ -7,16 +7,16 @@ class DryGasAnalysis:
         self.__precision = precision
         self.__field = field
         from Data.Cache.Cache import SessionState
-        self.__state = SessionState.get(result=[])
-
+        self.__state = SessionState.get(result=[], method = [], precision = [], field = [])
 
     def updateFromDropdown(self):
         import Data.getData as get, Plotting.plotFunc as Plot
         import streamlit as st
         fieldnames = get.fieldNames()
         fieldnames.insert(0, 'NO FIELD CHOSEN')
-        self.__method, self.__precision, self.__field = Plot.columnDisplay(list1=[['NODAL', 'IPR'],['IMPLICIT', 'EXPLICIT'], fieldnames])
-    
+        (self.__method, self.__precision, self.__field) = (Plot.columnDisplay(list1=[['NODAL', 'IPR'],['IMPLICIT', 'EXPLICIT'], fieldnames]))
+
+
     def updateParameterListfromTable(self):
         import Plotting.plotFunc as Plot
         from Data.ManualData import manualData
@@ -24,6 +24,9 @@ class DryGasAnalysis:
         self.__parameters.append(Plot.display_table(list1 = list1, list2 = manualData(), edible=True))
 
     def run(self):
+        (self.__state.method).append(self.__method)
+        (self.__state.precision).append(self.__precision)
+        (self.__state.field).append(self.__field)
         if self.__method == 'IPR':
             from IPR.IPRAnalysis import IPRAnalysis
             return IPRAnalysis(self.__precision, self.__field, self.__parameters[-1])
@@ -31,23 +34,31 @@ class DryGasAnalysis:
             from Nodal.NodalAnalysis import NodalAnalysis
             return NodalAnalysis(self.__precision, self.__field, self.__parameters[-1])
     
-    def plot(self):
+    def plot(self, comp = False):
         import Plotting.plotFunc as Plot, streamlit as st
         from pandas import DataFrame
-        for df in self.__state.result:
-            if isinstance(df, DataFrame):
-                st.title('Production profile: ')
-                Plot.multi_plot(df, addAll=False)
-                
+        if comp == False:
+            for i in range (len(self.__state.result)):
+                if isinstance(self.__state.result[i], DataFrame):
+                    st.title('Production profile: '+str(i+1))
+                    if self.__state.field[i] != 'NO FIELD CHOSEN':
+                        st.write(self.__state.method[i], self.__state.precision[i], self.__state.field[i])
+                        Plot.multi_plot([self.__state.result[i]], addProduced=True)
+                    else:
+                        st.write(self.__state.method[i], self.__state.precision[i])
+                        Plot.multi_plot([self.__state.result[i]], addAll=False)
+        else:
+            Plot.multi_plot(self.__state.result, addAll=False)
 
+            
     def getMethod(self) -> str:
-        return self.__method
+        return self.__state.method
     def getPrecision(self) -> str:
-        return self.__precision
+        return self.__state.precision
     def getResult(self) -> list:
         return self.__state.result
     def getParameters(self) -> pd.DataFrame:
-        return self.__parameters
+        return self.__state.parameters
     def getState(self) -> pd.DataFrame:
             return self.__state
 

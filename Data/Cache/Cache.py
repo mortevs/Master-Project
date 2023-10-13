@@ -72,5 +72,8 @@ def delete_files(files_to_delete = ["savedDictionary.bak", "savedDictionary.dat"
             os.remove(file)
 def clear_state(state:SessionState):
     state.result = []
+    state.method = []
+    state.precision = []
+    state.field = []
 
     
