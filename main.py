@@ -1,11 +1,14 @@
 if __name__ == "__main__":
-    import pandas as pd
+    import streamlit as st, Plotting.plotFunc as Plot
     from dryGasAnalysis.DryGasAnalysis import DryGasAnalysis
-    Analysis = DryGasAnalysis()
-    import streamlit as st
     st.markdown('''
     :green[Specialization Project by Morten Vier Simensen, supervised by Prof. Milan Stanko]''')
-    import streamlit as st, Plotting.plotFunc as Plot
+    col7, col8, col9 = st.columns(3)
+    Analysis = DryGasAnalysis()
+    with col9:
+        if st.button('Load New Data from NPD',  'NPD'):
+            from Data.getData import deleteAndloadNewDatafromNPD
+            deleteAndloadNewDatafromNPD() 
     opt = Plot.dropdown(label = 'What do you want to use the application for?',options = ['NO OPTION CHOSEN', 'FIELD DEVELOPMENT', 'PRODUCTION FORECASTING', 'RESERVOIR PRESSURE FROM PRODUCTION DATA', 'IPR TUNING', 'TPR TUNING'], labelVisibility='visible')   
     if opt == 'FIELD DEVELOPMENT':
         Analysis.updateFromDropdown()
@@ -23,10 +26,6 @@ if __name__ == "__main__":
             if st.button('Restart', 'Restart'):
                 from Data.Cache.Cache import clear_state
                 clear_state(Analysis.getState())
-        with col3:
-            if st.button('Load New Data from NPD',  'NPD'):
-                from Data.Cache.Cache import delete_files
-                delete_files()  
         Analysis.plot()
     elif opt == 'PRODUCTION FORECASTING':
         None

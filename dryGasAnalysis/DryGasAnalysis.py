@@ -11,7 +11,6 @@ class DryGasAnalysis:
 
     def updateFromDropdown(self):
         import Data.getData as get, Plotting.plotFunc as Plot
-        import streamlit as st
         fieldnames = get.fieldNames()
         fieldnames.insert(0, 'NO FIELD CHOSEN')
         (self.__method, self.__precision, self.__field) = (Plot.columnDisplay(list1=[['NODAL', 'IPR'],['IMPLICIT', 'EXPLICIT'], fieldnames]))

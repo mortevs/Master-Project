@@ -14,9 +14,10 @@ cacheCSV = dict()
 cacheDF = dict()
 
 def CacheZip(key: str, zipFileUrl: str)->zipfile:
+    import streamlit as st, time
     if key in cacheZip:
         return cacheZip[key]
-    zf = zipfile.ZipFile(wget.download(zipFileUrl)) 
+    zf = zipfile.ZipFile(wget.download(zipFileUrl))
     cacheZip[key] = zf
     return cacheZip[key] 
 
@@ -24,7 +25,7 @@ def csvURLtoDF(csvURL: str) ->pd.DataFrame:
     df = pd.read_csv((csvURL), sep = ";", low_memory=False)
     return df
 
-def CacheDF(df:None, key: str)->pd.DataFrame:
+def CacheDF(df:pd.DataFrame, key: str)->pd.DataFrame:
     if checkKeyinDict(key) == 0:
         dumpDict(df, key)
     loaded = loadDict(key)
@@ -65,11 +66,14 @@ class SessionState:
             st._session_state = SessionState(**kwargs)
         return st._session_state
     
-def delete_files(files_to_delete = ["savedDictionary.bak", "savedDictionary.dat", "savedDictionary.dir"]):
-    import os
+
+def delete_files(files_to_delete = ["savedDictionary.bak", "savedDictionary.dat", "savedDictionary.dir", "fldArea.zip"]):
+    import os, streamlit as st, time
     for file in files_to_delete:
         if os.path.exists(file):
             os.remove(file)
+
+
 def clear_state(state:SessionState):
     state.result = []
     state.method = []

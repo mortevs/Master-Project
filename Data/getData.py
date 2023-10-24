@@ -1,10 +1,17 @@
-import Data.getData as gd, zipfile, wget, Data.Cache.Cache as c,os
-
-def ZiptoDF(zipname = 'fldArea.zip', zipFileUrl=None):
-    import pandas as pd, Data.getData as gd, zipfile, wget, Data.Cache.Cache as c,os    #zf = CacheZip('fldArea', zipFileUrl) 
-    zf=zipfile.ZipFile(zipname)
-    if os.path.exists(zipname) == False:
-        zf = zipfile.ZipFile(wget.download(zipFileUrl)) 
+def ZiptoDF(zipname = 'fldArea.zip', zipFileUrl='https://factpages.npd.no/downloads/csv/fldArea.zip'):
+    import pandas as pd, zipfile, wget,os, requests, streamlit as st, time
+    if os.path.exists(zipname):
+        zf = zipfile.ZipFile(zipname)
+    else:
+        response = requests.get(zipFileUrl)
+        if response.status_code == 200:
+            zf = zipfile.ZipFile(wget.download(zipFileUrl))
+            timestamp =  time.ctime()
+            alert = st.warning("Data downloaded from NPD " + timestamp) # Display the alert
+            time.sleep(5)
+            alert.empty() 
+        else:
+            st.write(f"Failed to get data from NPD, status code: {response.status_code}")
     df = pd.read_csv(zf.open(zf.namelist()[0]))
     zf.close()
     return df
@@ -13,18 +20,10 @@ def fieldNames():
     """
     Returns a list with all fieldnames listed at NPD
     """
-    df=None
-    import pandas as pd, streamlit as st, Data.getData as gd, zipfile, wget, Data.Cache.Cache as c,os    #zf = CacheZip('fldArea', zipFileUrl) 
-    if c.checkKeyinDict("fldArea") == 0:
-        import requests
-        zipFileUrl = "https://factpages.npd.no/downloads/csv/fldArea.zip"
-        response = requests.get(zipFileUrl)
-        if response.status_code == 200:
-            df = gd.ZiptoDF(zipFileUrl)
-        else:
-            st.write(f"Failed to get data from NPD, status code: {response.status_code}")
-    df = c.CacheDF(df, "fldArea")
-    field_names = list(df["fldName"])
+    import pandas as pd, streamlit as st, Data.getData as gd, Data.Cache.Cache as c
+
+    fldData = c.CacheDF(df = ZiptoDF(), key = "fldArea")
+    field_names = list(fldData["fldName"])
     return field_names
 
 def CSVProductionMonthly(fieldName: str):
@@ -100,6 +99,10 @@ def CSVProducedMonths(fieldName: str) -> list:
     months = df['prfMonth'].tolist()
     return years, months
 
+def deleteAndloadNewDatafromNPD():
+    from Data.Cache.Cache import delete_files
+    delete_files()
+    ZiptoDF()
 
 
 # def fieldStatus(fieldName: str) -> str:
