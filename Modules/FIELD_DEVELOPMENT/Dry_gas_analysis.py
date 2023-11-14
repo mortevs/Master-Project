@@ -54,13 +54,3 @@ class DryGasAnalysis:
         return self.__state.parameters
     def getState(self) -> pd.DataFrame:
             return self.__state
-
-            
-#         if field != 'NO FIELD CHOSEN':
-#         df = dP.addActualProdYtoDF(field, df)
-#         df = dP.addProducedYears(field, df)
-
-#         if self.__state.field[i] != 'NO FIELD CHOSEN':
-#     st.write(self.__state.method[i], self.__state.precision[i], self.__state.field[i])
-#     display.multi_plot([self.__state.result[i]], addProduced=True)
-# else:

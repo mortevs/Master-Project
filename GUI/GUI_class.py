@@ -17,21 +17,20 @@ class GUI():
         Analysis = DryGasAnalysis()
         st.title('Field development')
         Analysis.updateFromDropdown()
-        Analysis.updateParameterListfromTable()   
+        Analysis.updateParameterListfromTable() 
+        plot_comp = False  
         col4, col5, col6 = st.columns(3)
         with col4:     
             if st.button('Run Analysis', 'Run'):
                 Analysis.getResult().append(Analysis.run())
         with col6: 
             if st.button('Compare different models', 'Compare'):
-                    Analysis.plot(comp = True)
+                    plot_comp = True
         col7, col8, col9 = st.columns(3)
         with col7:
             if st.button('Restart', 'Restart'):
                 from Data.Storage.Cache import clear_state
                 clear_state(Analysis.getState())
-        Analysis.plot()
-
         with col9: 
                 import Data.getData as get
                 fieldnames = get.fieldNames()
@@ -40,24 +39,26 @@ class GUI():
                     locale.setlocale(locale.LC_ALL, locale_str)            
                     arr.sort(key=locale.strxfrm) 
                 locale_aware_sort(fieldnames)
-                fieldnames.insert(0, 'NO FIELD CHOSEN')
+                fieldnames.insert(0, 'No field chosen')
                 import GUI.GUI_functions as GUI
                 selected_option1 = GUI.dropdown(label = 'Choose a field to compare with', options = fieldnames, labelVisibility="visible")
-                return selected_option1
-                #import streamlit as st
+                #if selected_option1 != 'NO FIELD CHOSEN':
+#                   df = dP.addActualProdYtoDF(field, df)
+#                   df = dP.addProducedYears(field, df)
+
+#         if self.__state.field[i] != 'NO FIELD CHOSEN':
+#     st.write(self.__state.method[i], self.__state.precision[i], self.__state.field[i])
+#     display.multi_plot([self.__state.result[i]], addProduced=True)
+# else:
                 #selected_option1 = st.dropdown(options = fieldnames)
-    # elif opt == 'PRODUCTION FORECASTING':
-    #     None
-    # elif opt == 'RESERVOIR PRESSURE FROM PRODUCTION DATA':
-    #     from ReservoirPressureAnalysis.dryGasRPAnalysis import ReservoirPressureAnalysis
-    #     st.title('Reservoir pressure modelling')
-    #     Analysis = ReservoirPressureAnalysis()
-    #     Analysis.updateFromDropdown()
-    #     Analysis.run()
-    # elif opt == 'IPR TUNING':
-    #     None
-    # elif opt == 'TPR TUNING':
-    #     None
+        if plot_comp == True:
+            Analysis.plot(comp = True)
+        Analysis.plot()
+        
+
+
+
+
     # #file_name = 'productionProfile.xlsx'
     # #df.to_excel(file_name) 
     # #import Data.getData as get 
