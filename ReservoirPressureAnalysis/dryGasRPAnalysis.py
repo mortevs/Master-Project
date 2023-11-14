@@ -4,7 +4,7 @@ class ReservoirPressureAnalysis:
         self.__productionData = list
         self.__field = 'NO FIELD CHOSEN'
         from Data.StreamlitUpload import upload 
-        upload(text = "Upload a CSV file / Excel file with the following format or choose field from dropdown menu below")
+        df_produced = upload(text = "Upload a CSV file / Excel file with the following format or choose field from dropdown menu below")
         self.__timeframe = 'Yearly' 
 
     def updateFromDropdown(self):

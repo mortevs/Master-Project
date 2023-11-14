@@ -11,6 +11,7 @@ if __name__ == "__main__":
             deleteAndloadNewDatafromNPD() 
     opt = Plot.dropdown(label = 'What do you want to use the application for?',options = ['NO OPTION CHOSEN', 'FIELD DEVELOPMENT', 'PRODUCTION FORECASTING', 'RESERVOIR PRESSURE FROM PRODUCTION DATA', 'IPR TUNING', 'TPR TUNING'], labelVisibility='visible')   
     if opt == 'FIELD DEVELOPMENT':
+        st.title('Field development')
         Analysis.updateFromDropdown()
         Analysis.updateParameterListfromTable()   
         col4, col5, col6 = st.columns(3)
