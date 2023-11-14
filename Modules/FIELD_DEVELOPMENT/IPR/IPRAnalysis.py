@@ -1,17 +1,14 @@
 from Data.ManualData import manualData
-import Data.dataProcessing.dataProcessing as dP 
+import Data.dataProcessing as dP 
 
-def IPRAnalysis(precision: str, field:str = None, parameters: list = manualData()):
+def IPRAnalysis(precision: str, parameters: list = manualData()):
     if precision == 'Explicit':
-        from IPR.dfIPRExplicit import IPROnly
+        from Modules.FIELD_DEVELOPMENT.IPR.dfIPRExplicit import IPROnly
     else: 
-        from IPR.dfIPRImplicit import IPROnly
+        from Modules.FIELD_DEVELOPMENT.IPR.dfIPRImplicit import IPROnly
     df = IPROnly(*parameters)
     df.columns=('QFieldTarget [sm3/d]', 'qWellTarget[sm3/d]', 'Reservoir pressure [bara]', 'Z-factor', ' Minimum bottomhole pressure [bara]', 'Potential rates per well [sm3/d]', 'Potential field rates [sm3/d]', 'Field rates [sm3/d]', 'Well production rates [sm3/d]', 'yearly gas offtake [sm3]', 'Cumulative gas offtake [sm3]', 'Recovery Factor', 'Bottomhole pressure [bara]')
     df = swapColumns(df, 'QFieldTarget [sm3/d]', 'Field rates [sm3/d]')
-    if field != 'NO FIELD CHOSEN':
-        df = dP.addActualProdYtoDF(field, df)
-        df = dP.addProducedYears(field, df)
     return df
 
 def swapColumns(df, col1, col2):

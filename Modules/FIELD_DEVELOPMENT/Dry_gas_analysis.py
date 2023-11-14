@@ -11,9 +11,7 @@ class DryGasAnalysis:
 
     def updateFromDropdown(self):
         import Data.getData as get, GUI.GUI_functions as display
-        fieldnames = get.fieldNames()
-        fieldnames.insert(0, 'NO FIELD CHOSEN')
-        (self.__method, self.__precision, self.__field) = (display.columnDisplay(list1=[['NODAL', 'IPR'],['IMPLICIT', 'EXPLICIT'], fieldnames]))
+        (self.__method, self.__precision) = (display.columnDisplay2(list1=[['NODAL', 'IPR'],['IMPLICIT', 'EXPLICIT']]))
 
 
     def updateParameterListfromTable(self):
@@ -27,11 +25,11 @@ class DryGasAnalysis:
         (self.__state.precision).append(self.__precision)
         (self.__state.field).append(self.__field)
         if self.__method == 'IPR':
-            from IPR.IPRAnalysis import IPRAnalysis
-            return IPRAnalysis(self.__precision, self.__field, self.__parameters[-1])
+            from Modules.FIELD_DEVELOPMENT.IPR.IPRAnalysis import IPRAnalysis
+            return IPRAnalysis(self.__precision, self.__parameters[-1])
         else:
-            from Nodal.NodalAnalysis import NodalAnalysis
-            return NodalAnalysis(self.__precision, self.__field, self.__parameters[-1])
+            from Modules.FIELD_DEVELOPMENT.Nodal.NodalAnalysis import NodalAnalysis
+            return NodalAnalysis(self.__precision, self.__parameters[-1])
     
     def plot(self, comp = False):
         import GUI.GUI_functions as display, streamlit as st
@@ -40,12 +38,8 @@ class DryGasAnalysis:
             for i in range (len(self.__state.result)):
                 if isinstance(self.__state.result[i], DataFrame):
                     st.title('Production profile: '+str(i+1))
-                    if self.__state.field[i] != 'NO FIELD CHOSEN':
-                        st.write(self.__state.method[i], self.__state.precision[i], self.__state.field[i])
-                        display.multi_plot([self.__state.result[i]], addProduced=True)
-                    else:
-                        st.write(self.__state.method[i], self.__state.precision[i])
-                        display.multi_plot([self.__state.result[i]], addAll=False)
+                    st.write(self.__state.method[i], self.__state.precision[i])
+                    display.multi_plot([self.__state.result[i]], addAll=False)
         else:
             display.multi_plot(self.__state.result, addAll=False)
 
@@ -62,7 +56,11 @@ class DryGasAnalysis:
             return self.__state
 
             
-        
+#         if field != 'NO FIELD CHOSEN':
+#         df = dP.addActualProdYtoDF(field, df)
+#         df = dP.addProducedYears(field, df)
 
-
-    
+#         if self.__state.field[i] != 'NO FIELD CHOSEN':
+#     st.write(self.__state.method[i], self.__state.precision[i], self.__state.field[i])
+#     display.multi_plot([self.__state.result[i]], addProduced=True)
+# else:

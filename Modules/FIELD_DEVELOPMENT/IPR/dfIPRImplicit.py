@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from Equations.ZfacStanding import ZfacStanding
 from Equations.pWfMinEstimation import pWfMinEstimation
-from IPR.qPotWell import qPotWell
+from Modules.FIELD_DEVELOPMENT.IPR.qPotWell import qPotWell
 import Equations.DryGasFlowEquations as DGFE
 from Equations.MBgastank_PR import MBgastank_PR
 from Equations.RF import RF

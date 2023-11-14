@@ -47,9 +47,7 @@ def fieldNames():
     return field_names
 
 def CSVProductionMonthly(fieldName: str):
-    df = None
-    import requests
-    import streamlit as st    
+    df = None   
     if c.checkKeyinDict("monthlyProduction") == 0:
         csvURL = "https://hotell.difi.no/download/npd/field/production-monthly-by-field"
         response = requests.get(csvURL)

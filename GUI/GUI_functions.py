@@ -92,3 +92,23 @@ def columnDisplay(list1:list):
     with col3:
         selected_option3 = dropdown(options = list1[2])
     return selected_option1, selected_option2, selected_option3
+
+def columnDisplay2(list1:list):
+    col1, col2 = st.columns(2)
+
+    with col1:
+        selected_option1 = dropdown(options = list1[0])
+
+    with col2:
+        selected_option2 = dropdown(options = list1[1])
+
+    return selected_option1, selected_option2
+
+def columnDisplay1(list1:list):
+    col1 = st.columns(2)
+
+    with col1:
+        selected_option1 = dropdown(options = list1)
+
+    return selected_option1
+
