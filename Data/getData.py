@@ -1,15 +1,40 @@
-def ZiptoDF(zipname = 'fldArea.zip', zipFileUrl='https://factpages.npd.no/downloads/csv/fldArea.zip'):
-    import pandas as pd, zipfile, wget,os, requests, streamlit as st, time
-    if os.path.exists(zipname):
-        zf = zipfile.ZipFile(zipname)
+import pandas as pd
+import zipfile
+import wget
+import os
+import requests
+import streamlit as st
+import time
+from Data.Storage.Cache import delete_files
+import Data.Storage.Cache as c
+
+cacheZip = {}
+cacheDF = {}
+data_storage_folder = os.path.join(os.getcwd(), "Data\Storage")
+
+def CacheZip(key, zipFileUrl):
+    if key in cacheZip:
+        return cacheZip[key]    
+    os.makedirs(data_storage_folder, exist_ok=True)
+    zip_file_path = os.path.join(data_storage_folder, key + ".zip")
+    wget.download(zipFileUrl, out=zip_file_path)
+    zf = zipfile.ZipFile(zip_file_path)
+    cacheZip[key] = zf
+    return cacheZip[key]
+
+def ZiptoDF(zipname='fldArea.zip', zipFileUrl='https://factpages.npd.no/downloads/csv/fldArea.zip'):
+    zip_file_path = os.path.join(os.getcwd(), "Data\Storage", zipname)
+    if os.path.exists(zip_file_path):
+        zf = zipfile.ZipFile(zip_file_path)
     else:
         response = requests.get(zipFileUrl)
         if response.status_code == 200:
-            zf = zipfile.ZipFile(wget.download(zipFileUrl))
-            timestamp =  time.ctime()
-            alert = st.warning("Data downloaded from NPD " + timestamp) # Display the alert
+            wget.download(zipFileUrl, out=zip_file_path)            
+            zf = zipfile.ZipFile(zip_file_path)
+            timestamp = time.ctime()
+            alert = st.warning("Data downloaded from NPD " + timestamp)
             time.sleep(5)
-            alert.empty() 
+            alert.empty()
         else:
             st.write(f"Failed to get data from NPD, status code: {response.status_code}")
     df = pd.read_csv(zf.open(zf.namelist()[0]))
@@ -17,18 +42,14 @@ def ZiptoDF(zipname = 'fldArea.zip', zipFileUrl='https://factpages.npd.no/downlo
     return df
 
 def fieldNames():
-    """
-    Returns a list with all fieldnames listed at NPD
-    """
-    import pandas as pd, streamlit as st, Data.getData as gd, Data.Cache.Cache as c
-
-    fldData = c.CacheDF(df = ZiptoDF(), key = "fldArea")
+    fldData = c.CacheDF(df=ZiptoDF(), key="fldArea")
     field_names = list(fldData["fldName"])
     return field_names
 
 def CSVProductionMonthly(fieldName: str):
     df = None
-    import pandas as pd, Data.getData as gd, zipfile, wget, Data.Cache.Cache as c,os, requests, streamlit as st    
+    import requests
+    import streamlit as st    
     if c.checkKeyinDict("monthlyProduction") == 0:
         csvURL = "https://hotell.difi.no/download/npd/field/production-monthly-by-field"
         response = requests.get(csvURL)
@@ -38,7 +59,7 @@ def CSVProductionMonthly(fieldName: str):
             st.write(f"Failed to get data from NPD, status code: {response.status_code}")
 
     df = c.CacheDF(df, 'monthlyProduction')  
-    df.drop(df[df['prfInformationCarrier'] != fieldName.upper()].index, inplace = True)
+    df.drop(df[df['prfInformationCarrier'] != fieldName.upper()].index, inplace=True)
     gas = df['prfPrdGasNetBillSm3'].tolist()
     NGL = df['prfPrdNGLNetMillSm3'].tolist()
     oil = df['prfPrdOilNetMillSm3'].tolist()
@@ -48,8 +69,10 @@ def CSVProductionMonthly(fieldName: str):
     return gas, NGL, oil, cond, Oe, w
 
 def CSVProductionYearly(fieldName: str):
-    import pandas as pd, Data.getData as gd, zipfile, wget, Data.Cache.Cache as c,os, requests, streamlit as st  
+    import requests
+    import streamlit as st
     df = None
+    
     if c.checkKeyinDict("yearlyProduction") == 0:
         csvURL = "https://hotell.difi.no/download/npd/field/production-yearly-by-field"
         response = requests.get(csvURL)
@@ -59,7 +82,7 @@ def CSVProductionYearly(fieldName: str):
             st.write(f"Failed to get data from NPD, status code: {response.status_code}")
 
     df = c.CacheDF(df, 'yearlyProduction')  
-    df.drop(df[df['prfInformationCarrier'] != fieldName.upper()].index, inplace = True)
+    df.drop(df[df['prfInformationCarrier'] != fieldName.upper()].index, inplace=True)
     gas = df['prfPrdGasNetBillSm3'].tolist()
     NGL = df['prfPrdNGLNetMillSm3'].tolist()
     oil = df['prfPrdOilNetMillSm3'].tolist()
@@ -69,8 +92,12 @@ def CSVProductionYearly(fieldName: str):
     return gas, NGL, oil, cond, Oe, w
 
 def CSVProducedYears(fieldName: str) -> list:
+    import Data.getData as gd
+    import requests
+    import streamlit as st
+    
     df = None
-    import pandas as pd, Data.getData as gd, zipfile, wget, Data.Cache.Cache as c,os, requests, streamlit as st    
+    
     if c.checkKeyinDict("yearlyProduction") == 0:
         csvURL = "https://hotell.difi.no/download/npd/field/production-yearly-by-field"
         response = requests.get(csvURL)
@@ -79,13 +106,13 @@ def CSVProducedYears(fieldName: str) -> list:
         else:
             st.write(f"Failed to get data from NPD, status code: {response.status_code}")
     df = c.CacheDF(df, "yearlyProduction")
-    df.drop(df[df['prfInformationCarrier'] != fieldName.upper()].index, inplace = True)
+    df.drop(df[df['prfInformationCarrier'] != fieldName.upper()].index, inplace=True)
     years = df['prfYear'].tolist()
     return years
 
+
 def CSVProducedMonths(fieldName: str) -> list:
     df = None
-    import pandas as pd, Data.getData as gd, zipfile, wget, Data.Cache.Cache as c,os, requests, streamlit as st
     if c.checkKeyinDict("monthlyProduction") == 0:
         csvURL = "https://hotell.difi.no/download/npd/field/production-monthly-by-field"
         response = requests.get(csvURL)
@@ -93,14 +120,14 @@ def CSVProducedMonths(fieldName: str) -> list:
             df = c.csvURLtoDF(csvURL)
         else:
             st.write(f"Failed to get data from NPD, status code: {response.status_code}")
+    
     df = c.CacheDF(df, "monthlyProduction")
-    df.drop(df[df['prfInformationCarrier'] != fieldName.upper()].index, inplace = True)
+    df.drop(df[df['prfInformationCarrier'] != fieldName.upper()].index, inplace=True)
     years = df['prfYear'].tolist()
     months = df['prfMonth'].tolist()
     return years, months
 
 def deleteAndloadNewDatafromNPD():
-    from Data.Cache.Cache import delete_files
     delete_files()
     ZiptoDF()
 

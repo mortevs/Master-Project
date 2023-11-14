@@ -9,16 +9,16 @@ class ReservoirPressureAnalysis:
 
     def updateFromDropdown(self):
         import Data.getData as get
-        import Plotting.plotFunc as Plot
+        import GUI.GUI_functions as display
         fieldnames = get.fieldNames()
         fieldnames.insert(0, 'NO FIELD CHOSEN')
         import streamlit as st
-        self.__field = Plot.dropdown(options = fieldnames)
-        self.__timeframe = Plot.dropdown(options = ['Yearly', 'Monthly'])
+        self.__field = display.dropdown(options = fieldnames)
+        self.__timeframe = display.dropdown(options = ['Yearly', 'Monthly'])
     
     def run(self):
         if self.__field != 'NO FIELD CHOSEN':
-            import Data.dataProcessing.dataProcessing as dP 
+            import Data.dataProcessing as dP 
             import pandas as pd
             import streamlit as st
             import Data.getData as get

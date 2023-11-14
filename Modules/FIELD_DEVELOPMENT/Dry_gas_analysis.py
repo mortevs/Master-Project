@@ -6,21 +6,21 @@ class DryGasAnalysis:
         self.__method = method
         self.__precision = precision
         self.__field = field
-        from Data.Cache.Cache import SessionState
+        from Data.Storage.Cache import SessionState
         self.__state = SessionState.get(result=[], method = [], precision = [], field = [])
 
     def updateFromDropdown(self):
-        import Data.getData as get, Plotting.plotFunc as Plot
+        import Data.getData as get, GUI.GUI_functions as display
         fieldnames = get.fieldNames()
         fieldnames.insert(0, 'NO FIELD CHOSEN')
-        (self.__method, self.__precision, self.__field) = (Plot.columnDisplay(list1=[['NODAL', 'IPR'],['IMPLICIT', 'EXPLICIT'], fieldnames]))
+        (self.__method, self.__precision, self.__field) = (display.columnDisplay(list1=[['NODAL', 'IPR'],['IMPLICIT', 'EXPLICIT'], fieldnames]))
 
 
     def updateParameterListfromTable(self):
-        import Plotting.plotFunc as Plot
+        import GUI.GUI_functions as display
         from Data.ManualData import manualData
         list1=['Target Rate [sm3/d]', 'Initial Reservoir Pressure [bara]', 'Rate of Abandonment [sm3/d]', 'Reservoir Temperature [degree C]', 'Gas Molecular Weight [g/mol]', 'Inflow backpressure coefficient', 'Inflow backpressure exponent', 'Number of Templates', 'Number of Wells per Template', 'Uptime [days]', 'Tubing Flow Coefficient', 'Tubing Elevation Coefficient', 'Flowline Coefficient from Template-PLEM', 'Pipeline coefficient from PLEM-Shore', 'Seperator Pressure [bara]', 'Initial Gas in Place [sm3]']
-        self.__parameters.append(Plot.display_table(list1 = list1, list2 = manualData(), edible=True))
+        self.__parameters.append(display.display_table(list1 = list1, list2 = manualData(), edible=True))
 
     def run(self):
         (self.__state.method).append(self.__method)
@@ -34,7 +34,7 @@ class DryGasAnalysis:
             return NodalAnalysis(self.__precision, self.__field, self.__parameters[-1])
     
     def plot(self, comp = False):
-        import Plotting.plotFunc as Plot, streamlit as st
+        import GUI.GUI_functions as display, streamlit as st
         from pandas import DataFrame
         if comp == False:
             for i in range (len(self.__state.result)):
@@ -42,12 +42,12 @@ class DryGasAnalysis:
                     st.title('Production profile: '+str(i+1))
                     if self.__state.field[i] != 'NO FIELD CHOSEN':
                         st.write(self.__state.method[i], self.__state.precision[i], self.__state.field[i])
-                        Plot.multi_plot([self.__state.result[i]], addProduced=True)
+                        display.multi_plot([self.__state.result[i]], addProduced=True)
                     else:
                         st.write(self.__state.method[i], self.__state.precision[i])
-                        Plot.multi_plot([self.__state.result[i]], addAll=False)
+                        display.multi_plot([self.__state.result[i]], addAll=False)
         else:
-            Plot.multi_plot(self.__state.result, addAll=False)
+            display.multi_plot(self.__state.result, addAll=False)
 
             
     def getMethod(self) -> str:

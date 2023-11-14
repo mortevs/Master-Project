@@ -1,5 +1,5 @@
 from Data.ManualData import manualData
-import Data.dataProcessing.dataProcessing as dP
+import Data.dataProcessing as dP
 def NodalAnalysis(precision: str, field:str = None, Parameters: list = manualData(), i = '1'):
     """precision = 'implicit' or 'explicit' and field. The implicit method is more accurate, but may fail due to root-finding problems."""
     if precision == 'Explicit':
