@@ -36,13 +36,12 @@ if __name__ == "__main__":
         Analysis = ReservoirPressureAnalysis()
         Analysis.updateFromDropdown()
         Analysis.run()
-
     elif opt == 'IPR TUNING':
         None
     elif opt == 'TPR TUNING':
         None
     #file_name = 'productionProfile.xlsx'
-    #df.to_excel(file_name)
+    #df.to_excel(file_name) 
     #import Data.getData as get 
     #print(get.CSVProductionYearly("Snøhvit"))
 
