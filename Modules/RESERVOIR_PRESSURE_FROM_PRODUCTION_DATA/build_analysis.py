@@ -1,4 +1,7 @@
 import pandas as pd
+from Data.ManualData import manualData
+import Data.dataProcessing as dP
+import pandas as pd
 import numpy as np
 from Equations.ZfacStanding import ZfacStanding
 import Equations.DryGasFlowEquations as DGFE
@@ -9,9 +12,18 @@ from scipy.optimize import fsolve
 from scipy.optimize import root
 import matplotlib.pyplot as plt
 
+def ResAnalysis(precision: str, Parameters: list = manualData(), i = '1'):
+    # """precision = 'implicit' or 'explicit' and field. The implicit method is more accurate, but may fail due to root-finding problems."""
+    # if precision == 'Explicit':
+    #     from Modules.FIELD_DEVELOPMENT.Nodal.dfNodalExplicit import Nodal
+    # else:
+    #     from Modules.FIELD_DEVELOPMENT.Nodal.dfNodalImplicit import Nodal
+    df = build(*Parameters)
+    df.columns=('Field rates [sm3/d]', 'yearly gas of take [sm3]', 'cumulative gas of take [sm3]', 'Recovery Factor', 'Z-factor', 'Reservoir pressure [bara]', 'Rates per well [sm3/d]', 'Bottomhole pressure [bara]', 'Wellhead pressure [bara]', 'Template pressure [bara]', 'Pressure pipeline entry module [bara]', 'Seperator pressure [Bara]', 'Rates per template [sm3/d]', 'choke pressure [bara]', 'ratio PTemp to PWellHead', 'Production Potential rates [Sm3/d]' )
+    return df
 
 
-def Nodal(qFieldTarget: float, PRi: float, abandonmentRate: float, TR:float, gasMolecularWeight: float, C_R: float, n:float, N_temp: float, NWellsPerTemplate: float, upTime: int, C_t: float, S:float, C_FL:float, C_PL:float, P_sep: float, IGIP: float) -> float: 
+def build(qFieldTarget: float, PRi: float, abandonmentRate: float, TR:float, gasMolecularWeight: float, C_R: float, n:float, N_temp: float, NWellsPerTemplate: float, upTime: int, C_t: float, S:float, C_FL:float, C_PL:float, P_sep: float, IGIP: float) -> float: 
     """
     qFieldTarget =  plateau rate, [sm3/day]
     PRi = initial reservoir pressure, [bara]
@@ -94,3 +106,4 @@ def Nodal(qFieldTarget: float, PRi: float, abandonmentRate: float, TR:float, gas
             
         i+=1
     return df
+    

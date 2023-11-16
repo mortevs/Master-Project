@@ -1,5 +1,6 @@
 import streamlit as st
 import GUI.GUI_functions as display
+import time
 class GUI():
     def __init__(self):
         st.markdown(''':green[Specialization Project by Morten Vier Simensen, supervised by Prof. Milan Stanko]''')
@@ -11,11 +12,13 @@ class GUI():
         opt = display.dropdown(label = 'What do you want to use the application for?',options = ['NO OPTION CHOSEN', 'FIELD DEVELOPMENT', 'PRODUCTION FORECASTING', 'RESERVOIR PRESSURE FROM PRODUCTION DATA', 'IPR TUNING', 'TPR TUNING'], labelVisibility='visible')   
         if opt == 'FIELD DEVELOPMENT':
             self.FIELD_DEVELOPMENT()
+        if opt == 'RESERVOIR PRESSURE FROM PRODUCTION DATA':
+             self.RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA()
 
     def FIELD_DEVELOPMENT(self):
-        from Modules.FIELD_DEVELOPMENT.Dry_gas_analysis import DryGasAnalysis
+        from Modules.FIELD_DEVELOPMENT.run_Analysis import DryGasAnalysis
         Analysis = DryGasAnalysis()
-        st.title('Field development')
+        #st.title('Field development')
         Analysis.updateFromDropdown()
         Analysis.updateParameterListfromTable() 
         plot_comp = False  
@@ -28,7 +31,7 @@ class GUI():
                     plot_comp = True
         col7, col8, col9 = st.columns(3)
         with col7:
-            if st.button('Restart', 'Restart'):
+            if st.button('Restart', 'Restart FD'):
                 from Data.Storage.Cache import clear_state
                 clear_state(Analysis.getState())
         with col9: 
@@ -56,8 +59,46 @@ class GUI():
         Analysis.plot()
         
 
+    def RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA(self):
+        #st.title('Reservoir Pressure calculations')
+        from Data.StreamlitUpload import upload 
+        df_prod = upload(text = "Upload a CSV file / Excel file with the following format or choose field from dropdown menu below")
+        import Data.getData as get
+        fieldnames = get.fieldNames()
+        import locale
+        def locale_aware_sort(arr, locale_str='nb_NO.UTF-8'):
+            locale.setlocale(locale.LC_ALL, locale_str)            
+            arr.sort(key=locale.strxfrm) 
+        locale_aware_sort(fieldnames)
+        fieldnames.insert(0, 'No field chosen')
+        import GUI.GUI_functions as GUI
+        col10, col11 = st.columns(2)
+        with col10:     
+            selected_field = GUI.dropdown(label = 'Get gas production data from the following field:', options = fieldnames, labelVisibility="visible")
+        with col11:
+            selected_time = GUI.dropdown(label = 'Choose yearly, monthly or daily time perspective', options = ['Yearly', 'Monthly', 'Daily'], labelVisibility="visible")
+        from Modules.RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA.run_R_analysis import ReservoirPressureAnalysis
+        RES_Analysis = ReservoirPressureAnalysis()
+        RES_Analysis.updateFromDropdown(selected_field, selected_time)
+        col12, col13= st.columns(2)
+        with col12:     
+            if st.button('Run Analysis', 'Run RP'):
+                if selected_field == 'No field chosen' and df_prod == None:
+                    alert2 = st.warning('Upload data or chose a field from list above')
+                    time.sleep(3)
+                    alert2.empty()
+                else:
+                    RES_Analysis.run(selected_field, selected_time, df_prod)
+                    RES_Analysis.plot()
+        with col13: 
+            if st.button('Restart', 'Restart RESPRES'):
+                a = 'No field chosen'
+                selected_field = 'No field chosen'
+                selected_time = 'Yearly'
+                RES_Analysis.reset_lists()
+            
 
-
+        #RES_Analysis.updateParameterListfromTable() 
 
     # #file_name = 'productionProfile.xlsx'
     # #df.to_excel(file_name) 

@@ -53,6 +53,8 @@ def Nodal(qFieldTarget: float, PRi: float, abandonmentRate: float, TR:float, gas
             df[4][i] = Zi
             df[5][0] = PRi #Initial reservoir pressure year 0
             
+            
+            
         else:
             
             def g(x, df):
