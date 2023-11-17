@@ -8,11 +8,10 @@ import Equations.DryGasFlowEquations as DGFE
 from Equations.pWfMinEstimation import pWfMinEstimation
 from Equations.MBgastank_PR import MBgastank_PR
 from Equations.RF import RF
-from scipy.optimize import fsolve
 from scipy.optimize import root
 import matplotlib.pyplot as plt
 
-def ResAnalysis(precision: str, Parameters: list = manualData(), i = '1'):
+def ResAnalysis(precision:str = None, Parameters: list = manualData()):
     # """precision = 'implicit' or 'explicit' and field. The implicit method is more accurate, but may fail due to root-finding problems."""
     # if precision == 'Explicit':
     #     from Modules.FIELD_DEVELOPMENT.Nodal.dfNodalExplicit import Nodal

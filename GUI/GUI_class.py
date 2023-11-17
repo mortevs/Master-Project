@@ -88,14 +88,16 @@ class GUI():
                     time.sleep(3)
                     alert2.empty()
                 else:
-                    RES_Analysis.run(selected_field, selected_time, df_prod)
-                    RES_Analysis.plot()
+                    #RES_Analysis.getResult().append(RES_Analysis.run(selected_field, selected_time, df_prod))
+                    st.dataframe(RES_Analysis.run(selected_field, selected_time, df_prod))
         with col13: 
             if st.button('Restart', 'Restart RESPRES'):
-                a = 'No field chosen'
-                selected_field = 'No field chosen'
-                selected_time = 'Yearly'
-                RES_Analysis.reset_lists()
+                from Data.Storage.Cache import clear_state
+                #ReservoirPressureAnalysis.reset_lists()
+                clear_state(RES_Analysis.getState())
+        
+        RES_Analysis.plot()
+            
             
 
         #RES_Analysis.updateParameterListfromTable() 
