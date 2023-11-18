@@ -32,8 +32,10 @@ class GUI():
         col7, col8, col9 = st.columns(3)
         with col7:
             if st.button('Restart', 'Restart FD'):
+                from Data.Storage.Cache import SessionState
                 from Data.Storage.Cache import clear_state
                 clear_state(Analysis.getState())
+                SessionState.delete('DryGasAnalysis')
         with col9: 
                 import Data.getData as get
                 fieldnames = get.fieldNames()
@@ -93,9 +95,10 @@ class GUI():
         RES_Analysis.plot()
         with col13:     
             if st.button('Restart', 'Restart RESPRES'):
+                from Data.Storage.Cache import SessionState
                 from Data.Storage.Cache import clear_state2
-                #ReservoirPressureAnalysis.reset_lists()
                 clear_state2(RES_Analysis.getState())
+                SessionState.delete('ReservoirPressureAnalysis')
         
             
             

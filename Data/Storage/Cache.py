@@ -60,6 +60,9 @@ class SessionState:
         if id not in st._global_session_states:
             st._global_session_states[id] = SessionState(**kwargs)
         return st._global_session_states[id]
+    def delete(id):
+        if hasattr(st, '_global_session_states') and id in st._global_session_states:
+            del st._global_session_states[id]
 
     
 

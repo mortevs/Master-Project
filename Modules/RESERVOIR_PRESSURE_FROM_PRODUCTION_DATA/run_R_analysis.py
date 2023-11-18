@@ -34,9 +34,8 @@ class ReservoirPressureAnalysis:
             #self.__state.field.append(self.__field)
             #self.__state.time_frame.append(self.__time_frame)
             #self.__state.production_data.append(self.__production_data)
-            res = ResAnalysis()
-            st.dataframe(res)
-            return (res)
+            return ResAnalysis()
+             
 
 
     def plot(self, comp=False):
