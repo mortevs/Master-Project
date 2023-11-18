@@ -92,13 +92,15 @@ class GUI():
                 else:
                     RES_Analysis.getResult().append((RES_Analysis.run(selected_field, selected_time, df_prod)))
                     #st.dataframe(RES_Analysis.run(selected_field, selected_time, df_prod))
-        RES_Analysis.plot()
         with col13:     
             if st.button('Restart', 'Restart RESPRES'):
                 from Data.Storage.Cache import SessionState
                 from Data.Storage.Cache import clear_state2
                 clear_state2(RES_Analysis.getState())
                 SessionState.delete('ReservoirPressureAnalysis')
+        RES_Analysis.plot()
+        if Alert == True:
+
         
             
             
