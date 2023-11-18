@@ -17,7 +17,7 @@ class GUI():
 
     def FIELD_DEVELOPMENT(self):
         from Modules.FIELD_DEVELOPMENT.run_Analysis import DryGasAnalysis
-        Analysis = DryGasAnalysis()
+        Analysis = DryGasAnalysis(session_id='DryGasAnalysis')
         #st.title('Field development')
         Analysis.updateFromDropdown()
         Analysis.updateParameterListfromTable() 
@@ -78,7 +78,7 @@ class GUI():
         with col11:
             selected_time = GUI.dropdown(label = 'Choose yearly, monthly or daily time perspective', options = ['Yearly', 'Monthly', 'Daily'], labelVisibility="visible")
         from Modules.RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA.run_R_analysis import ReservoirPressureAnalysis
-        RES_Analysis = ReservoirPressureAnalysis()
+        RES_Analysis = ReservoirPressureAnalysis(session_id='ReservoirPressureAnalysis')
         RES_Analysis.updateFromDropdown(selected_field, selected_time)
         col12, col13= st.columns(2)
         with col12:     
@@ -88,15 +88,15 @@ class GUI():
                     time.sleep(3)
                     alert2.empty()
                 else:
-                    #RES_Analysis.getResult().append(RES_Analysis.run(selected_field, selected_time, df_prod))
-                    st.dataframe(RES_Analysis.run(selected_field, selected_time, df_prod))
-        with col13: 
-            if st.button('Restart', 'Restart RESPRES'):
-                from Data.Storage.Cache import clear_state
-                #ReservoirPressureAnalysis.reset_lists()
-                clear_state(RES_Analysis.getState())
-        
+                    RES_Analysis.getResult().append((RES_Analysis.run(selected_field, selected_time, df_prod)))
+                    #st.dataframe(RES_Analysis.run(selected_field, selected_time, df_prod))
         RES_Analysis.plot()
+        with col13:     
+            if st.button('Restart', 'Restart RESPRES'):
+                from Data.Storage.Cache import clear_state2
+                #ReservoirPressureAnalysis.reset_lists()
+                clear_state2(RES_Analysis.getState())
+        
             
             
 

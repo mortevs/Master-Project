@@ -51,11 +51,16 @@ class SessionState:
     def __init__(self, **kwargs):
         for key, val in kwargs.items():
             setattr(self, key, val)
-    def get(**kwargs):
-        # Get a SessionState object for the current session
-        if not hasattr(st, '_session_state'):
-            st._session_state = SessionState(**kwargs)
-        return st._session_state
+
+    @staticmethod
+    def get(id, **kwargs):
+        # Check if a unique SessionState object for the given id exists
+        if not hasattr(st, '_global_session_states'):
+            st._global_session_states = {}
+        if id not in st._global_session_states:
+            st._global_session_states[id] = SessionState(**kwargs)
+        return st._global_session_states[id]
+
     
 
 def delete_files():
@@ -75,6 +80,11 @@ def clear_state(state:SessionState):
     state.result = []
     state.method = []
     state.precision = []
+    state.field = []
+def clear_state2(state:SessionState):
+    state.result = []
+    state.time_frame = []
+    state.production_data = []
     state.field = []
 
     
