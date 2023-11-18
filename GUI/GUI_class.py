@@ -99,7 +99,6 @@ class GUI():
                 clear_state2(RES_Analysis.getState())
                 SessionState.delete('ReservoirPressureAnalysis')
         RES_Analysis.plot()
-        if Alert == True:
 
         
             
