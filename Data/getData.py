@@ -48,14 +48,13 @@ def fieldNames():
 
 def CSVProductionMonthly(fieldName: str):
     df = None   
-    if c.checkKeyinDict("monthlyProduction") == 0:
-        csvURL = "https://hotell.difi.no/download/npd/field/production-monthly-by-field"
-        response = requests.get(csvURL)
-        if response.status_code == 200:
-            df = c.csvURLtoDF(csvURL)
-        else:
-            st.write(f"Failed to get data from NPD, status code: {response.status_code}")
-
+    #if c.checkKeyCached("monthlyProduction") == False:
+    csvURL = "https://hotell.difi.no/download/npd/field/production-monthly-by-field"
+    response = requests.get(csvURL)
+    if response.status_code == 200:
+        df = c.csvURLtoDF(csvURL)
+    else:
+        st.write(f"Failed to get data from NPD, status code: {response.status_code}")
     df = c.CacheDF(df, 'monthlyProduction')  
     df.drop(df[df['prfInformationCarrier'] != fieldName.upper()].index, inplace=True)
     gas = df['prfPrdGasNetBillSm3'].tolist()
@@ -66,21 +65,17 @@ def CSVProductionMonthly(fieldName: str):
     w = df['prfPrdProducedWaterInFieldMillSm3'].tolist()
     return gas, NGL, oil, cond, Oe, w
 
-def CSVProductionYearly(fieldName: str):
-    import requests
-    import streamlit as st
+def CSVProductionYearly(field: str):
     df = None
-    
-    if c.checkKeyinDict("yearlyProduction") == 0:
-        csvURL = "https://hotell.difi.no/download/npd/field/production-yearly-by-field"
-        response = requests.get(csvURL)
-        if response.status_code == 200:
-            df = c.csvURLtoDF(csvURL)
-        else:
-            st.write(f"Failed to get data from NPD, status code: {response.status_code}")
-
-    df = c.CacheDF(df, 'yearlyProduction')  
-    df.drop(df[df['prfInformationCarrier'] != fieldName.upper()].index, inplace=True)
+    #if c.checkKeyCached("yearlyProduction") == False:
+    csvURL = "https://hotell.difi.no/download/npd/field/production-yearly-by-field"
+    response = requests.get(csvURL)
+    if response.status_code == 200:
+        df = c.csvURLtoDF(csvURL)
+    else:
+        st.write(f"Failed to get NPD data using digitaliseringsdirektoratets API, status code: {response.status_code}")
+    df = c.CacheDF(df, key = 'yearlyProduction')
+    df.drop(df[df['prfInformationCarrier'] != field.upper()].index, inplace=True)
     gas = df['prfPrdGasNetBillSm3'].tolist()
     NGL = df['prfPrdNGLNetMillSm3'].tolist()
     oil = df['prfPrdOilNetMillSm3'].tolist()
@@ -90,19 +85,14 @@ def CSVProductionYearly(fieldName: str):
     return gas, NGL, oil, cond, Oe, w
 
 def CSVProducedYears(fieldName: str) -> list:
-    import Data.getData as gd
-    import requests
-    import streamlit as st
-    
     df = None
-    
-    if c.checkKeyinDict("yearlyProduction") == 0:
-        csvURL = "https://hotell.difi.no/download/npd/field/production-yearly-by-field"
-        response = requests.get(csvURL)
-        if response.status_code == 200:
-            df = c.csvURLtoDF(csvURL)
-        else:
-            st.write(f"Failed to get data from NPD, status code: {response.status_code}")
+    #if c.checkKeyCached("yearlyProduction") == False:
+    csvURL = "https://hotell.difi.no/download/npd/field/production-yearly-by-field"
+    response = requests.get(csvURL)
+    if response.status_code == 200:
+        df = c.csvURLtoDF(csvURL)
+    else:
+        st.write(f"Failed to get NPD data using digitaliseringsdirektoratets API, status code: {response.status_code}")
     df = c.CacheDF(df, "yearlyProduction")
     df.drop(df[df['prfInformationCarrier'] != fieldName.upper()].index, inplace=True)
     years = df['prfYear'].tolist()
@@ -111,14 +101,14 @@ def CSVProducedYears(fieldName: str) -> list:
 
 def CSVProducedMonths(fieldName: str) -> list:
     df = None
-    if c.checkKeyinDict("monthlyProduction") == 0:
-        csvURL = "https://hotell.difi.no/download/npd/field/production-monthly-by-field"
-        response = requests.get(csvURL)
-        if response.status_code == 200:
-            df = c.csvURLtoDF(csvURL)
-        else:
-            st.write(f"Failed to get data from NPD, status code: {response.status_code}")
-    
+    #if c.checkKeyinDict("monthlyProduction") == 0:
+    csvURL = "https://hotell.difi.no/download/npd/field/production-monthly-by-field"
+    response = requests.get(csvURL)
+    if response.status_code == 200:
+        df = c.csvURLtoDF(csvURL)
+    else:
+        st.write(f"Failed to get data from NPD, status code: {response.status_code}")
+
     df = c.CacheDF(df, "monthlyProduction")
     df.drop(df[df['prfInformationCarrier'] != fieldName.upper()].index, inplace=True)
     years = df['prfYear'].tolist()

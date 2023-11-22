@@ -31,10 +31,13 @@ class ReservoirPressureAnalysis:
         if df_prod != None:
             st.write('Data upload will be implemented')
         elif selected_field != "No field chosen":
-            #self.__state.field.append(self.__field)
-            #self.__state.time_frame.append(self.__time_frame)
-            #self.__state.production_data.append(self.__production_data)
-            return ResAnalysis()
+            import Data.getData as get
+            import Data.dataProcessing as dp    
+            #production = get.CSVProductionYearly(self.__field)
+            self.__state.field.append(self.__field)
+            self.__state.time_frame.append(self.__time_frame)
+            self.__state.production_data.append(self.__production_data)
+            return dp.addProducedYears(self.__field, dp.addActualProdYtoDF(self.__field, ResAnalysis()))
              
 
 

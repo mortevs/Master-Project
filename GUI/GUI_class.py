@@ -1,6 +1,15 @@
 import streamlit as st
 import GUI.GUI_functions as display
 import time
+import Data.getData as get
+fieldnames = get.fieldNames()
+import locale
+def locale_aware_sort(arr, locale_str='nb_NO.UTF-8'):
+    locale.setlocale(locale.LC_ALL, locale_str)            
+    arr.sort(key=locale.strxfrm) 
+locale_aware_sort(fieldnames)
+fieldnames.insert(0, 'No field chosen')
+
 class GUI():
     def __init__(self):
         st.markdown(''':green[Specialization Project by Morten Vier Simensen, supervised by Prof. Milan Stanko]''')
@@ -18,47 +27,39 @@ class GUI():
     def FIELD_DEVELOPMENT(self):
         from Modules.FIELD_DEVELOPMENT.run_Analysis import DryGasAnalysis
         Analysis = DryGasAnalysis(session_id='DryGasAnalysis')
-        #st.title('Field development')
-        Analysis.updateFromDropdown()
+        method, precision = display.columnDisplay2(list1=[['NODAL', 'IPR'], ['IMPLICIT', 'EXPLICIT']])
+        Analysis.updateFromDropdown(method = method, precision=precision)
         Analysis.updateParameterListfromTable() 
         plot_comp = False  
         col4, col5, col6 = st.columns(3)
-        with col4:     
-            if st.button('Run Analysis', 'Run'):
-                Analysis.getResult().append(Analysis.run())
+        with col4:
+            run = st.button('Run Analysis', 'Run')
         with col6: 
             if st.button('Compare different models', 'Compare'):
                     plot_comp = True
         col7, col8, col9 = st.columns(3)
         with col7:
-            if st.button('Restart', 'Restart FD'):
-                from Data.Storage.Cache import SessionState
-                from Data.Storage.Cache import clear_state
-                clear_state(Analysis.getState())
-                SessionState.delete('DryGasAnalysis')
+            clear =  st.button('Clear output', 'clear FD')
         with col9: 
-                import Data.getData as get
-                fieldnames = get.fieldNames()
-                import locale
-                def locale_aware_sort(arr, locale_str='nb_NO.UTF-8'):
-                    locale.setlocale(locale.LC_ALL, locale_str)            
-                    arr.sort(key=locale.strxfrm) 
-                locale_aware_sort(fieldnames)
-                fieldnames.insert(0, 'No field chosen')
-                import GUI.GUI_functions as GUI
-                selected_option1 = GUI.dropdown(label = 'Choose a field to compare with', options = fieldnames, labelVisibility="visible")
-                #if selected_option1 != 'NO FIELD CHOSEN':
-#                   df = dP.addActualProdYtoDF(field, df)
-#                   df = dP.addProducedYears(field, df)
+            field = display.dropdown(label = 'Choose a field to compare with', options = fieldnames, labelVisibility="visible")
+            Analysis.updateField(field)
+        
+        if clear:
+            Analysis.clear_output()
 
-#         if self.__state.field[i] != 'NO FIELD CHOSEN':
-#     st.write(self.__state.method[i], self.__state.precision[i], self.__state.field[i])
-#     display.multi_plot([self.__state.result[i]], addProduced=True)
-# else:
-                #selected_option1 = st.dropdown(options = fieldnames)
+        field_name = Analysis.get_current_field()
+        if run and field_name == 'No field chosen':
+            result = Analysis.run()
+            Analysis.append_result(result)
+
+        elif run and field_name != 'No field chosen':
+            result = Analysis.run_field(field)
+            Analysis.append_result(result)
         if plot_comp == True:
             Analysis.plot(comp = True)
         Analysis.plot()
+        
+
         
 
     def RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA(self):

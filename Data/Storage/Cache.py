@@ -4,6 +4,7 @@ import zipfile
 import pandas as pd
 import shelve
 import streamlit as st
+import pickle
 data_storage_folder = os.path.join(os.getcwd(), "Data\Storage")
 cacheZip = {}
 cacheDF = {}
@@ -21,15 +22,25 @@ def csvURLtoDF(csvURL: str) ->pd.DataFrame:
     df = pd.read_csv((csvURL), sep = ";", low_memory=False)
     return df
 
-
 def CacheDF(df, key):
-    if key in cacheDF:
-        return cacheDF[key]
-    with shelve.open(os.path.join(data_storage_folder, "savedDictionary")) as d:
-        d[key] = df
+    global cacheDF
+    try:
+        with shelve.open(os.path.join(data_storage_folder, "savedDictionary")) as d:
+            d[key] = df
+    except Exception as e:
+        print(f"Error caching DataFrame: {e}")
     cacheDF[key] = df
-
     return cacheDF[key]
+    
+def checkKeyCached(key):
+        if key in cacheDF:
+            return True
+        else:
+            return False
+
+    
+
+
 
 def dumpDict(data, name):
     with shelve.open(os.path.join(data_storage_folder, "savedDictionary")) as d:
@@ -54,15 +65,27 @@ class SessionState:
 
     @staticmethod
     def get(id, **kwargs):
-        # Check if a unique SessionState object for the given id exists
         if not hasattr(st, '_global_session_states'):
             st._global_session_states = {}
         if id not in st._global_session_states:
             st._global_session_states[id] = SessionState(**kwargs)
         return st._global_session_states[id]
+
     def delete(id):
         if hasattr(st, '_global_session_states') and id in st._global_session_states:
             del st._global_session_states[id]
+
+    def append(id, key, value):
+        if not hasattr(st, '_global_session_states'):
+            st._global_session_states = {}
+        # Retrieve the specific session state using the provided ID
+        session_state = st._global_session_states.get(id)
+
+        # Append the value to the list corresponding to the key
+        current_list = getattr(session_state, key, [])
+        current_list.append(value)     
+        setattr(session_state, key, current_list)
+
 
     
 
@@ -84,6 +107,7 @@ def clear_state(state:SessionState):
     state.method = []
     state.precision = []
     state.field = []
+
 def clear_state2(state:SessionState):
     state.result = []
     state.time_frame = []

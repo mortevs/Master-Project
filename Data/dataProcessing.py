@@ -49,6 +49,7 @@ def estimatedReservoirPressure(TVD: float) -> float:
 
 
 def addActualProdYtoDF(field: str, df: DataFrame,  adjustLength = True) ->DataFrame:
+    import streamlit as st
     gas, NGL, oil, cond, Oe, w = get.CSVProductionYearly(field)
     if adjustLength == True: #should i remove 0 production
         while len(df) != len(gas):
