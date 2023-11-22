@@ -80,7 +80,11 @@ class DryGasAnalysis:
                         st.write(method[i], prec[i])
                         display.multi_plot([res[i]], addAll=False)
         else:
-            display.multi_plot(self.__state.result, addAll=False)
+            dfs = []
+            for df in self.__state.result:
+                reset_ind_df = df.reset_index(drop = True)
+                dfs.append(reset_ind_df)
+            display.multi_plot(dfs, addAll=False)
 
     def clear_output(self):
         from Data.Storage.Cache import SessionState
