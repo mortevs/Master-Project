@@ -8,22 +8,22 @@ import time
 from Data.Storage.Cache import delete_files
 import Data.Storage.Cache as c
 
-cacheZip = {}
-cacheDF = {}
-data_storage_folder = os.path.join(os.getcwd(), "Data\Storage")
+#cacheZip = {}
+#cacheDF = {}
+data_storage_folder = os.path.join(os.getcwd(), 'Data\Storage')
 
-def CacheZip(key, zipFileUrl):
-    if key in cacheZip:
-        return cacheZip[key]    
-    os.makedirs(data_storage_folder, exist_ok=True)
-    zip_file_path = os.path.join(data_storage_folder, key + ".zip")
-    wget.download(zipFileUrl, out=zip_file_path)
-    zf = zipfile.ZipFile(zip_file_path)
-    cacheZip[key] = zf
-    return cacheZip[key]
+# def CacheZip(key, zipFileUrl):
+#     if key in cacheZip:
+#         return cacheZip[key]    
+#     os.makedirs(data_storage_folder, exist_ok=True)
+#     zip_file_path = os.path.join(data_storage_folder, key + '.zip')
+#     wget.download(zipFileUrl, out=zip_file_path)
+#     zf = zipfile.ZipFile(zip_file_path)
+#     cacheZip[key] = zf
+#     return cacheZip[key]
 
 def ZiptoDF(zipname='fldArea.zip', zipFileUrl='https://factpages.npd.no/downloads/csv/fldArea.zip'):
-    zip_file_path = os.path.join(os.getcwd(), "Data\Storage", zipname)
+    zip_file_path = os.path.join(os.getcwd(), 'Data\Storage', zipname)
     if os.path.exists(zip_file_path):
         zf = zipfile.ZipFile(zip_file_path)
     else:
@@ -32,84 +32,87 @@ def ZiptoDF(zipname='fldArea.zip', zipFileUrl='https://factpages.npd.no/download
             wget.download(zipFileUrl, out=zip_file_path)            
             zf = zipfile.ZipFile(zip_file_path)
             timestamp = time.ctime()
-            alert = st.warning("Data downloaded from NPD " + timestamp)
+            alert = st.warning('Data downloaded from NPD ' + timestamp)
             time.sleep(5)
             alert.empty()
         else:
-            st.write(f"Failed to get data from NPD, status code: {response.status_code}")
+            st.write(f'Failed to get data from NPD, status code: {response.status_code}')
     df = pd.read_csv(zf.open(zf.namelist()[0]))
     zf.close()
     return df
 
 def fieldNames():
-    fldData = c.CacheDF(df=ZiptoDF(), key="fldArea")
-    field_names = list(fldData["fldName"])
+    fldData = c.CacheDF(df=ZiptoDF(), key='fldArea')
+    field_names = list(fldData['fldName'])
     return field_names
 
 def CSVProductionMonthly(fieldName: str):
-    df = None   
-    #if c.checkKeyCached("monthlyProduction") == False:
-    csvURL = "https://hotell.difi.no/download/npd/field/production-monthly-by-field"
-    response = requests.get(csvURL)
-    if response.status_code == 200:
-        df = c.csvURLtoDF(csvURL)
+    if c.checkKeyCached('monthlyProduction'):
+        p = c.CacheDF(df = None, key ='monthlyProduction')  
     else:
-        st.write(f"Failed to get data from NPD, status code: {response.status_code}")
-    df = c.CacheDF(df, 'monthlyProduction')  
-    df.drop(df[df['prfInformationCarrier'] != fieldName.upper()].index, inplace=True)
-    gas = df['prfPrdGasNetBillSm3'].tolist()
-    NGL = df['prfPrdNGLNetMillSm3'].tolist()
-    oil = df['prfPrdOilNetMillSm3'].tolist()
-    cond = df['prfPrdCondensateNetMillSm3'].tolist()
-    Oe = df['prfPrdOeNetMillSm3'].tolist()
-    w = df['prfPrdProducedWaterInFieldMillSm3'].tolist()
+        csvURL = 'https://hotell.difi.no/download/npd/field/production-monthly-by-field'
+        response = requests.get(csvURL)
+        if response.status_code == 200:
+            data_to_store = c.csvURLtoDF(csvURL)
+            p = c.CacheDF(df = data_to_store, key ='monthlyProduction')  
+        else:
+            st.write(f'Failed to get data from NPD, status code: {response.status_code}')
+    p.drop(p[p['prfInformationCarrier'] != fieldName.upper()].index, inplace=True)
+    gas = p['prfPrdGasNetBillSm3'].tolist()
+    NGL = p['prfPrdNGLNetMillSm3'].tolist()
+    oil = p['prfPrdOilNetMillSm3'].tolist()
+    cond = p['prfPrdCondensateNetMillSm3'].tolist()
+    Oe = p['prfPrdOeNetMillSm3'].tolist()
+    w = p['prfPrdProducedWaterInFieldMillSm3'].tolist()
     return gas, NGL, oil, cond, Oe, w
 
 def CSVProductionYearly(field: str):
-    df = None
-    #if c.checkKeyCached("yearlyProduction") == False:
-    csvURL = "https://hotell.difi.no/download/npd/field/production-yearly-by-field"
-    response = requests.get(csvURL)
-    if response.status_code == 200:
-        df = c.csvURLtoDF(csvURL)
+    if c.checkKeyinDict('yearlyProduction'):
+        p = c.CacheDF(df = None, key = 'yearlyProduction')
     else:
-        st.write(f"Failed to get NPD data using digitaliseringsdirektoratets API, status code: {response.status_code}")
-    df = c.CacheDF(df, key = 'yearlyProduction')
-    df.drop(df[df['prfInformationCarrier'] != field.upper()].index, inplace=True)
-    gas = df['prfPrdGasNetBillSm3'].tolist()
-    NGL = df['prfPrdNGLNetMillSm3'].tolist()
-    oil = df['prfPrdOilNetMillSm3'].tolist()
-    cond = df['prfPrdCondensateNetMillSm3'].tolist()
-    Oe = df['prfPrdOeNetMillSm3'].tolist()
-    w = df['prfPrdProducedWaterInFieldMillSm3'].tolist()
+        csvURL = 'https://hotell.difi.no/download/npd/field/production-yearly-by-field'
+        response = requests.get(csvURL)
+        if response.status_code == 200:
+            data_to_store = c.csvURLtoDF(csvURL)
+            p = c.CacheDF(df = data_to_store, key = 'yearlyProduction')
+        else:
+            st.write(f'Failed to get NPD data using digitaliseringsdirektoratets API, status code: {response.status_code}')
+    p.drop(p[p['prfInformationCarrier'] != field.upper()].index, inplace=True)
+    gas = p['prfPrdGasNetBillSm3'].tolist()
+    NGL = p['prfPrdNGLNetMillSm3'].tolist()
+    oil = p['prfPrdOilNetMillSm3'].tolist()
+    cond = p['prfPrdCondensateNetMillSm3'].tolist()
+    Oe = p['prfPrdOeNetMillSm3'].tolist()
+    w = p['prfPrdProducedWaterInFieldMillSm3'].tolist()
     return gas, NGL, oil, cond, Oe, w
 
 def CSVProducedYears(fieldName: str) -> list:
-    df = None
-    #if c.checkKeyCached("yearlyProduction") == False:
-    csvURL = "https://hotell.difi.no/download/npd/field/production-yearly-by-field"
-    response = requests.get(csvURL)
-    if response.status_code == 200:
-        df = c.csvURLtoDF(csvURL)
+    if c.checkKeyinDict('yearlyProduction'):
+        p = c.CacheDF(df = None, key = 'yearlyProduction')
     else:
-        st.write(f"Failed to get NPD data using digitaliseringsdirektoratets API, status code: {response.status_code}")
-    df = c.CacheDF(df, "yearlyProduction")
-    df.drop(df[df['prfInformationCarrier'] != fieldName.upper()].index, inplace=True)
-    years = df['prfYear'].tolist()
+        csvURL = 'https://hotell.difi.no/download/npd/field/production-yearly-by-field'
+        response = requests.get(csvURL)
+        if response.status_code == 200:
+            data_to_store = c.csvURLtoDF(csvURL)
+            p = c.CacheDF(df = data_to_store, key = 'yearlyProduction')
+        else:
+            st.write(f'Failed to get NPD data using digitaliseringsdirektoratets API, status code: {response.status_code}')
+    p.drop(p[p['prfInformationCarrier'] != fieldName.upper()].index, inplace=True)
+    years = p['prfYear'].tolist()
     return years
 
 
 def CSVProducedMonths(fieldName: str) -> list:
     df = None
-    #if c.checkKeyinDict("monthlyProduction") == 0:
-    csvURL = "https://hotell.difi.no/download/npd/field/production-monthly-by-field"
+    #if c.checkKeyinDict('monthlyProduction') == 0:
+    csvURL = 'https://hotell.difi.no/download/npd/field/production-monthly-by-field'
     response = requests.get(csvURL)
     if response.status_code == 200:
         df = c.csvURLtoDF(csvURL)
     else:
-        st.write(f"Failed to get data from NPD, status code: {response.status_code}")
+        st.write(f'Failed to get data from NPD, status code: {response.status_code}')
 
-    df = c.CacheDF(df, "monthlyProduction")
+    df = c.CacheDF(df, 'monthlyProduction')
     df.drop(df[df['prfInformationCarrier'] != fieldName.upper()].index, inplace=True)
     years = df['prfYear'].tolist()
     months = df['prfMonth'].tolist()
@@ -123,29 +126,29 @@ def deleteAndloadNewDatafromNPD():
 # def fieldStatus(fieldName: str) -> str:
 #     fieldList = fieldNames()
 #     if fieldName.upper() in fieldList:
-#         zipFileUrl = "https://factpages.npd.no/downloads/csv/fldArea.zip"
+#         zipFileUrl = 'https://factpages.npd.no/downloads/csv/fldArea.zip'
 #         index = fieldList.index(fieldName.upper())
-#         df = CacheDF("fldArea")
+#         df = CacheDF('fldArea')
 #         status = df['fldCurrentActivitySatus'].values[index]
 #         return status
-#     raise ValueError("No field with name ", fieldName, " at NPD")
+#     raise ValueError('No field with name ', fieldName, ' at NPD')
     
 # def mainArea(fieldName: str) -> str:        
 #     fieldList = fieldNames()
 #     if fieldName.upper() in fieldList:
-#         df = CacheDF("fldArea")
+#         df = CacheDF('fldArea')
 #         index = fieldList.index(fieldName.upper())
 #         area = df['fldMainArea'].values[index]
 #         return area
-#     raise ValueError("No field with name ", fieldName, " at NPD")
+#     raise ValueError('No field with name ', fieldName, ' at NPD')
     
 # def fldMainSupplyBase(fieldName: str) -> str:        
 #     fieldList = fieldNames()
 #     if fieldName.upper() in fieldList:
-#         df = CacheDF("fldArea")
+#         df = CacheDF('fldArea')
 #         index = fieldList.index(fieldName.upper())
 #         base = df['fldMainSupplyBase'].values[index]
 #         return base
-#     raise ValueError("No field with name ", fieldName, " at NPD")
+#     raise ValueError('No field with name ', fieldName, ' at NPD')
 
 
