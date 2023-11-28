@@ -11,7 +11,7 @@ class ReservoirPressureAnalysis:
         self.__time_frame = [time]
         self.__result = []
         self.__session_id = session_id
-        self.__state = SessionState.get(id=session_id, result=[], time_frame=[time], field=[field], production_data=[productionData])
+        self.__state = SessionState.get(id=session_id, result=[], time_frame=[], field=[], production_data=[])
 
     def updateFromDropdown(self, field, time_frame):
         self.__field = field
@@ -21,23 +21,25 @@ class ReservoirPressureAnalysis:
         list1 = ['Target Rate [sm3/d]', 'Initial Reservoir Pressure [bara]', 'Rate of Abandonment [sm3/d]', 'Reservoir Temperature [degree C]', 'Gas Molecular Weight [g/mol]', 'Inflow backpressure coefficient', 'Inflow backpressure exponent', 'Number of Templates', 'Number of Wells per Template', 'Uptime [days]', 'Tubing Flow Coefficient', 'Tubing Elevation Coefficient', 'Flowline Coefficient from Template-PLEM', 'Pipeline coefficient from PLEM-Shore', 'Seperator Pressure [bara]', 'Initial Gas in Place [sm3]']
         self.__parameters.append(display.display_table(list1=list1, list2=manualData(), edible=True))
 
-    def reset_lists(self):
-        self.__production_data = []
-        self.__field = ['No field chosen']
-        self.__time_frame = ['Yearly']
 
-    def run(self, selected_field, selected_time, df_prod):
+    def run(self, upload):
         from Modules.RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA.build_analysis import ResAnalysis
-        if df_prod != None:
+        if upload != None:
             st.write('Data upload will be implemented')
-        elif selected_field != "No field chosen":
+        elif self.__field != "No field chosen":
             import Data.getData as get
-            import Data.dataProcessing as dp    
-            #production = get.CSVProductionYearly(self.__field)
+            import Data.dataProcessing as dp
+            if self.__time_frame == 'Yearly':
+                self.__production_data = get.CSVProductionYearly(self.__field)
+            elif self.__time_frame == 'Monthly':
+                self.__production_data = get.CSVProductionMonthly(self.__field)
             self.__state.field.append(self.__field)
             self.__state.time_frame.append(self.__time_frame)
             self.__state.production_data.append(self.__production_data)
-            return dp.addProducedYears(self.__field, dp.addActualProdYtoDF(self.__field, ResAnalysis()))
+            result = ResAnalysis()
+            result = dp.addActualProdYtoDF(self.__field, result)
+            result = dp.addProducedYears(self.__field, result)
+            return result
              
 
 
@@ -51,15 +53,45 @@ class ReservoirPressureAnalysis:
                     #st.write(self.__state.method[i], self.__state.precision[i])
                     display.multi_plot([self.__state.result[i]], addAll=False)
                 else:
-                    st.alert('Something is wrong..')
+                    st.alert('Something has gone wrong..')
         else:
             display.multi_plot(self.__state.result, addAll=False)
 
 
-    def getResult(self) -> list:
+    def clear_output(self):
+        from Data.Storage.Cache import SessionState
+        SessionState.delete(id = self.__session_id)
+        self.__state = SessionState.get(id=self.__session_id, result=[], time_frame=[], field=[], production_data=[])
+    
+
+    def get_time_frame(self) -> str:
+        session_state = self.__state.get(self.__session_id)
+        return getattr(session_state, 'time_frame', None)
+
+    def get_production_data(self) -> str:
+        session_state = self.__state.get(self.__session_id)
+        return getattr(session_state, 'production_data', None)
+
+    def get_result(self) -> list:
         session_state = self.__state.get(self.__session_id)
         return getattr(session_state, 'result', [])
+    
+    def get_field(self) -> pd.DataFrame:
+        session_state = self.__state.get(self.__session_id)
+        return getattr(session_state, 'field', pd.DataFrame())
 
-    def getState(self) -> pd.DataFrame:
+    def get_state(self) -> SessionState:
         session_state = self.__state.get(self.__session_id)
         return session_state
+    
+    def append_time_frame(self, item) -> str:
+        SessionState.append(id = self.__session_id, key = 'time_frame', value = item)
+
+    def append_production_data(self, item) -> str:
+        SessionState.append(id = self.__session_id, key = 'production_data', value = item)
+
+    def append_result(self, item) -> str:
+        SessionState.append(id = self.__session_id, key = 'result', value = item)
+    
+    def append_field(self, item) -> str:
+        SessionState.append(id = self.__session_id, key = 'field', value = item)

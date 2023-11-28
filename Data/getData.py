@@ -56,7 +56,7 @@ def CSVProductionMonthly(fieldName: str):
             data_to_store = c.csvURLtoDF(csvURL)
             p = c.CacheDF(df = data_to_store, key ='monthlyProduction')  
         else:
-            st.write(f'Failed to get data from NPD, status code: {response.status_code}')
+            st.write(f'Failed to get NPD data using digitaliseringsdirektoratets API, status code: {response.status_code}')
     p.drop(p[p['prfInformationCarrier'] != fieldName.upper()].index, inplace=True)
     gas = p['prfPrdGasNetBillSm3'].tolist()
     NGL = p['prfPrdNGLNetMillSm3'].tolist()
@@ -103,19 +103,19 @@ def CSVProducedYears(fieldName: str) -> list:
 
 
 def CSVProducedMonths(fieldName: str) -> list:
-    df = None
-    #if c.checkKeyinDict('monthlyProduction') == 0:
-    csvURL = 'https://hotell.difi.no/download/npd/field/production-monthly-by-field'
-    response = requests.get(csvURL)
-    if response.status_code == 200:
-        df = c.csvURLtoDF(csvURL)
+    if c.checkKeyinDict('monthlyProduction'):
+        p = c.CacheDF(df = None, key = 'monthlyProduction')
     else:
-        st.write(f'Failed to get data from NPD, status code: {response.status_code}')
-
-    df = c.CacheDF(df, 'monthlyProduction')
-    df.drop(df[df['prfInformationCarrier'] != fieldName.upper()].index, inplace=True)
-    years = df['prfYear'].tolist()
-    months = df['prfMonth'].tolist()
+        csvURL = 'https://hotell.difi.no/download/npd/field/production-monthly-by-field'
+        response = requests.get(csvURL)
+        if response.status_code == 200:
+            data_to_store = c.csvURLtoDF(csvURL)
+            p = c.CacheDF(df = data_to_store, key = 'monthlyProduction')
+        else:
+            st.write(f'Failed to get NPD data using digitaliseringsdirektoratets API, status code: {response.status_code}')
+    p.drop(p[p['prfInformationCarrier'] != fieldName.upper()].index, inplace=True)
+    years = p['prfYear'].tolist()
+    months = p['prfMonth'].tolist()
     return years, months
 
 def deleteAndloadNewDatafromNPD():

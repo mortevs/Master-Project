@@ -79,6 +79,42 @@ def addActualProdYtoDF(field: str, df: DataFrame,  adjustLength = True) ->DataFr
     df = df.assign(WaterSM3perday=w)
     return df
 
+def yearly_produced_DF(field: str, df: DataFrame) ->DataFrame:
+    import streamlit as st
+    gas, NGL, oil, cond, Oe, w = get.CSVProductionYearly(field)
+    gas = [i*10**9 for i in gas] #prfPrdGasNetBillSm3
+    NGL = [i*10**6 for i in NGL] #prfPrdOilNetMillSm3
+    oil = [i*10**6 for i in oil] #prfPrdCondensateNetMillSm3
+    cond = [i*10**6 for i in cond] #prfPrdOeNetMillSm3
+    Oe = [i*10**6 for i in Oe] #prfPrdOeNetMillSm3
+    w = [i*10**6 for i in w] #prfPrdProducedWaterInFieldMillSm3
+    df = df.assign(gasSM3perday=gas)
+    df = df.assign(NGLSM3perday=NGL)
+    df = df.assign(oilSM3perday=oil)
+    df = df.assign(condensateSM3perday=cond)
+    df = df.assign(OilEquivalentsSM3perday=Oe)
+    df = df.assign(WaterSM3perday=w)
+    return df
+
+def monthly_produced_DF(field: str, df: DataFrame) ->DataFrame:
+    import streamlit as st
+    gas, NGL, oil, cond, Oe, w = get.CSVProductionMonthly(field)
+    gas = [i*10**9 for i in gas] #prfPrdGasNetBillSm3
+    df = df.assign(gasSM3perday=gas)
+    NGL = [i*10**6 for i in NGL] #prfPrdOilNetMillSm3
+    oil = [i*10**6 for i in oil] #prfPrdCondensateNetMillSm3
+    cond = [i*10**6 for i in cond] #prfPrdOeNetMillSm3
+    Oe = [i*10**6 for i in Oe] #prfPrdOeNetMillSm3
+    w = [i*10**6 for i in w] #prfPrdProducedWaterInFieldMillSm3
+    df = df.assign(gasSM3perday=gas)
+    df = df.assign(NGLSM3perday=NGL)
+    df = df.assign(oilSM3perday=oil)
+    df = df.assign(condensateSM3perday=cond)
+    df = df.assign(OilEquivalentsSM3perday=Oe)
+    df = df.assign(WaterSM3perday=w)
+    return df
+
+
 def addProducedYears(field: str, df: DataFrame, adjustLength = True) ->DataFrame:
     sY = min(get.CSVProducedYears(field))
     years = [sY]
@@ -90,6 +126,17 @@ def addProducedYears(field: str, df: DataFrame, adjustLength = True) ->DataFrame
     df.index = years
     return df
 
+def addProducedMonths(field: str, df: DataFrame, adjustLength=True) -> DataFrame:
+    import datetime
+    dates = []
+    years, months = get.CSVProducedMonths(field)
+    for year, month in zip(years, months):
+        date = str (month)+":"+str(year)  
+
+        dates.append(date)
+    
+    df.index = dates
+    return df
 
 
 
