@@ -91,6 +91,7 @@ class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA(GUI):
         if run:
             if selected_field == 'No field chosen' and upload == None:
                 alert2 = st.warning('Upload data or chose a field from list above')
+                import time
                 time.sleep(3)
                 alert2.empty()
             else:
@@ -117,17 +118,16 @@ class NPD_DATA(GUI):
         npd_obj.updateFromDropDown(fieldName = field, time = time)
         col6, col7, col8 = st.columns(3)
         with col6:
-            run = st.button('Show plot', 'Run npdData')
+            run = st.button('Show produced volumes', 'Show produced volumes')
         with col7:
             comp = st.button('Compare fields', 'Compare')
         with col8: 
             clear =  st.button('Clear output', 'clear FD')
         
         if run and field == 'No field chosen':
-            import time
-            alert2 = st.warning('Choose a field first')
+            alert3 = st.warning('Choose a field first')
             time.sleep(1.5)
-            alert2.empty()
+            alert3.empty()
         
         elif run and time == 'Yearly':
             result = npd_obj.runY()
@@ -145,10 +145,19 @@ class NPD_DATA(GUI):
         npd_obj.plot()
         self.parent = parent
 
-       #RES_Analysis.updateParameterListfromTable() 
+        st.write(' ')
+        st.write(' ')
+        st.write(' ')
 
-    # #file_name = 'productionProfile.xlsx'
-    # #df.to_excel(file_name) 
-    # #import Data.getData as get 
-    # #print(get.CSVProductionYearly("Snøhvit"))
-    # return None
+        poly_button = st.button('Polygon Plotter', 'polygon plotter')
+        if poly_button and field == 'No field chosen':
+            import time
+            alert4 = st.warning('Choose a field first')
+            time.sleep(1.5)
+            alert4.empty()
+        elif poly_button and field != 'No field chosen':
+            from Modules.NPD_DATA.npd_data import PolygonPlotter
+            wkt_str = get.polygon_coordinates(field)
+            polygon = PolygonPlotter(wkt_str)
+            polygon.plot()
+        

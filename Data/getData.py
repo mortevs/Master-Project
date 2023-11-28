@@ -41,10 +41,17 @@ def ZiptoDF(zipname='fldArea.zip', zipFileUrl='https://factpages.npd.no/download
     zf.close()
     return df
 
+
 def fieldNames():
     fldData = c.CacheDF(df=ZiptoDF(), key='fldArea')
     field_names = list(fldData['fldName'])
     return field_names
+
+def polygon_coordinates(fieldName):
+    p = c.CacheDF(df=ZiptoDF(), key='fldArea')
+    p.drop(p[p['fldName'] != fieldName].index, inplace=True)
+    fldAreaGeometryWKT = p['fldAreaGeometryWKT'].iloc[0]
+    return (fldAreaGeometryWKT)
 
 def CSVProductionMonthly(fieldName: str):
     if c.checkKeyCached('monthlyProduction'):

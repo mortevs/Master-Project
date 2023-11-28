@@ -88,30 +88,30 @@ def yearly_produced_DF(field: str, df: DataFrame) ->DataFrame:
     cond = [i*10**6 for i in cond] #prfPrdOeNetMillSm3
     Oe = [i*10**6 for i in Oe] #prfPrdOeNetMillSm3
     w = [i*10**6 for i in w] #prfPrdProducedWaterInFieldMillSm3
-    df = df.assign(gasSM3perday=gas)
-    df = df.assign(NGLSM3perday=NGL)
-    df = df.assign(oilSM3perday=oil)
-    df = df.assign(condensateSM3perday=cond)
-    df = df.assign(OilEquivalentsSM3perday=Oe)
-    df = df.assign(WaterSM3perday=w)
+    df = df.assign(gasSM3Yearly=gas)
+    df = df.assign(NGLSM3Yearly=NGL)
+    df = df.assign(oilSM3Yearly=oil)
+    df = df.assign(condensateSM3Yearly=cond)
+    df = df.assign(OilEquivalentsSM3Yearly=Oe)
+    df = df.assign(WaterSM3Yearly=w)
     return df
 
 def monthly_produced_DF(field: str, df: DataFrame) ->DataFrame:
     import streamlit as st
     gas, NGL, oil, cond, Oe, w = get.CSVProductionMonthly(field)
     gas = [i*10**9 for i in gas] #prfPrdGasNetBillSm3
-    df = df.assign(gasSM3perday=gas)
     NGL = [i*10**6 for i in NGL] #prfPrdOilNetMillSm3
     oil = [i*10**6 for i in oil] #prfPrdCondensateNetMillSm3
     cond = [i*10**6 for i in cond] #prfPrdOeNetMillSm3
     Oe = [i*10**6 for i in Oe] #prfPrdOeNetMillSm3
     w = [i*10**6 for i in w] #prfPrdProducedWaterInFieldMillSm3
-    df = df.assign(gasSM3perday=gas)
-    df = df.assign(NGLSM3perday=NGL)
-    df = df.assign(oilSM3perday=oil)
-    df = df.assign(condensateSM3perday=cond)
-    df = df.assign(OilEquivalentsSM3perday=Oe)
-    df = df.assign(WaterSM3perday=w)
+    df = df.assign(gasSM3Monthly=gas)
+    df = df.assign(gasSM3Monthly=gas)
+    df = df.assign(NGLSM3Monthly=NGL)
+    df = df.assign(oilSM3Monthly=oil)
+    df = df.assign(condensateSM3Monthly=cond)
+    df = df.assign(OilEquivalentsSM3Monthly=Oe)
+    df = df.assign(WaterSM3Monthly=w)
     return df
 
 
@@ -132,7 +132,6 @@ def addProducedMonths(field: str, df: DataFrame, adjustLength=True) -> DataFrame
     years, months = get.CSVProducedMonths(field)
     for year, month in zip(years, months):
         date = str (month)+":"+str(year)  
-
         dates.append(date)
     
     df.index = dates

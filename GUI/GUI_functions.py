@@ -48,7 +48,7 @@ def multi_plot(dfs, addAll = True, addProduced = False):
         ],
         showlegend=addAll,  # Change showlegend here
         xaxis_title="Year",  # X-axis title
-        yaxis_title="Cubic meter per day (average)"  # Y-axis title
+        yaxis_title="Cubic meter"  # Y-axis title
     )
 
     # Update remaining layout properties

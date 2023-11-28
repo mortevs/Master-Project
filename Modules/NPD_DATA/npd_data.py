@@ -88,3 +88,33 @@ class npd_prod(NPD_DATA):
     def append_field(self, item) -> str:
         SessionState.append(id = self.__session_id, key = 'field', value = item)
         
+
+
+import matplotlib.pyplot as plt
+from shapely.geometry import MultiPolygon
+from shapely.wkt import loads
+class PolygonPlotter:
+    def __init__(self, wkt_str):
+        # Initialize the plotter with a WKT string
+        self.wkt_str = wkt_str
+        self.multipolygon = None
+        self.fig = self.load_polygon()
+
+    def load_polygon(self):
+        # Load the WKT string into a Shapely MultiPolygon object
+        self.multipolygon = loads(self.wkt_str)
+        fig, ax = plt.subplots()
+        
+        # Plot each polygon in the MultiPolygon
+        for polygon in self.multipolygon.geoms:
+            x, y = polygon.exterior.xy
+            ax.fill(x, y, alpha=0.5)  # Fill the polygon with a semi-transparent color
+
+        # Set plot labels and title
+        ax.set_xlabel('Longitude')
+        ax.set_ylabel('Latitude')
+        ax.set_title('Polygon Plot')
+        return fig
+    
+    def plot(self):
+        st.pyplot(self.fig)

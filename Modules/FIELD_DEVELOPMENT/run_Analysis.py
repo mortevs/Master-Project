@@ -87,6 +87,7 @@ class DryGasAnalysis(FIELD_DEVELOPMENT):
                 reset_ind_df = df.reset_index(drop = True)
                 dfs.append(reset_ind_df)
             display.multi_plot(dfs, addAll=False)
+    
 
     def clear_output(self):
         from Data.Storage.Cache import SessionState
