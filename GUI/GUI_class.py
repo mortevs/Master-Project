@@ -2,13 +2,8 @@ import streamlit as st
 import GUI.GUI_functions as display
 import time
 import Data.getData as get
-fieldnames = get.fieldNames()
-import locale
-def locale_aware_sort(arr, locale_str='nb_NO.UTF-8'):
-    locale.setlocale(locale.LC_ALL, locale_str)            
-    arr.sort(key=locale.strxfrm) 
-locale_aware_sort(fieldnames)
-fieldnames.insert(0, 'No field chosen')
+from Data.dataProcessing import get_field_list_inc_No_field_chosen
+fieldnames = get_field_list_inc_No_field_chosen()
 
 class GUI():
     def __init__(self):
@@ -26,8 +21,7 @@ class GUI():
         elif opt == 'RESERVOIR PRESSURE FROM PRODUCTION DATA':
              self.reservoir_pressure_from_production_data = RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA(self)
         elif opt == 'NPD DATA':
-             self.NPD_DATA = NPD_DATA(GUI)
-            
+             self.NPD_DATA = NPD_DATA(GUI)           
 
 class FIELD_DEVELOPMENT(GUI):
     def __init__(self, parent):
@@ -68,40 +62,48 @@ class FIELD_DEVELOPMENT(GUI):
 
 class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA(GUI):
     def __init__(self, parent):
-        eq = display.dropdown(label = 'What equation do you want to use?', options = ['Backpressure equation'], labelVisibility="visible")
+        eq = display.dropdown(label = 'What equation do you want to use?', options = ['Material balance with Z-factor calculation'], labelVisibility="visible")
         if eq == 'Backpressure equation':
             pass
         from Data.StreamlitUpload import upload 
-        upload = upload(text = "Upload a CSV file / Excel file with the following format or choose field from dropdown menu below")
+        uploaded = upload(text = "Upload a CSV file / Excel file with the following format or choose field from dropdown menu below")
         col10, col11 = st.columns(2)
         with col10:     
-            selected_field = display.dropdown(label = 'Get gas production data from the following field:', options = fieldnames, labelVisibility="visible")
+            field = display.dropdown(label = 'Get gas production data from the following field:', options = fieldnames, labelVisibility="visible")
         with col11:
-            selected_time = display.dropdown(label = 'Choose yearly, monthly or daily time perspective', options = ['Yearly', 'Monthly'], labelVisibility="visible")
+            selected_time = display.dropdown(label = 'Choose yearly or monthly producted volumes', options = ['Yearly', 'Monthly'], labelVisibility="visible")
         from Modules.RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA.run_R_analysis import ReservoirPressureAnalysis
         
+        RES_Analysis = ReservoirPressureAnalysis(parent = RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA, session_id='ReservoirPressureAnalysis')
+        RES_Analysis.updateFromDropDown(fieldName= field, time = selected_time)
+        RES_Analysis.update_from_upload(uploaded)
+        
+        st.write("The following data for " + field[0]+field[1:].lower() + " was found at NPD" )
+        RES_Analysis.updateParameterListfromTable()
         col12, col13= st.columns(2)
         with col12:   
             run = st.button('Run Analysis', 'Run RP')
         with col13: 
             clear = st.button('Clear output', 'clear RESPRES')
             
-        RES_Analysis = ReservoirPressureAnalysis(session_id='ReservoirPressureAnalysis')
-        RES_Analysis.updateFromDropdown(selected_field, selected_time)
-        if run:
-            if selected_field == 'No field chosen' and upload == None:
-                alert2 = st.warning('Upload data or chose a field from list above')
-                import time
-                time.sleep(3)
-                alert2.empty()
-            else:
-                result = RES_Analysis.run(upload)
-                RES_Analysis.append_result(result)
+        if run and field == 'No field chosen':
+            alert3 = st.warning('Choose a field first')
+            time.sleep(1.5)
+            alert3.empty()
+        
+        elif run and selected_time == 'Yearly':
+            result = RES_Analysis.runY()
+            RES_Analysis.append_result(result)
+
+        elif run and selected_time == 'Monthly':
+            result = RES_Analysis.runM()
+            RES_Analysis.append_result(result)
+
         if clear:
             RES_Analysis.clear_output()
         RES_Analysis.plot()
         self.parent = parent
-
+        
 
 class NPD_DATA(GUI):
     def __init__(self, parent):
@@ -118,7 +120,7 @@ class NPD_DATA(GUI):
         npd_obj.updateFromDropDown(fieldName = field, time = time)
         col6, col7, col8 = st.columns(3)
         with col6:
-            run = st.button('Show produced volumes', 'Show produced volumes')
+            run = st.button('Plot production profile', 'Show produced volumes')
         with col7:
             comp = st.button('Compare fields', 'Compare')
         with col8: 
@@ -149,7 +151,7 @@ class NPD_DATA(GUI):
         st.write(' ')
         st.write(' ')
 
-        poly_button = st.button('Polygon Plotter', 'polygon plotter')
+        poly_button = st.button('Plot reservoir area', 'polygon plotter')
         if poly_button and field == 'No field chosen':
             import time
             alert4 = st.warning('Choose a field first')

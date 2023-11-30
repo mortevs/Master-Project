@@ -1,5 +1,16 @@
 import Data.getData as get
 from pandas import DataFrame
+
+def get_field_list_inc_No_field_chosen():
+    fieldnames = get.fieldNames()
+    import locale
+    def locale_aware_sort(arr, locale_str='nb_NO.UTF-8'):
+        locale.setlocale(locale.LC_ALL, locale_str)            
+        arr.sort(key=locale.strxfrm) 
+    locale_aware_sort(fieldnames)
+    fieldnames.insert(0, 'No field chosen')
+    return fieldnames
+
 def ratesToTarget(startUp:str, producedRates: list, producedYears: list, upTime: int) -> float:
         startUpYear = int(startUp[-4:])
         index = producedYears.index(startUpYear)

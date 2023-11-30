@@ -99,22 +99,35 @@ class PolygonPlotter:
         self.wkt_str = wkt_str
         self.multipolygon = None
         self.fig = self.load_polygon()
-
     def load_polygon(self):
         # Load the WKT string into a Shapely MultiPolygon object
         self.multipolygon = loads(self.wkt_str)
-        fig, ax = plt.subplots()
         
-        # Plot each polygon in the MultiPolygon
+        # Create a figure with a black background
+        fig, ax = plt.subplots(figsize=(8, 8))
+        fig.set_facecolor('black')
+        ax.set_facecolor('black')
+        
+        # Plot each polygon in the MultiPolygon with custom styling
         for polygon in self.multipolygon.geoms:
             x, y = polygon.exterior.xy
-            ax.fill(x, y, alpha=0.5)  # Fill the polygon with a semi-transparent color
+            ax.fill(x, y, alpha=0.8, color='red', edgecolor='white', linewidth=1)  # Fill the polygon with style
 
-        # Set plot labels and title
-        ax.set_xlabel('Longitude')
-        ax.set_ylabel('Latitude')
-        ax.set_title('Polygon Plot')
+        # Set custom axis labels and title
+        ax.set_xlabel('Longitude', color='white')
+        ax.set_ylabel('Latitude', color='white')
+        ax.set_title('Polygon Plot', color='white')
+
+        # Customize the tick colors
+        ax.tick_params(axis='both', colors='white')
+        
+        # Customize the spines (axis lines)
+        for spine in ax.spines.values():
+            spine.set_edgecolor('white')
+            spine.set_linewidth(1)
+
         return fig
+
     
     def plot(self):
         st.pyplot(self.fig)

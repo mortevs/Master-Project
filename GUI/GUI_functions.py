@@ -71,6 +71,18 @@ def display_table(list1, list2, edible = False) ->list:
         return edited_df['Value'].to_list()
     elif type == 'sidebar':
         st.sidebar.table(df_table)
+
+def display_table_RESPRES(list1, list2, edible = False) ->list:
+    # Create a DataFrame from the two lists
+    df_table = pd.DataFrame({
+        'Input': list1,
+        'Value': list2
+    })
+    if edible:
+        edited_df = st.data_editor(df_table, key='df_table_editor', width=800, height=175, hide_index=True)
+        return edited_df['Value'].to_list()
+    elif type == 'sidebar':
+        st.sidebar.table(df_table)
  
 
 
