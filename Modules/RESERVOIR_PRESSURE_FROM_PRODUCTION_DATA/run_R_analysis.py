@@ -13,7 +13,7 @@ class ReservoirPressureAnalysis(RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA):
         self.__result = []
         self.__session_id = session_id
         self.__parameters = []
-        self.__state = SessionState.get(id=session_id, result=[], time_frame=[], field=[], production_data=[])
+        self.__state = SessionState.get(id=session_id, result=[], time_frame=[], field=[], production_data=[], parameters = [])
 
     def updateFromDropDown(self, fieldName, time):
          self.__field, self.__time_frame = fieldName, time
@@ -21,28 +21,29 @@ class ReservoirPressureAnalysis(RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA):
     def update_from_upload(self, productionData):
         self.__production_data = productionData
     
-    def updateParameterListfromTable(self):
+    def updateParameterListfromTable(self, IGIP):
         list1 = ['Initial Reservoir Pressure [bara]', 'Reservoir Temperature [degree C]', 'Gas Molecular Weight [g/mol]', 'Initial Gas in Place [sm3]']
-        PRi = 276 #reservoir pressure bara . these parameters needs to be updated to fetch to the according field
-        TR = 92 #reservoir temperature [C]
-        gasMolecularWeight = 16 #[g/mol]
-        IGIP = 270e9 #Initial gas in place
-        self.__parameters.append(display.display_table_RESPRES(list1=list1, list2=[PRi, TR, gasMolecularWeight, IGIP], edible=True))
-    
+        self.__parameters = (display.display_table_RESPRES(list1=list1, list2=[276, 92, 16, IGIP], edible=True))
+    def get_NPD_data(self):
+        IGIP = get.IGIP(self.__field)
+        df = get.wlbPoint_field_sorted(self.__field)
+        st.dataframe(df)
+        #T_R = get.T_R(self.__field)
+        #gasMolecularWeight = get.gasMolecularWeight(self.__field)
+        #IGIP = get.IGIP(self.__field)
+        return IGIP
+    #PRi, T_R, gasMolecularWeight, IGIP
 
     def runY(self):
         self.append_field(self.__field)
         self.append_time_frame(self.__time_frame)
+        self.append_parameters(self.__parameters)
+
         gas = get.CSVProductionYearly(self.__field)[0]
-        gas = [i*10**9 for i in gas] #prfPrdGasNetBillSm3
-        PRi = 276 #reservoir pressure bara
-        TR = 92 #reservoir temperature [C]
-        gasMolecularWeight = 16 #[g/mol]
-        IGIP = 270e9 #Initial gas in place
-    
+        gas = [i*10**9 for i in gas] #prfPrdGasNetBillSm3   
         import Data.dataProcessing as dP
         from Modules.RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA.dry_gas_R_analysis import ResAnalysis
-        df = ResAnalysis(gas, PRi, TR, gasMolecularWeight, IGIP)
+        df = ResAnalysis(gas, self.__parameters)
         import Data.dataProcessing as dP
         df = dP.yearly_produced_DF(self.__field, df)
         df = dP.addProducedYears(self.__field, df)
@@ -55,15 +56,10 @@ class ReservoirPressureAnalysis(RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA):
         self.append_field(self.__field)
         self.append_time_frame(self.__time_frame)
         gas = get.CSVProductionMonthly(self.__field)[0]
-        gas = [i*10**9 for i in gas] #prfPrdGasNetBillSm3
-        PRi = 276 #reservoir pressure bara
-        TR = 92 #reservoir temperature [C]
-        gasMolecularWeight = 16 #[g/mol]
-        IGIP = 270e9 #Initial gas in place
-    
+        gas = [i*10**9 for i in gas] #prfPrdGasNetBillSm3    
         import Data.dataProcessing as dP
         from Modules.RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA.dry_gas_R_analysis import ResAnalysis
-        df = ResAnalysis(gas, PRi, TR, gasMolecularWeight, IGIP)
+        df = ResAnalysis(*self.__parameters)
         import Data.dataProcessing as dP
         df = dP.monthly_produced_DF(self.__field, df )
         df = dP.addProducedMonths(self.__field, df)
@@ -90,7 +86,7 @@ class ReservoirPressureAnalysis(RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA):
     def clear_output(self):
         from Data.Storage.Cache import SessionState
         SessionState.delete(id = self.__session_id)
-        self.__state = SessionState.get(id=self.__session_id, result=[], time_frame=[], field=[], production_data=[])
+        self.__state = SessionState.get(id=self.__session_id, result=[], time_frame=[], field=[], production_data=[], parameters = [])
     
     
     def get_current_time_frame(self):
@@ -125,4 +121,6 @@ class ReservoirPressureAnalysis(RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA):
     def append_field(self, item) -> str:
         SessionState.append(id = self.__session_id, key = 'field', value = item)
         
+    def append_parameters(self, item) -> str:
+        SessionState.append(id = self.__session_id, key = 'parameters', value = item)
 

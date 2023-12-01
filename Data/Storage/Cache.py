@@ -94,6 +94,7 @@ def delete_files():
         "savedDictionary.dat",
         "savedDictionary.dir",
         "fldArea.zip"
+        "wlbPoint.zip"
     ]
     
     for file in files_to_delete:

@@ -53,6 +53,13 @@ def polygon_coordinates(fieldName):
     fldAreaGeometryWKT = p['fldAreaGeometryWKT'].iloc[0]
     return (fldAreaGeometryWKT)
 
+def wlbPoint_field_sorted(fieldName):
+    p = c.CacheDF(df = ZiptoDF(zipname = 'wlbPoint.zip', zipFileUrl = 'https://factpages.npd.no/downloads/csv/wlbPoint.zip'), key = 'wlbPoint')
+    p.drop(p[p['wlbField'] != fieldName].index, inplace=True)
+    return p
+
+
+
 def CSVProductionMonthly(fieldName: str):
     if c.checkKeyCached('monthlyProduction'):
         p = c.CacheDF(df = None, key ='monthlyProduction')  
@@ -128,6 +135,39 @@ def CSVProducedMonths(fieldName: str) -> list:
 def deleteAndloadNewDatafromNPD():
     delete_files()
     ZiptoDF()
+    ZiptoDF(zipname = 'wlbPoint.zip', zipFileUrl = 'https://factpages.npd.no/downloads/csv/wlbPoint.zip')
+
+
+def CSV_reserves():
+    if c.checkKeyinDict('reserves'):
+        p = c.CacheDF(df = None, key = 'reserves')
+    else:
+        csvURL = 'https://hotell.difi.no/download/npd/field/reserves?download'
+        response = requests.get(csvURL)
+        if response.status_code == 200:
+            data_to_store = c.csvURLtoDF(csvURL)
+            p = c.CacheDF(df = data_to_store, key = 'reserves')
+        else:
+            st.write(f'Failed to get NPD data using digitaliseringsdirektoratets API, status code: {response.status_code}')
+    return p
+
+# def PRi(fieldName):
+#     return Pr_initial
+# def T_R(field):
+#     temp = 
+#     return temp
+# def gasMolecularWeight(fieldName):
+#     gMW = 
+#     return gMW 
+
+def IGIP(fieldName):
+    reserves = CSV_reserves()
+    reserves.drop(reserves[reserves['fldName'] != fieldName.upper()].index, inplace=True)
+    reserves = reserves.reset_index(drop = True)
+    fldRecoverableGas = reserves.loc[0,'fldRecoverableGas']
+    fldRemainingGas = reserves.loc[0, 'fldRemainingGas']
+    initial_GIP = fldRecoverableGas + fldRemainingGas
+    return initial_GIP*1e9
 
 
 # def fieldStatus(fieldName: str) -> str:

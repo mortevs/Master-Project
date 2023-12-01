@@ -77,9 +77,7 @@ class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA(GUI):
         RES_Analysis = ReservoirPressureAnalysis(parent = RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA, session_id='ReservoirPressureAnalysis')
         RES_Analysis.updateFromDropDown(fieldName= field, time = selected_time)
         RES_Analysis.update_from_upload(uploaded)
-        
-        st.write("The following data for " + field[0]+field[1:].lower() + " was found at NPD" )
-        RES_Analysis.updateParameterListfromTable()
+        st.write("The following data for " + field[0]+field[1:].lower() + " was found at NPD. Run analysis with these data or change them as you see fit" )
         col12, col13= st.columns(2)
         with col12:   
             run = st.button('Run Analysis', 'Run RP')
@@ -87,15 +85,19 @@ class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA(GUI):
             clear = st.button('Clear output', 'clear RESPRES')
             
         if run and field == 'No field chosen':
-            alert3 = st.warning('Choose a field first')
+            alert3 = st.warning('Choose a field, or upload data')
             time.sleep(1.5)
             alert3.empty()
         
         elif run and selected_time == 'Yearly':
+            IGIP = RES_Analysis.get_NPD_data()
+            RES_Analysis.updateParameterListfromTable(IGIP)
             result = RES_Analysis.runY()
             RES_Analysis.append_result(result)
 
         elif run and selected_time == 'Monthly':
+            RES_Analysis.get_NPD_data()
+            RES_Analysis.updateParameterListfromTable()
             result = RES_Analysis.runM()
             RES_Analysis.append_result(result)
 
@@ -104,7 +106,6 @@ class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA(GUI):
         RES_Analysis.plot()
         self.parent = parent
         
-
 class NPD_DATA(GUI):
     def __init__(self, parent):
         st.write('To compare fields follow these steps:')

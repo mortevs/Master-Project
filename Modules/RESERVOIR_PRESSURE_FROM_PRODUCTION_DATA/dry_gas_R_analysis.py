@@ -11,8 +11,8 @@ from Equations.RF import RF
 from scipy.optimize import root
 import matplotlib.pyplot as plt
 
-def ResAnalysis(produced, PRi, TR, gasMolecularWeight, IGIP):
-    df = build_analysis(produced, PRi, TR, gasMolecularWeight, IGIP) 
+def ResAnalysis(produced:list, parameters:list):
+    df = build_analysis(produced, *parameters) 
     df.columns=('PR', 'produced volumes [sm3]', 'cumulative produced volumes [sm3]')
     return df
 
