@@ -4,19 +4,30 @@ import time
 import Data.getData as get
 from Data.dataProcessing import get_field_list_inc_No_field_chosen
 fieldnames = get_field_list_inc_No_field_chosen()
-
 class GUI():
     def __init__(self):
-        st.markdown(''':green[Specialization Project by Morten Vier Simensen, supervised by Prof. Milan Stanko]''')
-        col1, col2, col3 = st.columns(3)
-        with col3:
+        col1, col2, col3, col4, col5 = st.columns(5)
+        with col5:
             load = st.button('Load New Data from NPD',  'NPD')
             if load:
                 from Data.getData import deleteAndloadNewDatafromNPD
                 deleteAndloadNewDatafromNPD() 
 
         opt = display.dropdown(label = 'What do you want to use the application for?',options = ['NO OPTION CHOSEN', 'FIELD DEVELOPMENT', 'PRODUCTION FORECASTING', 'RESERVOIR PRESSURE FROM PRODUCTION DATA', 'NPD DATA', 'IPR TUNING', 'TPR TUNING'], labelVisibility='visible')   
-        if opt == 'FIELD DEVELOPMENT':
+        if opt == "NO OPTION CHOSEN":
+            st.write(" ")
+            st.write(" ")
+            # Path to your JPG file
+            import os
+            image_path = os.path.join(os.getcwd(), "Data/Storage/stanko_front_page.png")
+
+            # Display the image using st.image
+            col1, col2, col3 = st.columns(3)
+            with col2:
+                st.markdown(''':green[Specialization project Morten Simensen, supervised by Prof. Milan Stanko]''')
+                st.image('stanko_front_page.png',width=550)
+
+        elif opt == 'FIELD DEVELOPMENT':
             self.field_development = FIELD_DEVELOPMENT(parent=GUI)
         elif opt == 'RESERVOIR PRESSURE FROM PRODUCTION DATA':
              self.reservoir_pressure_from_production_data = RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA(self)
@@ -27,22 +38,25 @@ class FIELD_DEVELOPMENT(GUI):
     def __init__(self, parent):
         from Modules.FIELD_DEVELOPMENT.run_Analysis import DryGasAnalysis
         Analysis = DryGasAnalysis(parent = FIELD_DEVELOPMENT, session_id='DryGasAnalysis')
-        method, precision = display.columnDisplay2(list1=[['NODAL', 'IPR'], ['IMPLICIT', 'EXPLICIT']])
-        Analysis.updateFromDropdown(method = method, precision=precision)
-        Analysis.updateParameterListfromTable() 
-        plot_comp = False  
-        col4, col5, col6 = st.columns(3)
-        with col4:
-            run = st.button('Run Analysis', 'Run DG')
-        with col6: 
-            if st.button('Compare different models', 'Compare'):
-                    plot_comp = True
-        col7, col8, col9 = st.columns(3)
-        with col7:
-            clear =  st.button('Clear output', 'clear FD')
-        with col9: 
-            field = display.dropdown(label = 'Choose a field to compare with', options = fieldnames, labelVisibility="visible")
-            Analysis.updateField(field)
+        col0, col1 = st.columns(2)
+        plot_comp = False
+        with col0:
+            method, precision = display.columnDisplay2(list1=[['NODAL', 'IPR'], ['IMPLICIT', 'EXPLICIT']])
+            col4, col5, col6 = st.columns(3)
+            with col4:
+                run = st.button('Run Analysis', 'Run DG')
+            with col6: 
+                if st.button('Compare different models', 'Compare'):
+                        plot_comp = True
+            col7, col8, col9 = st.columns(3)
+            with col7:
+                clear =  st.button('Clear output', 'clear FD')
+            with col9: 
+                field = display.dropdown(label = 'Choose a field to compare with', options = fieldnames, labelVisibility="visible")
+                Analysis.updateField(field)
+        with col1:  
+            Analysis.updateFromDropdown(method = method, precision=precision)
+            Analysis.updateParameterListfromTable() 
         
         if clear:
             Analysis.clear_output()
@@ -57,6 +71,7 @@ class FIELD_DEVELOPMENT(GUI):
             Analysis.append_result(result)
         if plot_comp == True:
             Analysis.plot(comp = True)
+            st.write("hehehehe")
         Analysis.plot()
         self.parent = parent
 
@@ -109,7 +124,7 @@ class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA(GUI):
 class NPD_DATA(GUI):
     def __init__(self, parent):
         st.write('To compare fields follow these steps:')
-        st.write('Step 1 - Choose a field, Step 2- Click Show plot, Step 3 - Repeat step 1 and 2, Step 4 - Click Compare fields')
+        st.write('Step 1 - Choose a field, Step 2- Click Plot production profile, Step 3 - Repeat step 1 and 2, Step 4 - Click Compare fields')
         from Modules.NPD_DATA.npd_data import npd_prod
         npd_obj = npd_prod(parent = NPD_DATA, session_id='npd_prod', field = 'No field chosen')
         col4, col5  = st.columns(2)
@@ -128,8 +143,9 @@ class NPD_DATA(GUI):
             clear =  st.button('Clear output', 'clear FD')
         
         if run and field == 'No field chosen':
+            import time as t
             alert3 = st.warning('Choose a field first')
-            time.sleep(1.5)
+            t.sleep(1.5)
             alert3.empty()
         
         elif run and time == 'Yearly':
@@ -152,15 +168,13 @@ class NPD_DATA(GUI):
         st.write(' ')
         st.write(' ')
 
-        poly_button = st.button('Plot reservoir area', 'polygon plotter')
+        poly_button = st.button('Plot reservoir area', 'polygon plotter', use_container_width=True)
         if poly_button and field == 'No field chosen':
             import time
             alert4 = st.warning('Choose a field first')
             time.sleep(1.5)
             alert4.empty()
         elif poly_button and field != 'No field chosen':
-            from Modules.NPD_DATA.npd_data import PolygonPlotter
-            wkt_str = get.polygon_coordinates(field)
-            polygon = PolygonPlotter(wkt_str)
-            polygon.plot()
+            from Modules.NPD_DATA.npd_data import makePlot
+            makePlot(field)
         

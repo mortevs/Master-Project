@@ -41,7 +41,6 @@ def ZiptoDF(zipname='fldArea.zip', zipFileUrl='https://factpages.npd.no/download
     zf.close()
     return df
 
-
 def fieldNames():
     fldData = c.CacheDF(df=ZiptoDF(), key='fldArea')
     field_names = list(fldData['fldName'])
@@ -51,14 +50,37 @@ def polygon_coordinates(fieldName):
     p = c.CacheDF(df=ZiptoDF(), key='fldArea')
     p.drop(p[p['fldName'] != fieldName].index, inplace=True)
     fldAreaGeometryWKT = p['fldAreaGeometryWKT'].iloc[0]
-    return (fldAreaGeometryWKT)
+    return fldAreaGeometryWKT
 
 def wlbPoint_field_sorted(fieldName):
     p = c.CacheDF(df = ZiptoDF(zipname = 'wlbPoint.zip', zipFileUrl = 'https://factpages.npd.no/downloads/csv/wlbPoint.zip'), key = 'wlbPoint')
     p.drop(p[p['wlbField'] != fieldName].index, inplace=True)
     return p
 
+def producing_wlb(fieldName):
+    p = wlbPoint_field_sorted(fieldName)
+    p.drop(p[p['wlbStatus'] != 'PRODUCING'].index, inplace=True)
+    return p
 
+def injecting_wlb(fieldName):
+    p = wlbPoint_field_sorted(fieldName)
+    p.drop(p[p['wlbStatus'] != 'INJECTING'].index, inplace=True)
+    return p
+
+def PA_wlb(fieldName):
+    p = wlbPoint_field_sorted(fieldName)
+    p.drop(p[p['wlbStatus'] != 'P&A'].index, inplace=True)
+    return p
+
+def closed_wlb(fieldName):
+    p = wlbPoint_field_sorted(fieldName)
+    p.drop(p[p['wlbStatus'] != 'CLOSED'].index, inplace=True)
+    return p
+
+def junked_wlb(fieldName):
+    p = wlbPoint_field_sorted(fieldName)
+    p.drop(p[p['wlbStatus'] != 'junked'].index, inplace=True)
+    return p
 
 def CSVProductionMonthly(fieldName: str):
     if c.checkKeyCached('monthlyProduction'):
@@ -170,32 +192,32 @@ def IGIP(fieldName):
     return initial_GIP*1e9
 
 
-# def fieldStatus(fieldName: str) -> str:
-#     fieldList = fieldNames()
-#     if fieldName.upper() in fieldList:
-#         zipFileUrl = 'https://factpages.npd.no/downloads/csv/fldArea.zip'
-#         index = fieldList.index(fieldName.upper())
-#         df = CacheDF('fldArea')
-#         status = df['fldCurrentActivitySatus'].values[index]
-#         return status
-#     raise ValueError('No field with name ', fieldName, ' at NPD')
+def fieldStatus(fieldName: str) -> str:
+    fieldList = fieldNames()
+    if fieldName.upper() in fieldList:
+        zipFileUrl = 'https://factpages.npd.no/downloads/csv/fldArea.zip'
+        index = fieldList.index(fieldName.upper())
+        df = c.CacheDF('fldArea')
+        status = df['fldCurrentActivitySatus'].values[index]
+        return status
+    raise ValueError('No field with name ', fieldName, ' at NPD')
     
-# def mainArea(fieldName: str) -> str:        
-#     fieldList = fieldNames()
-#     if fieldName.upper() in fieldList:
-#         df = CacheDF('fldArea')
-#         index = fieldList.index(fieldName.upper())
-#         area = df['fldMainArea'].values[index]
-#         return area
-#     raise ValueError('No field with name ', fieldName, ' at NPD')
+def mainArea(fieldName: str) -> str:        
+    fieldList = fieldNames()
+    if fieldName.upper() in fieldList:
+        df = c.CacheDF('fldArea')
+        index = fieldList.index(fieldName.upper())
+        area = df['fldMainArea'].values[index]
+        return area
+    raise ValueError('No field with name ', fieldName, ' at NPD')
     
-# def fldMainSupplyBase(fieldName: str) -> str:        
-#     fieldList = fieldNames()
-#     if fieldName.upper() in fieldList:
-#         df = CacheDF('fldArea')
-#         index = fieldList.index(fieldName.upper())
-#         base = df['fldMainSupplyBase'].values[index]
-#         return base
-#     raise ValueError('No field with name ', fieldName, ' at NPD')
+def fldMainSupplyBase(fieldName: str) -> str:        
+    fieldList = fieldNames()
+    if fieldName.upper() in fieldList:
+        df = c.CacheDF('fldArea')
+        index = fieldList.index(fieldName.upper())
+        base = df['fldMainSupplyBase'].values[index]
+        return base
+    raise ValueError('No field with name ', fieldName, ' at NPD')
 
 

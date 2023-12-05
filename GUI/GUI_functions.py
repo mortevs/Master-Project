@@ -67,7 +67,7 @@ def display_table(list1, list2, edible = False) ->list:
         'Value': list2
     })
     if edible:
-        edited_df = st.data_editor(df_table, key='df_table_editor', width=800, height=600, hide_index=True)
+        edited_df = st.data_editor(df_table, key='df_table_editor', width=750, height=596, hide_index=True)
         return edited_df['Value'].to_list()
     elif type == 'sidebar':
         st.sidebar.table(df_table)
@@ -79,7 +79,7 @@ def display_table_RESPRES(list1, list2, edible = False) ->list:
         'Value': list2
     })
     if edible:
-        edited_df = st.data_editor(df_table, key='df_table_editor', width=800, height=175, hide_index=True)
+        edited_df = st.data_editor(df_table, key='df_table_editor', width=790, height=175, hide_index=True)
         return edited_df['Value'].to_list()
     elif type == 'sidebar':
         st.sidebar.table(df_table)
@@ -123,4 +123,6 @@ def columnDisplay1(list1:list):
         selected_option1 = dropdown(options = list1)
 
     return selected_option1
+
+
 

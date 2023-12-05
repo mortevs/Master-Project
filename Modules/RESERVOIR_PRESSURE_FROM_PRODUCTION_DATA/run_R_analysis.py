@@ -26,8 +26,6 @@ class ReservoirPressureAnalysis(RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA):
         self.__parameters = (display.display_table_RESPRES(list1=list1, list2=[276, 92, 16, IGIP], edible=True))
     def get_NPD_data(self):
         IGIP = get.IGIP(self.__field)
-        df = get.wlbPoint_field_sorted(self.__field)
-        st.dataframe(df)
         #T_R = get.T_R(self.__field)
         #gasMolecularWeight = get.gasMolecularWeight(self.__field)
         #IGIP = get.IGIP(self.__field)
