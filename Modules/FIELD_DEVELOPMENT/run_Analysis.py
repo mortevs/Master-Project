@@ -74,7 +74,7 @@ class DryGasAnalysis(FIELD_DEVELOPMENT):
                     field = self.getField()
                     method = self.getMethod()
                     prec = self.getPrecision()
-                    st.title('Production profile: ' + str(i + 1))
+                    st.header('Prod-profile: ' + str(i + 1), divider='red')
                     if field[i] != 'No field chosen':
                         st.write(method[i], prec[i], field[i])
                         display.multi_plot([res[i]], addProduced=True)

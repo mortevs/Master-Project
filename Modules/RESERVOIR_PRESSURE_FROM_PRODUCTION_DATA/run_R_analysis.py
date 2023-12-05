@@ -68,12 +68,14 @@ class ReservoirPressureAnalysis(RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA):
         import streamlit as st
         from pandas import DataFrame
         res = self.getResult()
+        field = self.getField()
         if comp == False:
             for i in range(len(res)):
                 if isinstance(res[i], DataFrame):
-                    field = self.getField()
-                    st.title('Reservoir pressure: ' + field[i])
-                    display.multi_plot([res[i]], addAll= False)
+                    st.header('Est. Res-pressure', divider='red')
+                    if field[i] != "No field chosen":
+                        st.write(field[i][0]+field[i][1:].lower())
+                    display.multi_plot_PR([res[i]], addAll= False)
         else:
             dfs = []
             for df in self.__state.result:

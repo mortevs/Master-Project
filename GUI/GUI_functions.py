@@ -1,5 +1,65 @@
 import pandas as pd, plotly.graph_objects as go, streamlit as st
 
+def multi_plot_PR(dfs, addAll = True, addProduced = False):
+    fig = go.Figure()
+    columns_to_plot = []
+
+    for df in dfs:
+        if addProduced:
+            columns_to_plot += ['Field rates [sm3/d]', 'gasSM3perday']
+            all_label = 'Estimated vs Actual produced rates'
+        else:
+            columns_to_plot += df.columns.to_list()
+            all_label = 'All'
+
+        for column in columns_to_plot:
+            fig.add_trace(
+                go.Scatter(
+                    x = df.index,
+                    y = df[column],
+                    name = column,
+                    visible = 'legendonly' if not addAll and column != df.columns[0] else True  # Change visibility here
+                )
+            )
+
+    button_all = dict(label = all_label,
+                    method = 'update',
+                    args = [{'visible': [True]*len(columns_to_plot),
+                            'title': all_label,
+                            'showlegend':True}])
+
+    def create_layout_button(column):
+        return dict(label = column,
+                    method = 'update',
+                    args = [{'visible': [column == col for col in columns_to_plot],
+                            'title': column,
+                            'showlegend': True}])
+
+    all_buttons = ([button_all] * addAll) + [create_layout_button(column) for column in columns_to_plot]
+
+    # Add buttons for all columns in the dataframe
+    all_buttons += [create_layout_button(column) for column in df.columns if column not in columns_to_plot]
+
+    fig.update_layout(
+        updatemenus=[go.layout.Updatemenu(
+            active = 0 if addAll else columns_to_plot.index(columns_to_plot[0]),  # Change active button here
+            buttons = all_buttons
+            )
+        ],
+        showlegend=addAll,  # Change showlegend here
+        xaxis_title="Date",  # X-axis title
+        yaxis_title="Pressure [bara]"  # Y-axis title
+    )
+
+    # Update remaining layout properties
+    fig.update_layout(
+        height=600,
+        width=1000
+    
+    )
+    st.plotly_chart(fig)
+
+
 def multi_plot(dfs, addAll = True, addProduced = False):
     fig = go.Figure()
     columns_to_plot = []
