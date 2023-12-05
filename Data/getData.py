@@ -31,10 +31,6 @@ def ZiptoDF(zipname='fldArea.zip', zipFileUrl='https://factpages.npd.no/download
         if response.status_code == 200:
             wget.download(zipFileUrl, out=zip_file_path)            
             zf = zipfile.ZipFile(zip_file_path)
-            timestamp = time.ctime()
-            alert = st.warning('Data downloaded from NPD ' + timestamp)
-            time.sleep(5)
-            alert.empty()
         else:
             st.write(f'Failed to get data from NPD, status code: {response.status_code}')
     df = pd.read_csv(zf.open(zf.namelist()[0]))

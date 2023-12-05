@@ -19,8 +19,13 @@ def manualData() -> list:
     return list
 
 
-
-
+def manualData_RP() -> list:
+    PRi = 276 #reservoir pressure bara
+    IGIP = 270e9 #Initial gas in place   
+    TR = 92 #reservoir temperature [C]
+    gasMolecularWeight = 16 #[g/mol]
+    list = [PRi, TR, gasMolecularWeight, IGIP]
+    return list
 
 
 

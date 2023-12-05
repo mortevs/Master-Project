@@ -2,7 +2,9 @@ import streamlit as st
 import GUI.GUI_functions as display
 import time
 import Data.getData as get
+import pandas as pd
 from Data.dataProcessing import get_field_list_inc_No_field_chosen
+from Data.ManualData import manualData_RP
 fieldnames = get_field_list_inc_No_field_chosen()
 class GUI():
     def __init__(self):
@@ -11,11 +13,15 @@ class GUI():
             load = st.button('Load New Data from NPD',  'NPD')
             if load:
                 from Data.getData import deleteAndloadNewDatafromNPD
-                deleteAndloadNewDatafromNPD() 
+                deleteAndloadNewDatafromNPD()
+                timestamp = time.ctime()
+                alert00 = st.warning('Data downloaded from NPD ' + timestamp)
+                time.sleep(5)
+                alert00.empty() 
 
         opt = display.dropdown(label = 'What do you want to use the application for?',options = ['NO OPTION CHOSEN', 'FIELD DEVELOPMENT', 'PRODUCTION FORECASTING', 'RESERVOIR PRESSURE FROM PRODUCTION DATA', 'NPD DATA', 'IPR TUNING', 'TPR TUNING'], labelVisibility='visible')   
         if opt == "NO OPTION CHOSEN":
-            st.title('computational routines for the simulation and modeling of integrated petroleum production systems')
+            st.title('Computational Routines For The Simulation and Modeling of Integrated Petroleum Production Systems')
             st.write(" ")
             st.write(" ")
             # Path to your JPG file
@@ -27,14 +33,14 @@ class GUI():
             with col1:
                 st.image("Data\Storage\stanko_front_page.png",width=650)
             with col2:
-                on_information = st.toggle("Show more information on how to use the application", value=False, label_visibility="visible")
+                on_information = st.toggle("Show me more information on how to use the application", value=False, label_visibility="visible")
                 if on_information:
                     st.write("""The application has several features it can be used for. The features per December 5. 2023 is field development, production forecasting, 
                              reservoir pressure from production, and NPD data. The field development feature is for estimating production profiles for dry-gas fields.
                              The reservoir pressure from production data feature is for estimating the decline in pressure for a dry-gas reservoir when producing. 
                              The NPD data feature is for displaying open public data at NPD. This feature makes it possible to compare rates, and to plot the
                              reservoir Area, with well locations. The user can switch back and forth among the features. The resulting plots will be stored/cached while the application is running.""")
-                on_more_about = st.toggle("Show more information about the specialization project", value=False, label_visibility="visible")
+                on_more_about = st.toggle("Show me more information about the specialization project", value=False, label_visibility="visible")
                 if on_more_about:
                     st.write("""Integrated petroleum production systems are typically modeled and simulated using Excel spread-
                             sheets, or specialized software. In the following specialization project, computational routines
@@ -58,7 +64,7 @@ class FIELD_DEVELOPMENT(GUI):
     def __init__(self, parent):
         from Modules.FIELD_DEVELOPMENT.run_Analysis import DryGasAnalysis
         Analysis = DryGasAnalysis(parent = FIELD_DEVELOPMENT, session_id='DryGasAnalysis')
-        on_information = st.toggle("Show information on how to use the field development feature", value=False, label_visibility="visible")
+        on_information = st.toggle("Show me information on how to use the field development feature", value=False, label_visibility="visible")
         if on_information:
             st.write("""The table below on the right side contains default values for 16 parameters, in which the production profile calculation
                      is based upon. The values can be changed as the user sees fit. For example, if the user wants to run with a pressure of 
@@ -120,70 +126,86 @@ class FIELD_DEVELOPMENT(GUI):
 
 class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA(GUI):
     def __init__(self, parent):
-        on_information = st.toggle("Show information on how to use the reservoir pressure from production data feature", value=False, label_visibility="visible")
+        self.place_holder = 1
+        on_information = st.toggle("Show me information on how to use the reservoir pressure from production data feature", value=False, label_visibility="visible")
         if on_information:
             st.write(""" Choose production data from NPD from the dropdown menu below, or upload data. use the following format when uploading: 
                      column 1- year-(month), column 2 - sm3.
-                     Click <Run Analysis>. Change 
+                     Click <Run Analysis>. Click <Clear output> for removing all the plots and starting over again
                      """)
-        eq = display.dropdown(label = 'What equation do you want to use?', options = ['Material balance with Z-factor calculation'], labelVisibility="visible")
-        if eq == 'Backpressure equation':
-            pass
-
         from Data.StreamlitUpload import upload 
         uploaded = upload(text = "Upload a CSV/Excel file with production data here")
-        col10, col11 = st.columns(2)
-        with col10:     
+        col0, col1 = st.columns(2)
+        with col0:
+            eq = display.dropdown(label = 'What equation do you want to use?', options = ['Material balance with Z-factor calculation'], labelVisibility="visible")
+            if eq == 'Backpressure equation':
+                pass     
             field = display.dropdown(label = 'Get gas production data from the following field:', options = fieldnames, labelVisibility="visible")
-        with col11:
             selected_time = display.dropdown(label = 'Choose yearly or monthly producted volumes', options = ['Yearly', 'Monthly'], labelVisibility="visible")
-        from Modules.RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA.run_R_analysis import ReservoirPressureAnalysis
         
+        from Modules.RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA.run_R_analysis import ReservoirPressureAnalysis
         RES_Analysis = ReservoirPressureAnalysis(parent = RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA, session_id='ReservoirPressureAnalysis')
         RES_Analysis.updateFromDropDown(fieldName= field, time = selected_time)
         RES_Analysis.update_from_upload(uploaded)
+            #RES_Analysis.updateParameterListfromTable(list2 = manualData_RP())
+
         #st.write("The following data for " + field[0]+field[1:].lower() + " was found at NPD. Run analysis with these data or change them as you see fit" )
-        with col10:
-            col12, col13, col14= st.columns(3)
-            with col12:   
+        with col0:
+            col2, col3, col4, col5= st.columns(4)
+            with col2:   
                 run = st.button('Run Analysis', 'Run RP')
-            with col13:   
-                NPD_button = st.button('Get NPD-data for chosen field', 'get NPD data into table')
-            with col14: 
+            with col4:   
+                NPD_button = st.button('Get NPD-data', 'get NPD data into table')
+            with col5: 
                 clear = st.button('Clear output', 'clear RESPRES')
-                
+        
+        
+        if NPD_button and field == 'No field chosen':
+            alert3 = st.warning('Choose a field or upload data')
+            time.sleep(1.5)
+            alert3.empty()
+
         if run and field == 'No field chosen':
-            alert3 = st.warning('Choose a field, or upload data')
+            alert3 = st.warning('Choose a field or upload data')
             time.sleep(1.5)
             alert3.empty()
-        elif NPD_button and field == 'No field chosen':
-            alert3 = st.warning('Choose a field, or upload data')
-            time.sleep(1.5)
-            alert3.empty()
+        elif NPD_button and field != 'No field chosen':
+            #st.write(RES_Analysis.edible_df)
+            self.place_holder = 2
+
+    
+        if self.place_holder == 1:
+            RES_Analysis.updateParameterListfromTable(list2 = manualData_RP())
+        elif self.place_holder ==2:
+            PRI = RES_Analysis.get_NPD_data()
+            list2 = [PRI, 1, 1, 1]
+            RES_Analysis.updateParameterListfromTable(list2)
+
+            #time.sleep(1.5)
+            #alert3.empty()
         
         elif run and field != 'No field chosen' and selected_time == 'Yearly':
-            IGIP = RES_Analysis.get_NPD_data()
-            RES_Analysis.updateParameterListfromTable(IGIP)
-            result = RES_Analysis.runY()
-            RES_Analysis.append_result(result)
+            confirm = st.checkbox("I confirm i want to run with $P_R$ = " + str(RES_Analysis.get_current_parameters()[0])+ " Bar, T = " + str(RES_Analysis.get_current_parameters()[1]) + " $^{\circ}$C, Gas Molecular Wieght = " + str(RES_Analysis.get_current_parameters()[2]) + " g/mol and IGIP = " + str((RES_Analysis.get_current_parameters()[3]/1e9)) + " billion $sm^3$")
+            if confirm:
+                result = RES_Analysis.runY()
+                RES_Analysis.append_result(result)
 
         elif run and field != 'No field chosen' and selected_time == 'Monthly':
-            RES_Analysis.get_NPD_data()
-            result = RES_Analysis.runM()
-            RES_Analysis.append_result(result)
+            confirm = st.checkbox("I confirm i want to run with $P_R$ = " + str(RES_Analysis.get_current_parameters()[0])+ " Bar, T = " + str(RES_Analysis.get_current_parameters()[1]) + " $^{\circ}$C, Gas Molecular Wieght = " + str(RES_Analysis.get_current_parameters()[2]) + " g/mol and IGIP = " + str((RES_Analysis.get_current_parameters()[3]/1e9)) + " billion $sm^3$")
+            if confirm:
+                result = RES_Analysis.runM()
+                RES_Analysis.append_result(result)
 
         if clear:
             RES_Analysis.clear_output()
-        with col11:
-            RES_Analysis.updateParameterListfromTable(IGIP = 280 )
-        col15, col16, col17, col18, col19 = st.columns(5)
-        with col16:
+        col6, col7, col8, col9, col10 = st.columns(5)
+        with col7:
             RES_Analysis.plot()
         self.parent = parent
         
 class NPD_DATA(GUI):
     def __init__(self, parent):
-        on_information = st.toggle("Show information on how to use the NPD data feature", value=False, label_visibility="visible")
+        on_information = st.toggle("Show me information on how to use the NPD data feature", value=False, label_visibility="visible")
         if on_information:
             st.write(""" To compare fields follow these steps, 'Step 1 - Choose a field, Step 2- Click Plot production profile, Step 3 - 
                      Repeat step 1 and 2, Step 4 - Click Compare fields'""")
@@ -239,4 +261,3 @@ class NPD_DATA(GUI):
         elif poly_button and field != 'No field chosen':
             from Modules.NPD_DATA.npd_data import makePlot
             makePlot(field)
-        

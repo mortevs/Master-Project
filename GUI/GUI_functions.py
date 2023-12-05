@@ -132,22 +132,38 @@ def display_table(list1, list2, edible = False) ->list:
     elif type == 'sidebar':
         st.sidebar.table(df_table)
 
-def display_table_RESPRES(list1, list2, edible = False) ->list:
+def display_table_RESPRES(list1, list2, edible = False, clear_table = False) ->list:
     # Create a DataFrame from the two lists
     df_table = pd.DataFrame({
         'Input': list1,
         'Value': list2
     })
+
     if edible:
         edited_df = st.data_editor(df_table, key='df_table_editor', width=790, height=175, hide_index=True)
-        return edited_df['Value'].to_list()
-    elif type == 'sidebar':
-        st.sidebar.table(df_table)
- 
+        return edited_df, edited_df['Value'].to_list()
 
+class edible_df():
+    def __init__(self, list2):
+        self.df = self.initialize_table(list2)
+    def initialize_table(self, list2):
+        list1 = ['Initial Reservoir Pressure [bara]', 'Reservoir Temperature [degree C]', 'Gas Molecular Weight [g/mol]', 'Initial Gas in Place [sm3]']
+        self.df_table = pd.DataFrame({
+            'Input': list1,
+            'Value': list2
+        })
+        edited_df = st.data_editor(self.df_table, key='df_table_editor', width=790, height=175, hide_index=True)
+        return edited_df
+    def update_table(self, new_values):
+        self.df_table['Value'] = new_values
+        return st.data_editor(self.df_table, key='df_table_editor__', width=790, height=175, hide_index=True)
+    
+    def get_parameters(self):
+        return self.df_table['Value'].to_list()
+    
+    
 
-
-
+        
 def dropdown(label:str = ' ', options: list = None, index:int = 0, labelVisibility: str ='collapsed') ->str:
     selected_option = st.selectbox(label, options, index, label_visibility=labelVisibility)
     return selected_option

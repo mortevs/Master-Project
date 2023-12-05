@@ -93,14 +93,16 @@ def delete_files():
         "savedDictionary.bak",
         "savedDictionary.dat",
         "savedDictionary.dir",
+        "wlbPoint.zip",
         "fldArea.zip"
-        "wlbPoint.zip"
     ]
     
     for file in files_to_delete:
         file_path = os.path.join(data_storage_folder, file)
         if os.path.exists(file_path):
             os.remove(file_path)
+        else:
+            st.write("Not good") #should be removed
 
 def clear_state(state:SessionState):
     state.result = []

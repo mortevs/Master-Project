@@ -110,8 +110,6 @@ class PolygonPlotter:
         for polygon in multipolygon.geoms:
             x, y = polygon.exterior.xy
             # Remove the last point to avoid connecting back to the starting point
-            x = x[:-1]
-            y = y[:-1]
             fig.add_trace(go.Scatter(
                 x=list(x),
                 y=list(y),

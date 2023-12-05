@@ -86,6 +86,7 @@ class DryGasAnalysis(FIELD_DEVELOPMENT):
             for df in self.__state.result:
                 reset_ind_df = df.reset_index(drop = True)
                 dfs.append(reset_ind_df)
+            st.header('Compared models', divider='red')
             display.multi_plot(dfs, addAll=False)
     
 
