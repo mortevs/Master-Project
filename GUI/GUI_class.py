@@ -126,6 +126,7 @@ class FIELD_DEVELOPMENT(GUI):
 
 class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA(GUI):
     def __init__(self, parent):
+        self.__confirm = False
         self.place_holder = 1
         on_information = st.toggle("Show me information on how to use the reservoir pressure from production data feature", value=False, label_visibility="visible")
         if on_information:
@@ -150,12 +151,12 @@ class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA(GUI):
             #RES_Analysis.updateParameterListfromTable(list2 = manualData_RP())
 
         #st.write("The following data for " + field[0]+field[1:].lower() + " was found at NPD. Run analysis with these data or change them as you see fit" )
-        with col0:
+        with col1:
             col2, col3, col4, col5= st.columns(4)
             with col2:   
                 run = st.button('Run Analysis', 'Run RP')
             with col4:   
-                NPD_button = st.button('Get NPD-data', 'get NPD data into table')
+                NPD_button = st.button('Get NPD-data for field', 'get NPD data into table')
             with col5: 
                 clear = st.button('Clear output', 'clear RESPRES')
         
@@ -169,32 +170,44 @@ class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA(GUI):
             alert3 = st.warning('Choose a field or upload data')
             time.sleep(1.5)
             alert3.empty()
+
         elif NPD_button and field != 'No field chosen':
-            #st.write(RES_Analysis.edible_df)
             self.place_holder = 2
-
-    
-        if self.place_holder == 1:
-            RES_Analysis.updateParameterListfromTable(list2 = manualData_RP())
-        elif self.place_holder ==2:
-            PRI = RES_Analysis.get_NPD_data()
-            list2 = [PRI, 1, 1, 1]
-            RES_Analysis.updateParameterListfromTable(list2)
-
-            #time.sleep(1.5)
-            #alert3.empty()
         
-        elif run and field != 'No field chosen' and selected_time == 'Yearly':
-            confirm = st.checkbox("I confirm i want to run with $P_R$ = " + str(RES_Analysis.get_current_parameters()[0])+ " Bar, T = " + str(RES_Analysis.get_current_parameters()[1]) + " $^{\circ}$C, Gas Molecular Wieght = " + str(RES_Analysis.get_current_parameters()[2]) + " g/mol and IGIP = " + str((RES_Analysis.get_current_parameters()[3]/1e9)) + " billion $sm^3$")
-            if confirm:
-                result = RES_Analysis.runY()
-                RES_Analysis.append_result(result)
+        with col1:
+            if self.place_holder == 1:
+                RES_Analysis.updateParameterListfromTable(list2 = manualData_RP())
+
+            elif self.place_holder ==2:
+                PRi = 276 #reservoir pressure bara #default value
+                gasMolecularWeight = 16 #[g/mol] default value
+                PRi, T, gasMolecularWeight, IGIP = RES_Analysis.get__PR_NPD_data()
+                updated_list = [PRi, T, gasMolecularWeight, IGIP]
+                RES_Analysis.updateParameterListfromTable(list2 = updated_list)
+                alert4 = st.warning('Found estimates for IGIP and Temperature. Running Analysis with the data above')
+                time.sleep(3)
+                alert4.empty()
+                if field != 'No field chosen' and selected_time == 'Yearly':
+                    result = RES_Analysis.runY()
+                    RES_Analysis.append_result(result)
+
+                elif field != 'No field chosen' and selected_time == 'Monthly':
+                    result = RES_Analysis.runM()
+                    RES_Analysis.append_result(result)
+
+
+
+
+        if run and field != 'No field chosen' and selected_time == 'Yearly':
+            result = RES_Analysis.runY()
+            RES_Analysis.append_result(result)
+
 
         elif run and field != 'No field chosen' and selected_time == 'Monthly':
-            confirm = st.checkbox("I confirm i want to run with $P_R$ = " + str(RES_Analysis.get_current_parameters()[0])+ " Bar, T = " + str(RES_Analysis.get_current_parameters()[1]) + " $^{\circ}$C, Gas Molecular Wieght = " + str(RES_Analysis.get_current_parameters()[2]) + " g/mol and IGIP = " + str((RES_Analysis.get_current_parameters()[3]/1e9)) + " billion $sm^3$")
-            if confirm:
-                result = RES_Analysis.runM()
-                RES_Analysis.append_result(result)
+            result = RES_Analysis.runM()
+            RES_Analysis.append_result(result)
+
+        
 
         if clear:
             RES_Analysis.clear_output()

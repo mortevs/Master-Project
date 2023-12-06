@@ -141,7 +141,7 @@ def display_table_RESPRES(list1, list2, edible = False, clear_table = False) ->l
 
     if edible:
         edited_df = st.data_editor(df_table, key='df_table_editor', width=790, height=175, hide_index=True)
-        return edited_df, edited_df['Value'].to_list()
+        return edited_df['Value'].to_list()
 
 class edible_df():
     def __init__(self, list2):

@@ -178,6 +178,17 @@ def CSV_reserves():
 #     gMW = 
 #     return gMW 
 
+def Temp(fieldName):
+    if c.checkKeyinDict('wlbPoint'):
+        p = c.CacheDF(df = None, key = 'wlbPoint')
+    else:
+        data_to_store = ZiptoDF(zipname = 'wlbPoint.zip', zipFileUrl = 'https://factpages.npd.no/downloads/csv/wlbPoint.zip')
+        p = c.CacheDF(df = data_to_store, key = 'wlbPoint')
+    p.drop(p[p['wlbField'] != fieldName.upper()].index, inplace=True)
+    mean_temp = p["wlbBottomHoleTemperature"].mean()
+    return round(mean_temp,1)
+
+
 def IGIP(fieldName):
     reserves = CSV_reserves()
     reserves.drop(reserves[reserves['fldName'] != fieldName.upper()].index, inplace=True)
@@ -186,6 +197,16 @@ def IGIP(fieldName):
     fldRemainingGas = reserves.loc[0, 'fldRemainingGas']
     initial_GIP = fldRecoverableGas + fldRemainingGas
     return initial_GIP*1e9
+
+def gas_molecular_weight(fieldName):
+    #default value used. could not find data at NPD
+    return 16 #g/mol 
+
+def initial_reservoir_pressure(fieldName):
+    #default value used, could not find data at NPD
+    return  276 #reservoir pressure bara
+
+
 
 
 def fieldStatus(fieldName: str) -> str:
