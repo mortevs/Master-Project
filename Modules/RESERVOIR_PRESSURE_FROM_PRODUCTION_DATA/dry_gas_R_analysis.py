@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 
 def ResAnalysis(produced:list, parameters:list):
     df = build_analysis(produced, *parameters) 
-    df.columns=('PR', 'produced volumes [sm3]', 'cumulative produced volumes [sm3]')
+    df.columns=('PR', 'cumulative produced gas [sm3]', 'produced gas [sm3]')
     return df
 
 def build_analysis(produced:list, PRi: float, TR:float, gasMolecularWeight: float, IGIP) -> float: 

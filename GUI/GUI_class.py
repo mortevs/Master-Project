@@ -126,7 +126,6 @@ class FIELD_DEVELOPMENT(GUI):
 
 class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA(GUI):
     def __init__(self, parent):
-        self.__confirm = False
         self.place_holder = 1
         on_information = st.toggle("Show me information on how to use the reservoir pressure from production data feature", value=False, label_visibility="visible")
         if on_information:
@@ -134,8 +133,7 @@ class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA(GUI):
                      column 1- year-(month), column 2 - sm3.
                      Click <Run Analysis>. Click <Clear output> for removing all the plots and starting over again
                      """)
-        from Data.StreamlitUpload import upload 
-        uploaded = upload(text = "Upload a CSV/Excel file with production data here")
+        uploaded = st.file_uploader(label = "Upload a CSV/Excel file with production data here")
         col0, col1 = st.columns(2)
         with col0:
             eq = display.dropdown(label = 'What equation do you want to use?', options = ['Material balance with Z-factor calculation'], labelVisibility="visible")
@@ -162,11 +160,11 @@ class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA(GUI):
         
         
         if NPD_button and field == 'No field chosen':
-            alert3 = st.warning('Choose a field or upload data')
+            alert3 = st.warning('Choose a field')
             time.sleep(1.5)
             alert3.empty()
 
-        if run and field == 'No field chosen':
+        if run and field == 'No field chosen' and uploaded == None:
             alert3 = st.warning('Choose a field or upload data')
             time.sleep(1.5)
             alert3.empty()
@@ -196,8 +194,7 @@ class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA(GUI):
                     RES_Analysis.append_result(result)
 
 
-
-
+ 
         if run and field != 'No field chosen' and selected_time == 'Yearly':
             result = RES_Analysis.runY()
             RES_Analysis.append_result(result)
@@ -206,6 +203,12 @@ class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA(GUI):
         elif run and field != 'No field chosen' and selected_time == 'Monthly':
             result = RES_Analysis.runM()
             RES_Analysis.append_result(result)
+
+        elif run and uploaded != None:
+            result = RES_Analysis.run_uploaded()
+            RES_Analysis.append_result(result)
+        
+
 
         
 

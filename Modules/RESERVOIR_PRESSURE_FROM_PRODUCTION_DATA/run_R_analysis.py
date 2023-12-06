@@ -39,22 +39,39 @@ class ReservoirPressureAnalysis(RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA):
         self.append_field(self.__field)
         self.append_time_frame(self.__time_frame)
         self.append_parameters(self.__parameters)
-        
-
+        self.append_production_data(self)
+        from Modules.RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA.dry_gas_R_analysis import ResAnalysis
         gas = get.CSVProductionYearly(self.__field)[0]
         gas = [i*10**9 for i in gas] #prfPrdGasNetBillSm3
-
         import Data.dataProcessing as dP
-        from Modules.RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA.dry_gas_R_analysis import ResAnalysis
         df = ResAnalysis(gas, self.__parameters)
         import Data.dataProcessing as dP
         df = dP.yearly_produced_DF(self.__field, df)
         df = dP.addProducedYears(self.__field, df)
         return df
     
+    def run_uploaded(self):
+        from Modules.RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA.dry_gas_R_analysis import ResAnalysis
+        uploaded = self.get_current_production_data()
+        if uploaded.type == "text/csv":
+            from io import StringIO
+            stringio = StringIO(uploaded.getvalue().decode("utf-8"))
+            data = pd.read_csv(stringio,sep = ";")
+            df = ResAnalysis(data.iloc[:, 0], self.__parameters)
+            df.index = df.iloc[:, 1]  
+            return df
+        else:
+            import time as ti
+            alert10 = st.warning("You have not uploaded a CSV file")
+            ti.sleep(3)
+            alert10.empty()
+
+    
     def runM(self):
         self.append_field(self.__field)
         self.append_time_frame(self.__time_frame)
+        self.append_parameters(self.__parameters)
+
         gas = get.CSVProductionMonthly(self.__field)[0]
         gas = [i*10**9 for i in gas] #prfPrdGasNetBillSm3    
         import Data.dataProcessing as dP
@@ -111,6 +128,8 @@ class ReservoirPressureAnalysis(RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA):
         return self.__result
     def get_current_parameters(self):
         return self.__parameters
+    def get_current_production_data(self):
+        return self.__production_data
 
     def getResult(self) -> list:
         session_state = self.__state.get(self.__session_id)
@@ -147,6 +166,9 @@ class ReservoirPressureAnalysis(RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA):
         
     def append_parameters(self, item) -> str:
         SessionState.append(id = self.__session_id, key = 'parameters', value = item)
+    
+    def append_production_data(self, item) -> str:
+        SessionState.append(id = self.__session_id, key = 'production_data', value = item)
 
     def get_edible_df(self):
         return self.__edible_df
