@@ -39,7 +39,6 @@ class ReservoirPressureAnalysis(RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA):
         self.append_field(self.__field)
         self.append_time_frame(self.__time_frame)
         self.append_parameters(self.__parameters)
-        self.append_production_data(self)
         from Modules.RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA.dry_gas_R_analysis import ResAnalysis
         gas = get.CSVProductionYearly(self.__field)[0]
         gas = [i*10**9 for i in gas] #prfPrdGasNetBillSm3
@@ -51,15 +50,22 @@ class ReservoirPressureAnalysis(RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA):
         return df
     
     def run_uploaded(self):
+        self.append_field(self.__field)
+        self.append_time_frame(self.__time_frame)
+        self.append_parameters(self.__parameters)
         from Modules.RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA.dry_gas_R_analysis import ResAnalysis
         uploaded = self.get_current_production_data()
+        self.__field = "No field chosen"
         if uploaded.type == "text/csv":
-            from io import StringIO
-            stringio = StringIO(uploaded.getvalue().decode("utf-8"))
-            data = pd.read_csv(stringio,sep = ";")
-            df = ResAnalysis(data.iloc[:, 0], self.__parameters)
-            df.index = df.iloc[:, 1]  
-            return df
+            try:
+                data = pd.read_csv(uploaded, sep=";", skip_blank_lines=True)
+                data = data.dropna(how='all')
+                gas = data.iloc[:,0].to_list()
+                df = ResAnalysis(gas, self.__parameters)
+                df.index = df.iloc[:,1].to_list()
+                return df
+            except:
+                (st.warning("an error occured with uploaded file, try a new file"))
         else:
             import time as ti
             alert10 = st.warning("You have not uploaded a CSV file")
@@ -71,7 +77,6 @@ class ReservoirPressureAnalysis(RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA):
         self.append_field(self.__field)
         self.append_time_frame(self.__time_frame)
         self.append_parameters(self.__parameters)
-
         gas = get.CSVProductionMonthly(self.__field)[0]
         gas = [i*10**9 for i in gas] #prfPrdGasNetBillSm3    
         import Data.dataProcessing as dP

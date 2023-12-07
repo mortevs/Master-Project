@@ -153,7 +153,7 @@ class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA(GUI):
                      monthly or yearly volumes from the dropdownmenu below on the left side""")
 
             st.write(""" Choose production data from an NCS-field from the dropdown menu below, or upload data. Use the following format when uploading: 
-                     column 1- year-(month), column 2 - sm3""")
+                     column 0 - gas produced in sm3, column 1 - date (year/ year-month). use ; as seperator""")
             
             st.write("""Click <Run Analysis> to estimate the reservoir pressure for a field chosen, or for the uploaded data.
                       The numbers in the table below on the right side will be used for the estimation. The user can change these numbers before
@@ -165,7 +165,7 @@ class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA(GUI):
                      
             st.write("""Click <Clear output> to remove all the plots and start over again""")
 
-        uploaded = st.file_uploader(label = "Upload a CSV/Excel file with production data here")
+        uploaded = st.file_uploader(label = "Upload a CSV file, (separeted by ; )")
         col0, col1 = st.columns(2)
         with col0:
             eq = display.dropdown(label = 'What equation do you want to use?', options = ['Material balance with Z-factor calculation'], labelVisibility="visible")
