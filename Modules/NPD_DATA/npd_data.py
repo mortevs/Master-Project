@@ -139,7 +139,7 @@ import plotly.express as px
 
 import plotly.graph_objects as go
 
-def wlb_plot(fig, df):
+def wlb_plot_production(fig, df):
     # Extract latitude and longitude from the WKT coordinates
     df[['Longitude', 'Latitude']] = df['wlbPointGeometryWKT'].str.extract(r'POINT \((\d+\.\d+) (\d+\.\d+)\)').astype(float)
 
@@ -148,9 +148,10 @@ def wlb_plot(fig, df):
         x=df['Longitude'],
         y=df['Latitude'],
         text=df['wlbWellboreName'],  # Use the 'wlbWellboreName' column for text labels
-        mode='markers+text',
+        mode='markers', #+text
+        name = "Production wells",
         #hoverinfo=df['wlbContentPlanned'],
-        marker=dict(size=5, color='white', symbol='circle'),
+        marker=dict(size=10, color='white', symbol='circle'),
     )
 
     # Add the scatter trace to the provided figure
@@ -158,7 +159,34 @@ def wlb_plot(fig, df):
 
     # Update layout properties (optional)
     fig.update_layout(
-        title='Reservoir and well locations for ',
+        title='Reservoir and well locations',
+        xaxis_title='Longitude',
+        yaxis_title='Latitude',
+    )
+
+    return fig
+
+def wlb_plot_injection(fig, df):
+    # Extract latitude and longitude from the WKT coordinates
+    df[['Longitude', 'Latitude']] = df['wlbPointGeometryWKT'].str.extract(r'POINT \((\d+\.\d+) (\d+\.\d+)\)').astype(float)
+
+    # Create a scatter trace
+    scatter_trace = go.Scatter(
+        x=df['Longitude'],
+        y=df['Latitude'],
+        text=df['wlbWellboreName'],  # Use the 'wlbWellboreName' column for text labels
+        mode='markers', #+text
+        name = "Injection wells",
+        #hoverinfo=df['wlbContentPlanned'],
+        marker=dict(size=10, color='blue', symbol='circle'),
+    )
+
+    # Add the scatter trace to the provided figure
+    fig.add_trace(scatter_trace)
+
+    # Update layout properties (optional)
+    fig.update_layout(
+        title='Reservoir and well locations',
         xaxis_title='Longitude',
         yaxis_title='Latitude',
     )
@@ -174,9 +202,9 @@ def makePlot(field):
     wkt_str = get.polygon_coordinates(field)
     polygon_plotter = PolygonPlotter(wkt_str)
     col1, col2, col3, col4 = st.columns(4)
-    st.dataframe(get.producing_wlb(field))
+
     with col2:
-        updated_fig = wlb_plot(polygon_plotter.fig, get.producing_wlb(field))     
+        updated_fig = wlb_plot_production(polygon_plotter.fig, get.producing_wlb(field))
+        updated_fig = wlb_plot_injection(polygon_plotter.fig, get.injecting_wlb(field))   
         st.plotly_chart(updated_fig)
-        
    
