@@ -3,7 +3,10 @@ from Data.Storage.Cache import SessionState
 import GUI.GUI_functions as display
 from GUI.GUI_class import NPD_DATA
 import streamlit as st
-import re
+from shapely.wkt import loads
+import plotly.graph_objects as go
+import plotly.express as px
+
 
 class npd_prod(NPD_DATA):
     def __init__(self, parent, session_id:str, field:str = 'No field chosen'):
@@ -89,16 +92,6 @@ class npd_prod(NPD_DATA):
     def append_field(self, item) -> str:
         SessionState.append(id = self.__session_id, key = 'field', value = item)
         
-import matplotlib.pyplot as plt
-from shapely.wkt import loads
-import streamlit as st
-import re
-import pandas as pd
-import plotly.express as px
-import streamlit as st
-
-import plotly.graph_objects as go
-
 class PolygonPlotter:
     def __init__(self, wkt_str):
         self.wkt_str = wkt_str
@@ -109,14 +102,13 @@ class PolygonPlotter:
         fig = go.Figure()
         for polygon in multipolygon.geoms:
             x, y = polygon.exterior.xy
-            # Remove the last point to avoid connecting back to the starting point
             fig.add_trace(go.Scatter(
                 x=list(x),
                 y=list(y),
                 fill='toself',
                 fillcolor='red',
                 line=dict(color='white', width=1),
-                name='Polygon'
+                name='Reservoir'
             ))
             
         fig.update_layout(
@@ -130,16 +122,8 @@ class PolygonPlotter:
         )
 
         return fig
-    
-import pandas as pd
-import plotly.express as px
 
-
-import plotly.express as px
-
-import plotly.graph_objects as go
-
-def wlb_plot_production(fig, df):
+def wlb_plot_production(fig, df, field):
     # Extract latitude and longitude from the WKT coordinates
     df[['Longitude', 'Latitude']] = df['wlbPointGeometryWKT'].str.extract(r'POINT \((\d+\.\d+) (\d+\.\d+)\)').astype(float)
 
@@ -150,23 +134,21 @@ def wlb_plot_production(fig, df):
         text=df['wlbWellboreName'],  # Use the 'wlbWellboreName' column for text labels
         mode='markers', #+text
         name = "Production wells",
-        #hoverinfo=df['wlbContentPlanned'],
-        marker=dict(size=10, color='white', symbol='circle'),
-    )
+        marker=dict(size=10, color='white', symbol='circle'))
 
     # Add the scatter trace to the provided figure
     fig.add_trace(scatter_trace)
 
     # Update layout properties (optional)
     fig.update_layout(
-        title='Reservoir and well locations',
+        title='Reservoir and well locations ' + str(field),
         xaxis_title='Longitude',
         yaxis_title='Latitude',
     )
 
     return fig
 
-def wlb_plot_injection(fig, df):
+def wlb_plot_injection(fig, df, field):
     # Extract latitude and longitude from the WKT coordinates
     df[['Longitude', 'Latitude']] = df['wlbPointGeometryWKT'].str.extract(r'POINT \((\d+\.\d+) (\d+\.\d+)\)').astype(float)
 
@@ -186,15 +168,12 @@ def wlb_plot_injection(fig, df):
 
     # Update layout properties (optional)
     fig.update_layout(
-        title='Reservoir and well locations',
+        title='Reservoir and well locations ' + str(field),
         xaxis_title='Longitude',
         yaxis_title='Latitude',
     )
 
     return fig
-
-
-
     
 def makePlot(field):
     fig = go.Figure()
@@ -204,7 +183,7 @@ def makePlot(field):
     col1, col2, col3, col4 = st.columns(4)
 
     with col2:
-        updated_fig = wlb_plot_production(polygon_plotter.fig, get.producing_wlb(field))
-        updated_fig = wlb_plot_injection(polygon_plotter.fig, get.injecting_wlb(field))   
+        updated_fig = wlb_plot_production(polygon_plotter.fig, get.producing_wlb(field), field)
+        updated_fig = wlb_plot_injection(polygon_plotter.fig, get.injecting_wlb(field), field)   
         st.plotly_chart(updated_fig)
    

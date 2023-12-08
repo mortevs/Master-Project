@@ -6,7 +6,7 @@ import pandas as pd
 from Data.dataProcessing import get_field_list_inc_No_field_chosen
 from Data.ManualData import manualData_RP
 fieldnames = get_field_list_inc_No_field_chosen()
-class GUI():
+class GUI(): 
     def __init__(self):
         col1, col2, col3, col4, col5 = st.columns(5)
         with col5:
@@ -18,16 +18,11 @@ class GUI():
                 alert00 = st.warning('Data downloaded from NPD ' + timestamp)
                 time.sleep(5)
                 alert00.empty() 
-
         opt = display.dropdown(label = 'What do you want to use the application for?',options = ['NO OPTION CHOSEN', 'FIELD DEVELOPMENT', 'RESERVOIR PRESSURE FROM PRODUCTION DATA', 'NPD DATA'], labelVisibility='visible')   
         if opt == "NO OPTION CHOSEN":
             st.title('Computational Routines for the Simulation and Modeling of Integrated Petroleum Production Systems')
             st.write(" ")
             st.write(" ")
-            # Path to your JPG file
-            import os
-
-            # Display the image using st.image
             col1, col2 = st.columns(2)
             with col1:
                 st.image("Data\Storage\Morten_front_page.png",width=650)
