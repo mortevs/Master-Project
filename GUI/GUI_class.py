@@ -315,5 +315,12 @@ class NPD_DATA(GUI):
         show_more_inj = st.toggle(label = "Show me more information about the injection wells on this field") 
         if show_more_inj:
             st.dataframe(get.injecting_wlb(field))
+        
+        show_more_closed = st.toggle(label = "Show me more information about the closed wells on this field") 
+        if show_more_closed:
+            st.dataframe(get.closed_wlb(field))
+        show_more_PA = st.toggle(label = "Show me more information about the P&A wells on this field") 
+        if show_more_PA:
+            st.dataframe(get.PA_wlb(field))
 
 

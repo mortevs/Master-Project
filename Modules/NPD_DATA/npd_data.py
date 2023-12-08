@@ -99,18 +99,19 @@ class PolygonPlotter:
 
     def plot(self):
         multipolygon = loads(self.wkt_str)
-        fig = go.Figure()
-        for polygon in multipolygon.geoms:
-            x, y = polygon.exterior.xy
-            fig.add_trace(go.Scatter(
-                x=list(x),
-                y=list(y),
+        traces = [
+            go.Scatter(
+                x=list(polygon.exterior.xy[0]),
+                y=list(polygon.exterior.xy[1]),
+                mode = 'lines',
                 fill='toself',
                 fillcolor='red',
                 line=dict(color='white', width=1),
                 name='Reservoir'
-            ))
-            
+            ) for polygon in multipolygon.geoms
+        ]
+
+        fig = go.Figure(traces)
         fig.update_layout(
             height=800,
             width=800,
