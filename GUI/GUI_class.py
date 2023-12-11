@@ -20,12 +20,12 @@ class GUI():
                 alert00.empty() 
         opt = display.dropdown(label = 'What do you want to use the application for?',options = ['NO OPTION CHOSEN', 'FIELD DEVELOPMENT', 'RESERVOIR PRESSURE FROM PRODUCTION DATA', 'NPD DATA'], labelVisibility='visible')   
         if opt == "NO OPTION CHOSEN":
-            st.title('Computational Routines for the Simulation and Modeling of Integrated Petroleum Production Systems')
+            st.title('Simulation and Modeling of Integrated Petroleum Production Systems')
             st.write(" ")
             st.write(" ")
             col1, col2 = st.columns(2)
             with col1:
-                st.image("Data\Storage\Morten_front_page.png",width=650)
+                st.image("Data\Storage\Morten_front_page.png")
             with col2:
                 on_information = st.toggle("Show me more information on how to use the application", value=False, label_visibility="visible")
                 if on_information:

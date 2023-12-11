@@ -59,7 +59,6 @@ def multi_plot_PR(dfs, addAll = True, addProduced = False):
     )
     st.plotly_chart(fig)
 
-
 def multi_plot(dfs, addAll = True, addProduced = False):
     fig = go.Figure()
     columns_to_plot = []
@@ -119,18 +118,17 @@ def multi_plot(dfs, addAll = True, addProduced = False):
     )
     st.plotly_chart(fig)
 
-
-def display_table(list1, list2, edible = False) ->list:
-    # Create a DataFrame from the two lists
+def display_table(list1, list2, edible=False):
     df_table = pd.DataFrame({
         'Input': list1,
         'Value': list2
     })
+    # Display the DataFrame with the custom styles
     if edible:
         edited_df = st.data_editor(df_table, key='df_table_editor', width=750, height=596, hide_index=True)
         return edited_df['Value'].to_list()
-    elif type == 'sidebar':
-        st.sidebar.table(df_table)
+    else:
+        st.table(df_table)
 
 def display_table_RESPRES(list1, list2, edible = False, clear_table = False) ->list:
     # Create a DataFrame from the two lists
@@ -160,9 +158,6 @@ class edible_df():
     
     def get_parameters(self):
         return self.df_table['Value'].to_list()
-    
-    
-
         
 def dropdown(label:str = ' ', options: list = None, index:int = 0, labelVisibility: str ='collapsed') ->str:
     selected_option = st.selectbox(label, options, index, label_visibility=labelVisibility)
@@ -199,6 +194,3 @@ def columnDisplay1(list1:list):
         selected_option1 = dropdown(options = list1)
 
     return selected_option1
-
-
-

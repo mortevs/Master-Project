@@ -1,4 +1,5 @@
 import Data.getData as get
+import streamlit as st
 from pandas import DataFrame
 
 def get_field_list_inc_No_field_chosen():
@@ -10,46 +11,7 @@ def get_field_list_inc_No_field_chosen():
     locale_aware_sort(fieldnames)
     fieldnames.insert(0, 'No field chosen')
     return fieldnames
-
-def ratesToTarget(startUp:str, producedRates: list, producedYears: list, upTime: int) -> float:
-        startUpYear = int(startUp[-4:])
-        index = producedYears.index(startUpYear)
-        producedRates = producedRates[:index+1]
-        print(producedRates)
-        maxRate = max(producedRates)
-        sumRates = 0
-        count = 0
-        for el in producedRates:
-            if el>maxRate/1.5:
-                sumRates+=el
-                count+=1
-
-        estimatedYearly = sumRates/count
-        estimatedDaily=round(estimatedYearly/upTime, 0)
-        return estimatedDaily
-    
-def producingGassWells(status, purpose, content) -> int:
-    statusList = status
-    purposeList = purpose
-    contentList = content
-    NWells = 0
-    NClosedWells = 0
-    if len(statusList) != len(purposeList) != len(contentList):
-        raise ValueError("statusList, purposeList and contentList have different sizes")
- 
-    for i in range(len(statusList)):
-        if statusList[i] == 'PRODUCING' and purposeList[i] == 'PRODUCTION' and  contentList[i] == 'GAS':
-            NWells+=1
-        elif statusList[i] == 'CLOSED' and purposeList[i] == 'PRODUCTION' and  contentList[i] == 'GAS':
-            NClosedWells+=1
-    if NClosedWells > 1:
-        print("NB!", NClosedWells, "gas wells are currently closed.")
-    elif NClosedWells == 1:
-        print("NB! One gas well is currently closed.")                   
-    return NWells+NClosedWells
-            
-    
-    
+               
 def estimatedReservoirPressure(TVD: float) -> float:
     """
     takes in discoveryWell and returns the estimated reservoir pressure in bara. estimate: pressure increases with 1.1 bar for every 10 m of depth
@@ -58,9 +20,7 @@ def estimatedReservoirPressure(TVD: float) -> float:
     pressure = TVD/10 * 1.1
     return pressure
 
-
 def addActualProdYtoDF(field: str, df: DataFrame,  adjustLength = True) ->DataFrame:
-    import streamlit as st
     gas, NGL, oil, cond, Oe, w = get.CSVProductionYearly(field)
     if adjustLength == True: #should i remove 0 production
         while len(df) != len(gas):
@@ -75,7 +35,6 @@ def addActualProdYtoDF(field: str, df: DataFrame,  adjustLength = True) ->DataFr
             Oe.append(0)
         while len(df) != len(w):
             w.append(0)
-        #should i consider adjusting for uptime?
     gas = [i*10**9/365 for i in gas] #prfPrdGasNetBillSm3
     df = df.assign(gasSM3perday=gas)
     NGL = [i*10**6/365 for i in NGL] #prfPrdOilNetMillSm3
@@ -125,28 +84,36 @@ def monthly_produced_DF(field: str, df: DataFrame) ->DataFrame:
     df = df.assign(WaterSM3Monthly=w)
     return df
 
+def addProducedYears(field: str, df: DataFrame, adjustLength=True) -> DataFrame:
+    try:
+        sY = min(get.CSVProducedYears(field))
+        years = [sY]
 
-def addProducedYears(field: str, df: DataFrame, adjustLength = True) ->DataFrame:
-    sY = min(get.CSVProducedYears(field))
-    years = [sY]
-    if adjustLength == True:
-        i=1
-        while len(years) < len(df.iloc[:, 0]):
-            years.append(sY+i)
-            i+=1
-    df.index = years
-    return df
+        if adjustLength:
+            i = 1
+            while len(years) < len(df.iloc[:, 0]):
+                years.append(sY + i)
+                i += 1
 
-def addProducedMonths(field: str, df: DataFrame, adjustLength=True) -> DataFrame:
-    import datetime
-    dates = []
-    years, months = get.CSVProducedMonths(field)
-    for year, month in zip(years, months):
-        date = str (month)+":"+str(year)  
-        dates.append(date)
-    
-    df.index = dates
-    return df
+        df.index = years
+        return df
+    except Exception as e:
+        st.warning(f"Field has likely not produced anything yet. Could not get the produced years due to the following error: {e}.")
+        return df
+
+def addProducedMonths(field: str, df: DataFrame) -> DataFrame:
+    try:
+        dates = []
+        years, months = get.CSVProducedMonths(field)
+        for year, month in zip(years, months):
+            date = f"{month}:{year}"  
+            dates.append(date)
+        
+        df.index = dates
+        return df
+    except Exception as e:
+        st.warning(f"Field has likely not produced anything yet. Could not get the produced year-months due to the following error: {e}.")
+        return df
 
 
 

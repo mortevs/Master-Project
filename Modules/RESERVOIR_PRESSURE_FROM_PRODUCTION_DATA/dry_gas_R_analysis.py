@@ -1,15 +1,11 @@
 import pandas as pd
-from Data.ManualData import manualData
 import Data.dataProcessing as dP
 import pandas as pd
 import numpy as np
 from Equations.ZfacStanding import ZfacStanding
 import Equations.DryGasFlowEquations as DGFE
-from Equations.pWfMinEstimation import pWfMinEstimation
 from Equations.MBgastank_PR import MBgastank_PR
 from Equations.RF import RF
-from scipy.optimize import root
-import matplotlib.pyplot as plt
 
 def ResAnalysis(produced:list, parameters:list):
     df = build_analysis(produced, *parameters) 

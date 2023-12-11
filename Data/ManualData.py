@@ -18,7 +18,6 @@ def manualData() -> list:
     list = [qFieldTarget, PRi, abandonmentRate, TR, gasMolecularWeight, C_R, n, N_temp, NWellsPerTemplate, upTime, C_t, S, C_FL, C_PL, P_sep, IGIP]
     return list
 
-
 def manualData_RP() -> list:
     PRi = 276 #reservoir pressure bara
     IGIP = 270e9 #Initial gas in place   
