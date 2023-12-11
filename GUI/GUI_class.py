@@ -12,8 +12,8 @@ class GUI():
         with col5:
             load = st.button('Load New Data from NPD',  'NPD')
             if load:
-                from Data.getData import deleteAndloadNewDatafromNPD
-                deleteAndloadNewDatafromNPD()
+                from Data.getData import deleteAndLoadNewDataFromNPD
+                deleteAndLoadNewDataFromNPD()
                 timestamp = time.ctime()
                 alert00 = st.warning('Data downloaded from NPD ' + timestamp)
                 time.sleep(5)
