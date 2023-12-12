@@ -8,7 +8,24 @@ from Equations.MBgastank_PR import MBgastank_PR
 from Equations.RF import RF
 from scipy.optimize import fsolve
 
-def IPROnly(qFieldTarget: float, PRi: float, abandonmentRate: float, TR:float, gasMolecularWeight: float, C_R: float, n:float, N_temp: float, NWellsPerTemplate: float, upTime: int, C_t: float, S:float, C_FL:float, C_PL:float, P_sep: float, IGIP: float) -> float: 
+def IPROnly(qFieldTarget: float, PRi: float, abandonmentRate: float, TR:float, gasMolecularWeight: float, C_R: float, n:float, N_temp: float, NWellsPerTemplate: float, upTime: int, C_t: float, S:float, C_FL:float, C_PL:float, P_sep: float, IGIP: float) -> pd.DataFrame:
+    """
+    qFieldTarget =  plateau rate, [sm3/day]
+    PRi = initial reservoir pressure, [bara]
+    abandonmentRate = rate for abandonment, [sm3/day]
+    gasMolecularWeight = molecular weight of gas at standard conditions #[g/mol],
+    C_R = inflow backpressure coefficient,
+    n = Inflow backpressure exponent,
+    N_temp = number of templates
+    NWellsPerTemplate = number of wells per template. Assumes the same amount of wells per template.
+    upTime = number of operational days in a year, 
+    C_t = tubing flow coefficient, 
+    S = tubing elevation coefficient,
+    C_FL = flowline coefficient from template-PLEM ,
+    C_PL = Pipeline coefficient from PLEM-Shore,
+    p_sep = seperator pressure [bara],
+    IGIP = initial gas in place [sm3].
+    """
     ticker = 0
     years = 200 #maximum simulation time 200 years
     NWells = N_temp*NWellsPerTemplate

@@ -127,8 +127,6 @@ class FIELD_DEVELOPMENT(GUI):
         field_name = Analysis.get_current_field()
         if run and field_name == 'No field chosen':
             result = Analysis.run()
-            st.dataframe(result, 10000, 1000)
-
             Analysis.append_result(result)
 
         elif run and field_name != 'No field chosen':
