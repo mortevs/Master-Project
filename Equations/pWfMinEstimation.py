@@ -10,8 +10,7 @@ def pWfMinEstimation(C_t: float, S: float, C_FL: float, C_PL:float , fieldRate: 
     N_temp = Number of templates,
     NWellsPerTemplate = Number of wells per template,
     Field rate.
-    """
-         
+    """     
     p_plem = Linep1(C_PL, p_sep , fieldRate) #pressure pipeline entry module  
     q_temp = fieldRate / N_temp #gasrate per template
     p_temp = Linep1(C_FL, p_plem, q_temp) #pressure at template

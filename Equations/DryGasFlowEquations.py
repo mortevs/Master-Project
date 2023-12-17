@@ -9,8 +9,6 @@ def IPRqg(C_R: float, n:float, p_R:float, p_wf:float) -> float:
     IPRqg = C_R*(p_R**2-p_wf**2)**n
     return IPRqg
 
-
-
 def IPRpwf(C_R:float, n:float, p_R:float, q_g:float) -> float:
     """
     Returns pressure bottomhole. 
@@ -47,7 +45,6 @@ def Tubingqg(C_T:float, s:float, p1:float, p2:float) -> float:
     Tubingqg = C_T*(p1**2/(math.e)**s-p2**2)**0.5
     return Tubingqg
 
-
 def Tubingp1(C_T:float, s:float, p2:float, q_g:float) -> float:
     import math
     """
@@ -58,7 +55,6 @@ def Tubingp1(C_T:float, s:float, p2:float, q_g:float) -> float:
     """
     Tubingp1 = (math.e)**(s/2)*(p2**2+(q_g/C_T)**2)**0.5
     return Tubingp1
-
 
 def Tubingp2(C_T:float, s:float, p1:float, q_g:float) -> float:
     import math
@@ -74,7 +70,6 @@ def Tubingp2(C_T:float, s:float, p1:float, q_g:float) -> float:
     Tubingp2 = (p1**2/math.e**s-(q_g/C_T)**2)**0.5 
     return Tubingp2
 
-
 def Lineqg(C_FL:float, p1:float, p2:float) -> float:
     """
     Returns gasrate.
@@ -86,7 +81,6 @@ def Lineqg(C_FL:float, p1:float, p2:float) -> float:
     Lineqg = C_FL*(p1**2-p2**2)**0.5
     return Lineqg
 
-
 def Linep1(C_FL:float, p2:float, q_g:float) -> float:
     """
     Returns pressure upstream line (moving counter stream from 2 to 1).
@@ -96,7 +90,6 @@ def Linep1(C_FL:float, p2:float, q_g:float) -> float:
     """
     Linep1 = (p2**2 + (q_g/C_FL)**2)**0.5
     return Linep1
-
 
 def Linep2(C_FL:float, p1:float, q_g:float) -> float:
     """

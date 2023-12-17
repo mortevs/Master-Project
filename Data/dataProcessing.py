@@ -18,7 +18,6 @@ def get_field_list_inc_No_field_chosen():
     locale_aware_sort(fieldnames)
     fieldnames.insert(0, 'No field chosen')
     return fieldnames
-
                
 def estimatedReservoirPressure(TVD: float) -> float:
     """
