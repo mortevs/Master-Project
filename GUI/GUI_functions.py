@@ -1,5 +1,4 @@
 import pandas as pd, plotly.graph_objects as go, streamlit as st
-
 def multi_plot_PR(dfs, addAll = True, addProduced = False):
     fig = go.Figure()
     columns_to_plot = []

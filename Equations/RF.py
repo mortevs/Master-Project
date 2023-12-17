@@ -1,5 +1,4 @@
 def RF(Gp, IGIP):
-    
     """
     Returns recovery factor based on:
     Gp = total gass offtake,

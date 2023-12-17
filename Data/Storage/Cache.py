@@ -1,10 +1,7 @@
 import os
-import wget
-import zipfile
 import pandas as pd
 import shelve
 import streamlit as st
-import pickle
 data_storage_folder = os.path.join(os.getcwd(), 'Data', 'Storage')
 cacheDF = {}
 
@@ -12,23 +9,19 @@ def csvURLtoDF(csvURL: str) ->pd.DataFrame:
     df = pd.read_csv((csvURL), sep = ";", low_memory=False)
     return df
 
-
 def CacheDF(df, key):
     if checkKeyinDict(key):
         return loadDict(key)
     else:
         dumpDict(df, key)
         return loadDict(key)
-    
-    
+        
 def checkKeyCached(key):
         if key in cacheDF:
             return True
         else:
             return False
-
     
-
 def dumpDict(data, name):
     with shelve.open(os.path.join(data_storage_folder, 'savedDictionary')) as d:
         d[name] = data
@@ -45,7 +38,6 @@ def loadDict(key):
             loaded_data = d[key]
             return loaded_data
     
-
 import streamlit as st
 class SessionState:
     def __init__(self, **kwargs):
@@ -74,9 +66,6 @@ class SessionState:
         current_list = getattr(session_state, key, [])
         current_list.append(value)     
         setattr(session_state, key, current_list)
-
-
-    
 
 def delete_files():
     files_to_delete = [

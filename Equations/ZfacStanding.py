@@ -6,7 +6,6 @@ def ZfacStanding(p1: float, T1: float, gasMolecularWeight: float) ->float:
     T1 = Temperature [°C],
     GasMolecularWeight = molecular weight of the gas at standard conditions (air=1)
     """
-
         
     #Calculating Specific Gravity (air = 1) Yg
     massAir = 28.967 #g/mol (could use 28.967 instead)

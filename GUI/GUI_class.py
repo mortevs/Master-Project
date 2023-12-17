@@ -57,7 +57,7 @@ class GUI():
                 st.write(" ")
                 st.write(" ")
                 st.write(" ")
-                st.markdown('<p style="color: lightgreen;">Specialization project Morten Simensen, supervised by associate professor Milan Stanko.</p>')
+                st.write('Specialization project by Morten Simensen, supervised by associate professor Milan Stanko')
 
         elif opt == 'FIELD DEVELOPMENT':
             self.field_development = FIELD_DEVELOPMENT(parent=GUI)
@@ -96,7 +96,7 @@ class FIELD_DEVELOPMENT(GUI):
                      display for the user.""")
             st.write("""
                      There is also two options the user can choose from to run different models. 
-                     These options decide the mathimatical method for obtaining the production profile. 
+                     These options decide the mathematical method for obtaining the production profile. 
                      By default the production profile is estimated using implicit Nodal approach. However, from the two dropdown menu, the user can choose 
                     IPR instead of Nodal, and explicit instead of implicit. Nodal implicit is the most accurate method, but 
                      also the most computational costly. For more details see the report. 
@@ -145,8 +145,8 @@ class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA(GUI):
         self.place_holder = 1
         on_information = st.toggle("Show me information on how to use the reservoir pressure from production data feature", value=False, label_visibility="visible")
         if on_information:
-            st.write(""" The user has some options for running the model. As per now only one equation is available, but the user can choose to plot
-                     monthly or yearly volumes from the dropdownmenu below on the left side""")
+            st.write(""" The user has some options for running the model. As per now only one equation is available, but the user can choose to fetch
+                     monthly or yearly rates from NPD using the dropdownmenu below on the left side""")
 
             st.write(""" Choose production data from an NCS-field from the dropdown menu below, or upload data. Use the following format when uploading: 
                      column 0 - gas produced in sm3, column 1 - date (year/ year-month). use ; as seperator""")
@@ -161,7 +161,7 @@ class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA(GUI):
                      
             st.write("""Click <Clear output> to remove all the plots and start over again""")
 
-        uploaded = st.file_uploader(label = "Upload a CSV file, (separeted by ; )")
+        uploaded = st.file_uploader(label = "Upload a CSV file")
         col0, col1 = st.columns(2)
         with col0:
             eq = display.dropdown(label = 'What equation do you want to use?', options = ['Material balance with Z-factor calculation'], labelVisibility="visible")
@@ -174,9 +174,6 @@ class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA(GUI):
         RES_Analysis = ReservoirPressureAnalysis(parent = RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA, session_id='ReservoirPressureAnalysis')
         RES_Analysis.updateFromDropDown(fieldName= field, time = selected_time)
         RES_Analysis.update_from_upload(uploaded)
-            #RES_Analysis.updateParameterListfromTable(list2 = manualData_RP())
-
-        #st.write("The following data for " + field[0]+field[1:].lower() + " was found at NPD. Run analysis with these data or change them as you see fit" )
         with col1:
             col2, col3, col4, col5= st.columns(4)
             with col2:   
@@ -185,7 +182,6 @@ class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA(GUI):
                 NPD_button = st.button('Get NPD-data for field', 'get NPD data into table')
             with col5: 
                 clear = st.button('Clear output', 'clear RESPRES')
-        
         
         if NPD_button and field == 'No field chosen':
             alert3 = st.warning('Choose a field')
@@ -220,13 +216,10 @@ class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA(GUI):
                 elif field != 'No field chosen' and selected_time == 'Monthly':
                     result = RES_Analysis.runM()
                     RES_Analysis.append_result(result)
-
-
  
         if run and field != 'No field chosen' and selected_time == 'Yearly':
             result = RES_Analysis.runY()
             RES_Analysis.append_result(result)
-
 
         elif run and field != 'No field chosen' and selected_time == 'Monthly':
             result = RES_Analysis.runM()
@@ -234,11 +227,7 @@ class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA(GUI):
 
         elif run and uploaded != None:
             result = RES_Analysis.run_uploaded()
-            RES_Analysis.append_result(result)
-        
-
-
-        
+            RES_Analysis.append_result(result) 
 
         if clear:
             RES_Analysis.clear_output()

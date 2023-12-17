@@ -6,8 +6,6 @@ import streamlit as st
 from shapely.wkt import loads
 import plotly.graph_objects as go
 
-
-
 class npd_prod(NPD_DATA):
     def __init__(self, parent, session_id:str, field:str = 'No field chosen'):
         self.__field = field
