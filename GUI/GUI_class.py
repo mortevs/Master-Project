@@ -2,7 +2,7 @@ import streamlit as st
 import GUI.GUI_functions as display
 import time
 import Data.getData as get
-import pandas as pd
+import os
 from Data.dataProcessing import get_field_list_inc_No_field_chosen
 from Data.ManualData import manualData_RP
 fieldnames = get_field_list_inc_No_field_chosen()
@@ -25,7 +25,8 @@ class GUI():
             st.write(" ")
             col1, col2 = st.columns(2)
             with col1:
-                st.image("Data\Storage\Morten_front_page.png")
+                my_path = os.path.join('Data', 'Storage', 'Morten_front_page.png')
+                st.image(my_path)
             with col2:
                 on_information = st.toggle("Show me more information on how to use the application", value=False, label_visibility="visible")
                 if on_information:
@@ -56,7 +57,7 @@ class GUI():
                 st.write(" ")
                 st.write(" ")
                 st.write(" ")
-                st.markdown('<p style="color: lightgreen;">Specialization project Morten Simensen, supervised by associate professor Milan Stanko.</p>', unsafe_allow_html=True)
+                st.markdown('<p style="color: lightgreen;">Specialization project Morten Simensen, supervised by associate professor Milan Stanko.</p>')
 
         elif opt == 'FIELD DEVELOPMENT':
             self.field_development = FIELD_DEVELOPMENT(parent=GUI)
