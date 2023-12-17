@@ -5,7 +5,7 @@ import pandas as pd
 import shelve
 import streamlit as st
 import pickle
-data_storage_folder = os.path.join(os.getcwd(), "Data\\Storage")
+data_storage_folder = os.path.join(os.getcwd(), 'Data', 'Storage')
 cacheDF = {}
 
 def csvURLtoDF(csvURL: str) ->pd.DataFrame:
@@ -30,15 +30,15 @@ def checkKeyCached(key):
     
 
 def dumpDict(data, name):
-    with shelve.open(os.path.join(data_storage_folder, "savedDictionary")) as d:
+    with shelve.open(os.path.join(data_storage_folder, 'savedDictionary')) as d:
         d[name] = data
 
 def checkKeyinDict(key):
-    with shelve.open(os.path.join(data_storage_folder, "savedDictionary")) as d:
+    with shelve.open(os.path.join(data_storage_folder, 'savedDictionary')) as d:
         return key in d
 
 def loadDict(key):
-    with shelve.open(os.path.join(data_storage_folder, "savedDictionary")) as d:
+    with shelve.open(os.path.join(data_storage_folder, 'savedDictionary')) as d:
         if key not in d:
             st.warning('An error has accured')
         else:
@@ -91,8 +91,6 @@ def delete_files():
         file_path = os.path.join(data_storage_folder, file)
         if os.path.exists(file_path):
             os.remove(file_path)
-        else:
-            st.write("Not good") #should be removed
 
 def clear_state(state:SessionState):
     state.result = []
