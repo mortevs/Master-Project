@@ -2,8 +2,8 @@ import math
 def ZfacStanding(p1: float, T1: float, gasMolecularWeight: float) ->float:
     """
     Returns Z-factor based on Hall&Yarborough equation fitted to Standing-Katz Chart. Use psia and °F or bara and °C.
-    p1 = pressure [psia] or [bara],
-    T1 = Temperature [°F] or [°C],
+    p1 = pressure [bara],
+    T1 = Temperature [°C],
     GasMolecularWeight = molecular weight of the gas at standard conditions (air=1)
     """
 
