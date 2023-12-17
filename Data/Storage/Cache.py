@@ -5,18 +5,8 @@ import pandas as pd
 import shelve
 import streamlit as st
 import pickle
-data_storage_folder = os.path.join(os.getcwd(), "Data\Storage")
-#cacheZip = {}
+data_storage_folder = os.path.join(os.getcwd(), "Data\\Storage")
 cacheDF = {}
-
-# def CacheZip(key, zipFileUrl):
-#     if key in cacheZip:
-#         return cacheZip[key]    
-#     zip_file_path = os.path.join(data_storage_folder, key + ".zip")
-#     wget.download(zipFileUrl, out=zip_file_path)
-#     zf = zipfile.ZipFile(zip_file_path)
-#     cacheZip[key] = zf
-#     return cacheZip[key]
 
 def csvURLtoDF(csvURL: str) ->pd.DataFrame:
     df = pd.read_csv((csvURL), sep = ";", low_memory=False)
