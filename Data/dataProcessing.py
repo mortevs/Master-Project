@@ -4,13 +4,21 @@ from pandas import DataFrame
 
 def get_field_list_inc_No_field_chosen():
     fieldnames = get.fieldNames()
-    import locale
-    def locale_aware_sort(arr, locale_str='nb_NO.UTF-8'):
-        locale.setlocale(locale.LC_ALL, locale_str)            
-        arr.sort(key=locale.strxfrm) 
+
+    def custom_sort_key(s, char_map):
+        return ''.join(char_map.get(c, c) for c in s)
+
+    def locale_aware_sort(arr):
+        # Map special characters to a representation for sorting
+        char_map = {'Ø': 'Oz', 'Æ': 'Ae', 'Å': 'Aa'}
+
+        # Sort using the custom sort key
+        arr.sort(key=lambda s: custom_sort_key(s, char_map))
+
     locale_aware_sort(fieldnames)
     fieldnames.insert(0, 'No field chosen')
     return fieldnames
+
                
 def estimatedReservoirPressure(TVD: float) -> float:
     """
