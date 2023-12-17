@@ -7,7 +7,7 @@ import streamlit as st
 import time
 from Data.Storage.Cache import delete_files
 import Data.Storage.Cache as c
-data_storage_folder = os.path.join(os.getcwd(), 'Data/Storage')
+data_storage_folder = os.path.join(os.getcwd(), 'Data\\Storage')
 
 def ZiptoDF(zipname='fldArea.zip', zipFileUrl='https://factpages.npd.no/downloads/csv/fldArea.zip'):
     zip_file_path = os.path.join(data_storage_folder, zipname)
