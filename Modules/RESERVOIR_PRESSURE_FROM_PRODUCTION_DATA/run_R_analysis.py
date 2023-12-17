@@ -1,7 +1,6 @@
 import pandas as pd
 from Data.Storage.Cache import SessionState
 import GUI.GUI_functions as display
-from Data.ManualData import manualData_RP
 import streamlit as st
 from GUI.GUI_class import RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA
 import Data.getData as get

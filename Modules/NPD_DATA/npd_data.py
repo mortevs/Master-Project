@@ -5,7 +5,7 @@ from GUI.GUI_class import NPD_DATA
 import streamlit as st
 from shapely.wkt import loads
 import plotly.graph_objects as go
-import plotly.express as px
+
 
 
 class npd_prod(NPD_DATA):

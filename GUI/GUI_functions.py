@@ -123,7 +123,6 @@ def display_table(list1, list2, edible=False):
         'Input': list1,
         'Value': list2
     })
-    # Display the DataFrame with the custom styles
     if edible:
         edited_df = st.data_editor(df_table, key='df_table_editor', width=750, height=596, hide_index=True)
         return edited_df['Value'].to_list()
