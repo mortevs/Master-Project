@@ -57,7 +57,7 @@ class GUI():
                 st.write(" ")
                 st.write(" ")
                 st.write(" ")
-                st.markdown('<p style="color: lightgreen;">Specialization project Morten Simensen, supervised by associate professor Milan Stanko.</p>')
+                st.write('Specialization project by Morten Simensen, supervised by associate professor Milan Stanko')
 
         elif opt == 'FIELD DEVELOPMENT':
             self.field_development = FIELD_DEVELOPMENT(parent=GUI)
