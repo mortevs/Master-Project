@@ -6,3 +6,5 @@ The application is equipped with computational routines tailored to estimate pro
 and assess reservoir depletion for gas fields. Moreover, it incorporates the capability to access and
 analyze open data sourced from the Norwegian Petroleum Directorate (NPD), providing insights
 into hydrocarbon fields located on the Norwegian continental shelf.
+
+For more details check out the Report. 
