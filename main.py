@@ -1,13 +1,13 @@
 if __name__ == "__main__":
     from GUI.GUI_class import GUI
     import streamlit as st
-    
+
     st.set_page_config(
         page_title="Smipps",
         page_icon="🖩",
         layout="wide",
         menu_items={
-             'Contact': 'morten.viersi@gmail.com'
+             'About': 'morten.viersi@gmail.com'
          }
      )
     GUI()
