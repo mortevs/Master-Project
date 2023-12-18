@@ -6,9 +6,6 @@ if __name__ == "__main__":
         page_title="Smipps",
         page_icon="🖩",
         layout="wide",
-        menu_items={
-             'About': 'morten.viersi@gmail.com'
-         }
      )
     GUI()
 
