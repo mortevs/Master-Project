@@ -139,6 +139,8 @@ class FIELD_DEVELOPMENT(GUI):
                 Analysis.plot(comp = True)
             Analysis.plot()
             self.parent = parent
+        
+        from Modules.FIELD_DEVELOPMENT.run_Analysis import NPVAnalysis
 
 class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA(GUI):
     def __init__(self, parent):
