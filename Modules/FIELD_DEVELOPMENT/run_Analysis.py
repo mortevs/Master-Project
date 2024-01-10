@@ -137,7 +137,7 @@ class DryGasAnalysis(FIELD_DEVELOPMENT):
         
 class NPVAnalysis(FIELD_DEVELOPMENT):
     from Modules.FIELD_DEVELOPMENT.Artificial_lift import artificial_lift_class
-    a_l = artificial_lift_class()
+    #a_l = artificial_lift_class()
     def __init__(self, parent, session_id:str, production_profile):
         self.__session_id = session_id
         self.__state = SessionState.get(id=session_id, result=[], method=[], precision=[], field=[])

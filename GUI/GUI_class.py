@@ -141,6 +141,20 @@ class FIELD_DEVELOPMENT(GUI):
             self.parent = parent
         
         from Modules.FIELD_DEVELOPMENT.run_Analysis import NPVAnalysis
+        opts = []
+        i = 1
+        for result in Analysis.getResult():
+            opts.append(i)
+            i += 1
+        col15, col16, col117 = st.columns(3)
+        with col15:
+            prod_prof = display.dropdown(label = 'Choose which production profile to run the NPV-analysis with',options = opts, labelVisibility="visible")
+        run = st.button('Run Net-Present-Value analysis', 'Run NPV')
+
+
+
+        #NPV = NPVAnalysis(parent = FIELD_DEVELOPMENT, session_id='DryGasAnalysis', production_profile = 1)
+
 
 class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA(GUI):
     def __init__(self, parent):
