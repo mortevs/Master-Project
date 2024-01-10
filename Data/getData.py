@@ -9,7 +9,7 @@ from Data.Storage.Cache import delete_files
 import Data.Storage.Cache as c
 data_storage_folder = os.path.join(os.getcwd(), 'Data', 'Storage')
 
-def ZiptoDF(zipname='fldArea.zip', zipFileUrl='https://factpages.npd.no/downloads/csv/fldArea.zip'):
+def ZiptoDF(zipname='fldArea.zip', zipFileUrl='https://factpages.sodir.no/downloads/csv/fldArea.zip'):
     zip_file_path = os.path.join(data_storage_folder, zipname)
     if os.path.exists(zip_file_path):
         zf = zipfile.ZipFile(zip_file_path)
@@ -19,7 +19,7 @@ def ZiptoDF(zipname='fldArea.zip', zipFileUrl='https://factpages.npd.no/download
             wget.download(zipFileUrl, out=zip_file_path)            
             zf = zipfile.ZipFile(zip_file_path)
         else:
-            st.write(f'Failed to get data from NPD, status code: {response.status_code}')
+            st.write(f'Failed to get data from sodir, status code: {response.status_code}')
     df = pd.read_csv(zf.open(zf.namelist()[0]), low_memory=False)
     zf.close()
     return df
@@ -36,7 +36,7 @@ def polygon_coordinates(fieldName):
     return fldAreaGeometryWKT
 
 def wlbPoint_field_sorted(fieldName):
-    p = c.CacheDF(df = ZiptoDF(zipname = 'wlbPoint.zip', zipFileUrl = 'https://factpages.npd.no/downloads/csv/wlbPoint.zip'), key = 'wlbPoint')
+    p = c.CacheDF(df = ZiptoDF(zipname = 'wlbPoint.zip', zipFileUrl = 'https://factpages.sodir.no/downloads/csv/wlbPoint.zip'), key = 'wlbPoint')
     p.drop(p[p['wlbField'] != fieldName].index, inplace=True)
     return p
 
@@ -138,8 +138,8 @@ def CSVProducedMonths(fieldName: str) -> list:
 
 def deleteAndLoadNewDataFromNPD():
     zipfile_URLs = [
-        'https://factpages.npd.no/downloads/csv/fldArea.zip',
-        'https://factpages.npd.no/downloads/csv/wlbPoint.zip', 
+        'https://factpages.sodir.no/downloads/csv/fldArea.zip',
+        'https://factpages.sodir.no/downloads/csv/wlbPoint.zip', 
         'https://hotell.difi.no/download/npd/field/reserves?download',
         'https://hotell.difi.no/download/npd/field/production-monthly-by-field',
         'https://hotell.difi.no/download/npd/field/production-yearly-by-field'
@@ -178,7 +178,7 @@ def Temp(fieldName):
     if c.checkKeyinDict('wlbPoint'):
         p = c.CacheDF(df = None, key = 'wlbPoint')
     else:
-        data_to_store = ZiptoDF(zipname = 'wlbPoint.zip', zipFileUrl = 'https://factpages.npd.no/downloads/csv/wlbPoint.zip')
+        data_to_store = ZiptoDF(zipname = 'wlbPoint.zip', zipFileUrl = 'https://factpages.sodir.no/downloads/csv/wlbPoint.zip')
         p = c.CacheDF(df = data_to_store, key = 'wlbPoint')
     p.drop(p[p['wlbField'] != fieldName.upper()].index, inplace=True)
     mean_temp = p["wlbBottomHoleTemperature"].mean()

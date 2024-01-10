@@ -10,12 +10,12 @@ class GUI():
     def __init__(self):
         col1, col2, col3, col4, col5 = st.columns(5)
         with col5:
-            load = st.button('Load New Data from NPD',  'NPD')
+            load = st.button('Load New Data from The Norwegian Offshore Directorate',  'sodir')
             if load:
                 from Data.getData import deleteAndLoadNewDataFromNPD
                 deleteAndLoadNewDataFromNPD()
                 timestamp = time.ctime()
-                alert00 = st.warning('Data downloaded from NPD ' + timestamp)
+                alert00 = st.warning('Data downloaded from sodir ' + timestamp)
                 time.sleep(5)
                 alert00.empty() 
         opt = display.dropdown(label = 'What do you want to use the application for?',options = ['NO OPTION CHOSEN', 'FIELD DEVELOPMENT', 'RESERVOIR PRESSURE FROM PRODUCTION DATA', 'NPD DATA'], labelVisibility='visible')   
