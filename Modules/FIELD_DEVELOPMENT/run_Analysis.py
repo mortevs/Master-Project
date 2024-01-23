@@ -138,18 +138,10 @@ class DryGasAnalysis(FIELD_DEVELOPMENT):
 class NPVAnalysis(FIELD_DEVELOPMENT):
     from Modules.FIELD_DEVELOPMENT.Artificial_lift import artificial_lift_class
     #a_l = artificial_lift_class()
-    def __init__(self, parent, session_id:str, production_profile):
-        self.__session_id = session_id
-        self.__state = SessionState.get(id=session_id, result=[], method=[], precision=[], field=[])
-        self.parent  = parent
 
-
-    def __init__(self, parent, session_id:str, inputs:list = [], method:str = None, precision:str = None, field:str = 'No field chosen'):
-        self.__parameters:list = inputs
-        self.__method = method
-        self.__precision = precision
-        self.__field = field
+    def __init__(self, parent, session_id:str, prod_prof):
         self.__session_id = session_id
-        self.__result = pd.DataFrame()
-        self.__state = SessionState.get(id=session_id, result=[], method=[], precision=[], field=[])
+        self.__production_profile = prod_prof
         self.parent  = parent
+        import streamlit as st
+        st.write(self.__production_profile)
