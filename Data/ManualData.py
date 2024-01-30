@@ -27,5 +27,18 @@ def manualData_RP() -> list:
     return list
 
 
+def manualData_NPV() -> list:
+    GAS_Price = 0.1 #uds/Sm^3
+    Discount_Rate = 5 #%
+    list = [GAS_Price, Discount_Rate]
+    return list
 
+def manualData_NPV_CAPEX() -> list:
+    well_cost = 100 #1E06 USD
+    list = [well_cost]
+    return list
 
+def manualData_NPV_OPEX() -> list:
+    well_cost = 100 #1E06 USD
+    list = [well_cost]
+    return list

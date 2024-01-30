@@ -117,13 +117,13 @@ def multi_plot(dfs, addAll = True, addProduced = False):
     )
     st.plotly_chart(fig)
 
-def display_table(list1, list2, edible=False):
+def display_table(list1, list2, edible=False, key = 'df_table_editor'):
     df_table = pd.DataFrame({
         'Input': list1,
         'Value': list2
     })
     if edible:
-        edited_df = st.data_editor(df_table, key='df_table_editor', width=750, height=596, hide_index=True)
+        edited_df = st.data_editor(df_table, key=key, width=750, height=596, hide_index=True)
         return edited_df['Value'].to_list()
     else:
         st.table(df_table)

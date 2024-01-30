@@ -149,11 +149,14 @@ class FIELD_DEVELOPMENT(GUI):
         col15, col16, col117 = st.columns(3)
         with col15:
             opt = display.dropdown(label = 'Choose which production profile to run the NPV-analysis with',options = opts, labelVisibility="visible")
-        runNPV = st.button('Run Net-Present-Value analysis', 'Run NPV')
-
-        if runNPV:
+        makeNPV = st.button('Make Net-Present-Value analysis', 'make NPV')
+        if makeNPV:
             from Modules.FIELD_DEVELOPMENT.run_Analysis import NPVAnalysis
             NPV = NPVAnalysis(parent = FIELD_DEVELOPMENT, session_id='DryGasAnalysis', prod_prof = production_profiles[opt-1]['Field rates [sm3/d]'])
+            NPV.updateParameterListfromTable()
+            runNPV = st.button('Run Net-Present-Value analysis', 'Run NPV')
+            if runNPV:
+                pass
 
 
 class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA(GUI):
@@ -254,7 +257,7 @@ class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA(GUI):
         
 class NPD_DATA(GUI):
     def __init__(self, parent):
-        on_information = st.toggle("Show me information on how to use the NPD data feature", value=False, label_visibility="visible")
+        on_information = st.toggle("Show me information on how to use the SODIR data feature", value=False, label_visibility="visible")
         if on_information:
             st.write(""" To compare fields follow these steps, 'Step 1 - Choose a field, Step 2- Click Plot production profile, Step 3 - 
                      Repeat step 1 and 2, Step 4 - Click Compare fields'""")

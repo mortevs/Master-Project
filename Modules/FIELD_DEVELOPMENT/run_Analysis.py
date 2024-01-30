@@ -3,6 +3,7 @@ from Data.Storage.Cache import SessionState
 import GUI.GUI_functions as display
 from Data.ManualData import manualData
 from GUI.GUI_class import FIELD_DEVELOPMENT
+import streamlit as st
 
 class DryGasAnalysis(FIELD_DEVELOPMENT):
     def __init__(self, parent, session_id:str, inputs:list = [], method:str = None, precision:str = None, field:str = 'No field chosen'):
@@ -142,6 +143,26 @@ class NPVAnalysis(FIELD_DEVELOPMENT):
     def __init__(self, parent, session_id:str, prod_prof):
         self.__session_id = session_id
         self.__production_profile = prod_prof
+        self.__NPV_Parameters = []
+        self.__CAPEX = []
+        self.__OPEX = []
         self.parent  = parent
-        import streamlit as st
-        st.write(self.__production_profile)
+        #st.write(self.__production_profile)
+    
+    def updateParameterListfromTable(self):
+        from Data.ManualData import manualData_NPV, manualData_NPV_CAPEX, manualData_NPV_OPEX
+        CAPEX = ["Well cost"]
+        OPEX = ["OPEX"]
+        col0, col1, col2 = st.columns(3)
+        with col0:
+            st.title("NPV variables")
+            self.__NPV_Parameters.append(display.display_table(list1=['GAS_Price', 'Discount_Rate'], list2=manualData_NPV(), edible=True, key = 'df_table_editor_NPV'))
+        with col1:
+            st.title('CAPEX')
+            self.__CAPEX.append(display.display_table(list1=CAPEX, list2=manualData_NPV_CAPEX(), edible=True, key = 'df_table_editor2_CAPEX'))
+        with col2:
+            st.title('OPEX')
+            self.__OPEX.append(display.display_table(list1=OPEX, list2=manualData_NPV_OPEX(), edible=True, key = 'df_table_editor2_OPEX'))
+
+
+
