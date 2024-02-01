@@ -70,7 +70,7 @@ class DryGasAnalysis(FIELD_DEVELOPMENT):
         from pandas import DataFrame
         res = self.getResult()
         if comp == False:
-            for i in range(len(res)):
+            for i in reversed(range(len(res))):
                 if isinstance(res[i], DataFrame):
                     field = self.getField()
                     method = self.getMethod()

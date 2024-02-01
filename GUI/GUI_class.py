@@ -133,10 +133,11 @@ class FIELD_DEVELOPMENT(GUI):
         elif run and field_name != 'No field chosen':
             result = Analysis.run_field(field)
             Analysis.append_result(result)
-        col10, col11, col12, col13, col14 = st.columns(5)
-        with col11:
-            if plot_comp == True:
-                Analysis.plot(comp = True)
+        #col10, col11, col12, col13, col14 = st.columns(5)
+        #with col11:
+        if plot_comp == True:
+            Analysis.plot(comp = True)
+        with st.container(height = 750):
             Analysis.plot()
             self.parent = parent
         
