@@ -4,6 +4,7 @@ import GUI.GUI_functions as display
 from GUI.GUI_class import SODIR_feature
 import streamlit as st
 from shapely.wkt import loads
+from shapely.geometry import Polygon, MultiPolygon
 import plotly.graph_objects as go
 
 class Sodir_prod(SODIR_feature):
@@ -93,34 +94,61 @@ class Sodir_prod(SODIR_feature):
 class PolygonPlotter:
     def __init__(self, wkt_str):
         self.wkt_str = wkt_str
-        self.fig = self.plot()
+        self.fig = None
+        try:
+            self.fig = self.plot()
+        except Exception as e:
+            self.handle_error(e)
 
     def plot(self):
-        multipolygon = loads(self.wkt_str)
-        traces = [
-            go.Scatter(
-                x=list(polygon.exterior.xy[0]),
-                y=list(polygon.exterior.xy[1]),
-                mode = 'lines',
-                fill='toself',
-                fillcolor='red',
-                line=dict(color='white', width=1),
-                name='Reservoir'
-            ) for polygon in multipolygon.geoms
-        ]
+        try:
+            multipolygon = loads(self.wkt_str)
 
-        fig = go.Figure(traces)
-        fig.update_layout(
-            height=800,
-            width=800,
-            xaxis_title="Longitude",
-            yaxis_title="Latitude",
-            showlegend=True,
-            paper_bgcolor='black',
-            plot_bgcolor='black'
-        )
+            if isinstance(multipolygon, MultiPolygon):
+                # Handle the case of a MultiPolygon
+                traces = [
+                    go.Scatter(
+                        x=list(polygon.exterior.xy[0]),
+                        y=list(polygon.exterior.xy[1]),
+                        mode='lines',
+                        fill='toself',
+                        fillcolor='red',
+                        line=dict(color='white', width=1),
+                        name='Reservoir'
+                    ) for polygon in multipolygon.geoms
+                ]
+            elif isinstance(multipolygon, Polygon):
+                # Handle the case of a single Polygon
+                traces = [
+                    go.Scatter(
+                        x=list(multipolygon.exterior.xy[0]),
+                        y=list(multipolygon.exterior.xy[1]),
+                        mode='lines',
+                        fill='toself',
+                        fillcolor='red',
+                        line=dict(color='white', width=1),
+                        name='Reservoir'
+                    )
+                ]
+            else:
+                raise ValueError("Input is neither Polygon nor MultiPolygon")
 
-        return fig
+            fig = go.Figure(data=traces)
+            fig.update_layout(
+                height=800,
+                width=800,
+                xaxis_title="Longitude",
+                yaxis_title="Latitude",
+                showlegend=True,
+                paper_bgcolor='black',
+                plot_bgcolor='black'
+            )
+
+            return fig
+        except Exception as e:
+            self.handle_error(e)
+    def handle_error(self, error):
+        st.write('Some error occured while plotting the reservoir area for this particular field', error)
 
 def wlb_plot_production(fig, df, field):
     # Extract latitude and longitude from the WKT coordinates
@@ -160,8 +188,10 @@ def wlb_plot_injection(fig, df, field):
         name = "Injection wells",
         #hoverinfo=df['wlbContentPlanned'],
         marker=dict(size=10, color='blue', symbol='circle'),
-    )
+        showlegend= True
 
+    )
+    #scatter_trace.visible = 'legendonly'
     # Add the scatter trace to the provided figure
     fig.add_trace(scatter_trace)
 
@@ -173,16 +203,78 @@ def wlb_plot_injection(fig, df, field):
     )
 
     return fig
+
+def wlb_plot_closed(fig, df, field):
+    # Extract latitude and longitude from the WKT coordinates
+    df[['Longitude', 'Latitude']] = df['wlbPointGeometryWKT'].str.extract(r'POINT \((\d+\.\d+) (\d+\.\d+)\)').astype(float)
+
+    # Create a scatter trace
+    scatter_trace = go.Scatter(
+        x=df['Longitude'],
+        y=df['Latitude'],
+        text=df['wlbWellboreName'],  # Use the 'wlbWellboreName' column for text labels
+        mode='markers', #+text
+        name = "Closed wells",
+        #hoverinfo=df['wlbContentPlanned'],
+        marker=dict(size=10, color='yellow', symbol='circle'),
+        showlegend= True
+
+    )
+    scatter_trace.visible = 'legendonly'
+    # Add the scatter trace to the provided figure
+    fig.add_trace(scatter_trace)
+
+    # Update layout properties (optional)
+    fig.update_layout(
+        title='Reservoir and well locations ' + str(field),
+        xaxis_title='Longitude',
+        yaxis_title='Latitude',
+    )
+
+    return fig
+
+def wlb_plot_PA(fig, df, field):
+    # Extract latitude and longitude from the WKT coordinates
+    df[['Longitude', 'Latitude']] = df['wlbPointGeometryWKT'].str.extract(r'POINT \((\d+\.\d+) (\d+\.\d+)\)').astype(float)
+
+    # Create a scatter trace
+    scatter_trace = go.Scatter(
+        x=df['Longitude'],
+        y=df['Latitude'],
+        text=df['wlbWellboreName'],  # Use the 'wlbWellboreName' column for text labels
+        mode='markers', #+text
+        name = "P&A wells",
+        #hoverinfo=df['wlbContentPlanned'],
+        marker=dict(size=10, color='grey', symbol='circle'),
+        showlegend= True
+
+    )
+    scatter_trace.visible = 'legendonly'
+    # Add the scatter trace to the provided figure
+    fig.add_trace(scatter_trace)
+
+    # Update layout properties (optional)
+    fig.update_layout(
+        title='Reservoir and well locations ' + str(field),
+        xaxis_title='Longitude',
+        yaxis_title='Latitude',
+    )
+
+    return fig
+
     
 def makePlot(field):
     fig = go.Figure()
     import Data.getData as get
     wkt_str = get.polygon_coordinates(field)
     polygon_plotter = PolygonPlotter(wkt_str)
-    col1, col2, col3, col4 = st.columns(4)
-
-    with col2:
+    try:
         updated_fig = wlb_plot_production(polygon_plotter.fig, get.producing_wlb(field), field)
-        updated_fig = wlb_plot_injection(polygon_plotter.fig, get.injecting_wlb(field), field)   
+        updated_fig = wlb_plot_injection(polygon_plotter.fig, get.injecting_wlb(field), field) 
+        updated_fig = wlb_plot_closed(polygon_plotter.fig, get.closed_wlb(field), field)   
+        updated_fig = wlb_plot_PA(polygon_plotter.fig, get.PA_wlb(field), field)   
+
         st.plotly_chart(updated_fig)
+    except:
+        pass
    
