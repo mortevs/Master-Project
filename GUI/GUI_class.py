@@ -10,64 +10,64 @@ class GUI():
     def __init__(self):
         col1, col2, col3, col4, col5 = st.columns(5)
         with col5:
-            load = st.button('Load New Data from The Norwegian Offshore Directorate',  'sodir')
-            if load:
-                from Data.getData import deleteAndLoadNewDataFromNPD
-                deleteAndLoadNewDataFromNPD()
-                timestamp = time.ctime()
-                alert00 = st.warning('Data downloaded from sodir ' + timestamp)
-                time.sleep(5)
-                alert00.empty() 
-        opt = display.dropdown(label = 'What do you want to use the application for?',options = ['NO OPTION CHOSEN', 'FIELD DEVELOPMENT', 'RESERVOIR PRESSURE FROM PRODUCTION DATA', 'NPD DATA'], labelVisibility='visible')   
-        if opt == "NO OPTION CHOSEN":
-            st.title('Simulation and Modeling of Integrated Petroleum Production Systems')
+            load = st.button('Load New Data from SODIR',  'sodir')
+        if load:
+            from Data.getData import deleteAndLoadNewDataFromNPD
+            deleteAndLoadNewDataFromNPD()
+            timestamp = time.ctime()
+            alert00 = st.warning('Data downloaded from sodir ' + timestamp)
+            time.sleep(5)
+            alert00.empty() 
+    #opt = display.dropdown(label = 'What do you want to use the application for?',options = ['NO OPTION CHOSEN', 'FIELD DEVELOPMENT', 'RESERVOIR PRESSURE FROM PRODUCTION DATA', 'NPD DATA'], labelVisibility='visible')   
+    #if opt == "NO OPTION CHOSEN":
+        st.title('Simulation and Modeling of Integrated Petroleum Production Systems')
+        st.write(" ")
+        st.write(" ")
+        col1, col2 = st.columns(2)
+        with col1:
+            my_path = os.path.join('Data', 'Storage', 'Morten_front_page.png')
+            st.image(my_path)
+        with col2:
+            on_information = st.toggle("Show me more information on how to use the application", value=False, label_visibility="visible")
+            if on_information:
+                st.write(
+                            """The application is connected to NPD. Data can automatically be pulled from NPDs open data sources, 
+                        before being used in the application. The data includes field, well and production data. The data is stored
+                        in the application. The button in the top right corner <Load New Data from NPD> deletes the stored data, and fetches the latest data 
+                        at NPD. NPD data are updated every night. During this time, NPDs services and portals are unavailable, and the user will not be able
+                        fetch data.""")
+                st.write("""The application has several features. The features per December 2023 are FIELD DEVELOPMENT, 
+                            RESERVOIR PRESSURE FROM PRODUCTION DATA, and NPD DATA. The user can switch back and forth among the features. The resulting plots 
+                            will be stored/cached while the application is running.""")
+                            
+                st.write("""The field development feature can be used for estimating production profiles for dry-gas fields.
+                            The reservoir pressure from production data feature can be used for estimating the decline in pressure for a dry-gas reservoir when the produced gas rates are known. 
+                            The NPD data feature can be used for NCS field investigation. The feature offers a service that lets you compare production volumes
+                            from different fields and plot the reservoir area (polygon) with well locations.""")
+            
+            on_more_about = st.toggle("Show me more information about the specialization project", value=False, label_visibility="visible")
+            if on_more_about:
+                st.write("""Integrated petroleum production systems are typically modeled and simulated using Excel spread-
+                        sheets, or specialized software. As part of my specialization project the following application was made in an attempt to 
+                        make a platform for computational routines for the Simulation and Modeling of Integrated Petroleum Production Systems.The
+                        web-application has been built in Python, utilizing the Streamlit library. The application is free for everyone to use.
+                        See the report for more information. 
+                        """)
             st.write(" ")
             st.write(" ")
-            col1, col2 = st.columns(2)
-            with col1:
-                my_path = os.path.join('Data', 'Storage', 'Morten_front_page.png')
-                st.image(my_path)
-            with col2:
-                on_information = st.toggle("Show me more information on how to use the application", value=False, label_visibility="visible")
-                if on_information:
-                    st.write(
-                             """The application is connected to NPD. Data can automatically be pulled from NPDs open data sources, 
-                            before being used in the application. The data includes field, well and production data. The data is stored
-                            in the application. The button in the top right corner <Load New Data from NPD> deletes the stored data, and fetches the latest data 
-                            at NPD. NPD data are updated every night. During this time, NPDs services and portals are unavailable, and the user will not be able
-                            fetch data.""")
-                    st.write("""The application has several features. The features per December 2023 are FIELD DEVELOPMENT, 
-                             RESERVOIR PRESSURE FROM PRODUCTION DATA, and NPD DATA. The user can switch back and forth among the features. The resulting plots 
-                             will be stored/cached while the application is running.""")
-                             
-                    st.write("""The field development feature can be used for estimating production profiles for dry-gas fields.
-                             The reservoir pressure from production data feature can be used for estimating the decline in pressure for a dry-gas reservoir when the produced gas rates are known. 
-                             The NPD data feature can be used for NCS field investigation. The feature offers a service that lets you compare production volumes
-                             from different fields and plot the reservoir area (polygon) with well locations.""")
-                
-                on_more_about = st.toggle("Show me more information about the specialization project", value=False, label_visibility="visible")
-                if on_more_about:
-                    st.write("""Integrated petroleum production systems are typically modeled and simulated using Excel spread-
-                            sheets, or specialized software. As part of my specialization project the following application was made in an attempt to 
-                            make a platform for computational routines for the Simulation and Modeling of Integrated Petroleum Production Systems.The
-                            web-application has been built in Python, utilizing the Streamlit library. The application is free for everyone to use.
-                            See the report for more information. 
-                            """)
-                st.write(" ")
-                st.write(" ")
-                st.write(" ")
-                st.write(" ")
-                st.write('Specialization project by Morten Simensen, supervised by associate professor Milan Stanko')
+            st.write(" ")
+            st.write(" ")
+            st.write('Specialization project by Morten Simensen, supervised by associate professor Milan Stanko')
 
-        elif opt == 'FIELD DEVELOPMENT':
-            self.field_development = FIELD_DEVELOPMENT(parent=GUI)
-        elif opt == 'RESERVOIR PRESSURE FROM PRODUCTION DATA':
-             self.reservoir_pressure_from_production_data = RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA(self)
-        elif opt == 'NPD DATA':
-             self.NPD_DATA = NPD_DATA(GUI)           
+        #elif opt == 'FIELD DEVELOPMENT':
+            #self.field_development = FIELD_DEVELOPMENT(parent=GUI)
+        #elif opt == 'RESERVOIR PRESSURE FROM PRODUCTION DATA':
+             #self.reservoir_pressure_from_production_data = RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA(self)
+        #elif opt == 'NPD DATA':
+             #self.NPD_DATA = NPD_DATA(GUI)           
 
 class FIELD_DEVELOPMENT(GUI):
-    def __init__(self, parent):
+    def __init__(self, parent = GUI):
         from Modules.FIELD_DEVELOPMENT.run_Analysis import DryGasAnalysis
         Analysis = DryGasAnalysis(parent = FIELD_DEVELOPMENT, session_id='DryGasAnalysis')
         on_information = st.toggle("Show me information on how to use the field development feature", value=False, label_visibility="visible")
@@ -146,21 +146,26 @@ class FIELD_DEVELOPMENT(GUI):
         for production_profile in production_profiles:
             opts.append(i)
             i += 1
-        col15, col16, col117 = st.columns(3)
-        with col15:
-            opt = display.dropdown(label = 'Choose which production profile to run the NPV-analysis with',options = opts, labelVisibility="visible")
         makeNPV = st.button('Make Net-Present-Value analysis', 'make NPV')
-        if makeNPV:
+        
+        if makeNPV and len(production_profiles) != 0:
+            col0, col1, col2 = st.columns(3)
+            with col0:
+                opt = display.dropdown(label = 'Choose which production profile to run the NPV-analysis with',options = opts, labelVisibility="visible")
+
             from Modules.FIELD_DEVELOPMENT.run_Analysis import NPVAnalysis
             NPV = NPVAnalysis(parent = FIELD_DEVELOPMENT, session_id='DryGasAnalysis', prod_prof = production_profiles[opt-1]['Field rates [sm3/d]'])
             NPV.updateParameterListfromTable()
             runNPV = st.button('Run Net-Present-Value analysis', 'Run NPV')
             if runNPV:
                 pass
-
+        elif makeNPV and len(production_profiles) == 0:
+            alert = st.warning("You must create a production profile first")
+            time.sleep(5)
+            alert.empty()
 
 class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA(GUI):
-    def __init__(self, parent):
+    def __init__(self, parent = GUI):
         self.place_holder = 1
         on_information = st.toggle("Show me information on how to use the reservoir pressure from production data feature", value=False, label_visibility="visible")
         if on_information:
@@ -255,8 +260,8 @@ class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA(GUI):
             RES_Analysis.plot()
         self.parent = parent
         
-class NPD_DATA(GUI):
-    def __init__(self, parent):
+class SODIR_feature(GUI):
+    def __init__(self, parent = GUI):
         on_information = st.toggle("Show me information on how to use the SODIR data feature", value=False, label_visibility="visible")
         if on_information:
             st.write(""" To compare fields follow these steps, 'Step 1 - Choose a field, Step 2- Click Plot production profile, Step 3 - 
@@ -266,15 +271,15 @@ class NPD_DATA(GUI):
 
             st.write("""" Click Plot reservoir area to plot a polygon of the reservor area with the production wells marked""")
 
-        from Modules.NPD_DATA.npd_data import npd_prod
-        npd_obj = npd_prod(parent = NPD_DATA, session_id='npd_prod', field = 'No field chosen')
+        from Modules.SODIR_DATA.Sodir_data import Sodir_prod
+        sodir_obj = Sodir_prod(parent = SODIR_feature, session_id='sodir_prod', field = 'No field chosen')
         col4, col5  = st.columns(2)
         with col4:
             field = display.dropdown(label = 'Choose a field', options = fieldnames, labelVisibility="visible")
         with col5:
             time = display.dropdown(label = 'Time frame of interest', options = ['Yearly', 'Monthly'], labelVisibility="visible")
         
-        npd_obj.updateFromDropDown(fieldName = field, time = time)
+        sodir_obj.updateFromDropDown(fieldName = field, time = time)
         col6, col7, col8 = st.columns(3)
         with col6:
             run = st.button('Plot production profile', 'Show produced volumes')
@@ -290,19 +295,19 @@ class NPD_DATA(GUI):
             alert3.empty()
         
         elif run and time == 'Yearly':
-            result = npd_obj.runY()
-            npd_obj.append_result(result)
+            result = sodir_obj.runY()
+            sodir_obj.append_result(result)
 
         elif run and time == 'Monthly':
-            result = npd_obj.runM()
-            npd_obj.append_result(result)
+            result = sodir_obj.runM()
+            sodir_obj.append_result(result)
 
         if clear:
-            npd_obj.clear_output()
+            sodir_obj.clear_output()
 
         if comp:
-            npd_obj.plot(comp = True)
-        npd_obj.plot()
+            sodir_obj.plot(comp = True)
+        sodir_obj.plot()
         self.parent = parent
 
         st.write(' ')
@@ -316,7 +321,7 @@ class NPD_DATA(GUI):
             time.sleep(1.5)
             alert4.empty()
         elif poly_button and field != 'No field chosen':
-            from Modules.NPD_DATA.npd_data import makePlot
+            from Modules.SODIR_DATA.Sodir_data import makePlot
             makePlot(field)
         show_more_prod = st.toggle(label = "Show me more information about the producing wells on this field")    
         if show_more_prod:

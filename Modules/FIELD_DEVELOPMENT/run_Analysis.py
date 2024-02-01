@@ -146,7 +146,9 @@ class NPVAnalysis(FIELD_DEVELOPMENT):
         self.__NPV_Parameters = []
         self.__CAPEX = []
         self.__OPEX = []
+        self.__tot=[]
         self.parent  = parent
+        const_NPV = st.toggle("constant Gas Price and Discount rate ", value=True, label_visibility="visible")
         #st.write(self.__production_profile)
     
     def updateParameterListfromTable(self):
@@ -156,13 +158,18 @@ class NPVAnalysis(FIELD_DEVELOPMENT):
         col0, col1, col2 = st.columns(3)
         with col0:
             st.title("NPV variables")
-            self.__NPV_Parameters.append(display.display_table(list1=['GAS_Price', 'Discount_Rate'], list2=manualData_NPV(), edible=True, key = 'df_table_editor_NPV'))
+            self.__NPV_Parameters.append(display.display_table_NPV(list1=['GAS_Price', 'Discount_Rate'], list2=manualData_NPV(), edible=True, key = 'df_table_editor_NPV'))
         with col1:
             st.title('CAPEX')
-            self.__CAPEX.append(display.display_table(list1=CAPEX, list2=manualData_NPV_CAPEX(), edible=True, key = 'df_table_editor2_CAPEX'))
+            self.__CAPEX.append(display.display_table_NPV(list1=CAPEX, list2=manualData_NPV_CAPEX(), edible=True, key = 'df_table_editor2_CAPEX'))
         with col2:
             st.title('OPEX')
-            self.__OPEX.append(display.display_table(list1=OPEX, list2=manualData_NPV_OPEX(), edible=True, key = 'df_table_editor2_OPEX'))
+            self.__OPEX.append(display.display_table_NPV(list1=OPEX, list2=manualData_NPV_OPEX(), edible=True, key = 'df_table_editor2_OPEX'))
+
+        index_list = self.__production_profile.index.to_list()
+        st.write(index_list)
+        #mylist2 =
+        #self.__tot.append(display.display_table_NPV(list1=OPEX, list2=manualData_NPV_OPEX(), edible=True, key = 'df_table_editor2_OPEX'))
 
 
 

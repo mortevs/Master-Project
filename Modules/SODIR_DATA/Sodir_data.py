@@ -1,12 +1,12 @@
 import pandas as pd
 from Data.Storage.Cache import SessionState
 import GUI.GUI_functions as display
-from GUI.GUI_class import NPD_DATA
+from GUI.GUI_class import SODIR_feature
 import streamlit as st
 from shapely.wkt import loads
 import plotly.graph_objects as go
 
-class npd_prod(NPD_DATA):
+class Sodir_prod(SODIR_feature):
     def __init__(self, parent, session_id:str, field:str = 'No field chosen'):
         self.__field = field
         self.__session_id = session_id

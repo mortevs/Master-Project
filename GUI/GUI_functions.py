@@ -139,6 +139,18 @@ def display_table_RESPRES(list1, list2, edible = False, clear_table = False) ->l
         edited_df = st.data_editor(df_table, key='df_table_editor', width=790, height=175, hide_index=True)
         return edited_df['Value'].to_list()
 
+def display_table_NPV(list1, list2, edible=False, key = 'df_table_editor'):
+    df_table = pd.DataFrame({
+        'Input': list1,
+        'Value': list2
+    })
+    if edible:
+        edited_df = st.data_editor(df_table, key=key, width=750, height=196, hide_index=True)
+        return edited_df['Value'].to_list()
+    else:
+        st.table(df_table)
+
+
 class edible_df():
     def __init__(self, list2):
         self.df = self.initialize_table(list2)
