@@ -47,7 +47,7 @@ class Sodir_prod(SODIR_feature):
         from pandas import DataFrame
         res = self.getResult()
         if comp == False:
-            for i in range(len(res)):
+            for i in reversed(range(len(res))):
                 if isinstance(res[i], DataFrame):
                     field = self.getField()
                     st.title('Produced volumes: ' + field[i])

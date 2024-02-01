@@ -69,26 +69,27 @@ class DryGasAnalysis(FIELD_DEVELOPMENT):
         import streamlit as st
         from pandas import DataFrame
         res = self.getResult()
-        if comp == False:
-            for i in reversed(range(len(res))):
-                if isinstance(res[i], DataFrame):
-                    field = self.getField()
-                    method = self.getMethod()
-                    prec = self.getPrecision()
-                    st.header('Prod-profile: ' + str(i + 1), divider='red')
-                    if field[i] != 'No field chosen':
-                        st.write(method[i], prec[i], field[i])
-                        display.multi_plot([res[i]], addProduced=True)
-                    else:
-                        st.write(method[i], prec[i])
-                        display.multi_plot([res[i]], addAll=False)
-        else:
-            dfs = []
-            for df in self.__state.result:
-                reset_ind_df = df.reset_index(drop = True)
-                dfs.append(reset_ind_df)
-            st.header('Compared models', divider='red')
-            display.multi_plot(dfs, addAll=False)
+        with st.container(height = 750):
+            if comp == False:
+                for i in reversed(range(len(res))):
+                    if isinstance(res[i], DataFrame):
+                        field = self.getField()
+                        method = self.getMethod()
+                        prec = self.getPrecision()
+                        st.header('Prod-profile: ' + str(i + 1), divider='red')
+                        if field[i] != 'No field chosen':
+                            st.write(method[i], prec[i], field[i])
+                            display.multi_plot([res[i]], addProduced=True)
+                        else:
+                            st.write(method[i], prec[i])
+                            display.multi_plot([res[i]], addAll=False)
+            else:
+                dfs = []
+                for df in self.__state.result:
+                    reset_ind_df = df.reset_index(drop = True)
+                    dfs.append(reset_ind_df)
+                st.header('Compared models', divider='red')
+                display.multi_plot(dfs, addAll=False)
     
 
     def clear_output(self):

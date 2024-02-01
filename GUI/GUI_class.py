@@ -133,13 +133,10 @@ class FIELD_DEVELOPMENT(GUI):
         elif run and field_name != 'No field chosen':
             result = Analysis.run_field(field)
             Analysis.append_result(result)
-        #col10, col11, col12, col13, col14 = st.columns(5)
-        #with col11:
         if plot_comp == True:
             Analysis.plot(comp = True)
-        with st.container(height = 750):
-            Analysis.plot()
-            self.parent = parent
+        Analysis.plot()
+        self.parent = parent
         
         opts = []
         i = 1
@@ -204,11 +201,11 @@ class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA(GUI):
             with col2:   
                 run = st.button('Run Analysis', 'Run RP')
             with col4:   
-                NPD_button = st.button('Get NPD-data for field', 'get NPD data into table')
+                SODIR_button = st.button('Get Sodir-data', 'get SODIR data into table')
             with col5: 
                 clear = st.button('Clear output', 'clear RESPRES')
         
-        if NPD_button and field == 'No field chosen':
+        if SODIR_button and field == 'No field chosen':
             alert3 = st.warning('Choose a field')
             time.sleep(1.5)
             alert3.empty()
@@ -218,7 +215,7 @@ class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA(GUI):
             time.sleep(1.5)
             alert3.empty()
 
-        elif NPD_button and field != 'No field chosen':
+        elif SODIR_button and field != 'No field chosen':
             self.place_holder = 2
         
         with col1:
@@ -256,9 +253,8 @@ class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA(GUI):
 
         if clear:
             RES_Analysis.clear_output()
-        col6, col7, col8, col9, col10 = st.columns(5)
-        with col7:
-            RES_Analysis.plot()
+
+        RES_Analysis.plot()
         self.parent = parent
         
 class SODIR_feature(GUI):

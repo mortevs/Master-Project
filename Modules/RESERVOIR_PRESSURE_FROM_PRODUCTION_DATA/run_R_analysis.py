@@ -93,7 +93,7 @@ class ReservoirPressureAnalysis(RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA):
         res = self.getResult()
         field = self.getField()
         if comp == False:
-            for i in range(len(res)):
+            for i in reversed(range(len(res))):
                 if isinstance(res[i], DataFrame):
                     header_ = 'Est Res-pressure ' + str(i+1)
                     st.header(header_, divider='red')
