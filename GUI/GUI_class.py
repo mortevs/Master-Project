@@ -144,13 +144,11 @@ class FIELD_DEVELOPMENT(GUI):
         for production_profile in production_profiles:
             opts.append(i)
             i += 1
-        makeNPV = st.button('Make Net-Present-Value analysis', 'make NPV')
-        
+        makeNPV = st.button('Make Net-Present-Value analysis', 'make NPV')       
         if makeNPV and len(production_profiles) != 0:
             col0, col1, col2 = st.columns(3)
             with col0:
                 opt = display.dropdown(label = 'Choose which production profile to run the NPV-analysis with',options = opts, labelVisibility="visible")
-
             from Modules.FIELD_DEVELOPMENT.run_Analysis import NPVAnalysis
             NPV = NPVAnalysis(parent = FIELD_DEVELOPMENT, session_id='DryGasAnalysis', prod_prof = production_profiles[opt-1]['Field rates [sm3/d]'])
             NPV.updateParameterListfromTable()
@@ -161,6 +159,7 @@ class FIELD_DEVELOPMENT(GUI):
             alert = st.warning("You must create a production profile first")
             time.sleep(5)
             alert.empty()
+  
 
 class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA(GUI):
     def __init__(self, parent = GUI):

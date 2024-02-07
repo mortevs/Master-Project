@@ -150,6 +150,29 @@ def display_table_NPV(list1, list2, edible=False, key = 'df_table_editor'):
     else:
         st.table(df_table)
 
+def display_table_NPV_Sheet(df, list1, list2, key = 'df_table_editor'):
+    
+    year_stop_production = len(df)
+    years = []
+    for i in range(year_stop_production):
+        years.append(i)
+    df_table = pd.DataFrame({
+        'End of year': years,
+        'Nr Wells': years,
+        'DRILLEX': years,
+        'Pipeline & Umbilicals': years,
+        'Manifold & Compressors': years,
+        'Other': years,
+        'TOTAL CAPEX': years,
+        'Yearly gas offtake': years,
+        'Revenues': years,
+        'OPEX': years,
+        'Cash Flow': years,
+        'Discounted Cash Flow': years,
+        'NPV': years,
+    })
+    edited_df = st.data_editor(df_table, key=key, width=4000, height=500, hide_index=True)
+    return edited_df['Nr Wells'].to_list(), edited_df['DRILLEX'].to_list()
 
 class edible_df():
     def __init__(self, list2):

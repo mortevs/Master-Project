@@ -144,9 +144,10 @@ class NPVAnalysis(FIELD_DEVELOPMENT):
     def __init__(self, parent, session_id:str, prod_prof):
         self.__session_id = session_id
         self.__production_profile = prod_prof
-        self.__NPV_Parameters = []
+        self.__NPV_variables = []
         self.__CAPEX = []
         self.__OPEX = []
+        self.__sheet = []
         self.__tot=[]
         self.parent  = parent
         const_NPV = st.toggle("constant Gas Price and Discount rate ", value=True, label_visibility="visible")
@@ -154,21 +155,23 @@ class NPVAnalysis(FIELD_DEVELOPMENT):
     
     def updateParameterListfromTable(self):
         from Data.ManualData import manualData_NPV, manualData_NPV_CAPEX, manualData_NPV_OPEX
-        CAPEX = ["Well cost"]
-        OPEX = ["OPEX"]
+        CAPEX = ["Well cost [MUSD]"]
+        OPEX = ["OPEX [MUSD]"]
         col0, col1, col2 = st.columns(3)
         with col0:
             st.title("NPV variables")
-            self.__NPV_Parameters.append(display.display_table_NPV(list1=['GAS_Price', 'Discount_Rate'], list2=manualData_NPV(), edible=True, key = 'df_table_editor_NPV'))
+            self.__NPV_variables = (display.display_table_NPV(list1=['GAS_Price', 'Discount_Rate'], list2=manualData_NPV(), edible=True, key = 'df_table_editor_NPV'))
         with col1:
-            st.title('CAPEX')
-            self.__CAPEX.append(display.display_table_NPV(list1=CAPEX, list2=manualData_NPV_CAPEX(), edible=True, key = 'df_table_editor2_CAPEX'))
+            st.title('CAPEX variables')
+            self.__CAPEX = (display.display_table_NPV(list1=CAPEX, list2=manualData_NPV_CAPEX(), edible=True, key = 'df_table_editor2_CAPEX'))
         with col2:
-            st.title('OPEX')
-            self.__OPEX.append(display.display_table_NPV(list1=OPEX, list2=manualData_NPV_OPEX(), edible=True, key = 'df_table_editor2_OPEX'))
+            st.title('OPEX variables')
+            self.__OPEX = (display.display_table_NPV(list1=OPEX, list2=manualData_NPV_OPEX(), edible=True, key = 'df_table_editor2_OPEX'))
+        self.__sheet = display.display_table_NPV_Sheet(df = self.__production_profile, list1=OPEX, list2=manualData_NPV_OPEX(), key = 'df_table_sheet')
+        
+        
 
-        index_list = self.__production_profile.index.to_list()
-        st.write(index_list)
+
         #mylist2 =
         #self.__tot.append(display.display_table_NPV(list1=OPEX, list2=manualData_NPV_OPEX(), edible=True, key = 'df_table_editor2_OPEX'))
 
