@@ -106,6 +106,7 @@ class DryGasAnalysis(FIELD_DEVELOPMENT):
         session_state = self.__state.get(self.__session_id)
         return getattr(session_state, 'precision', None)
 
+    @staticmethod
     def getResult(self) -> list:
         session_state = self.__state.get(self.__session_id)
         return getattr(session_state, 'result', [])
@@ -141,9 +142,8 @@ class NPVAnalysis(FIELD_DEVELOPMENT):
     from Modules.FIELD_DEVELOPMENT.Artificial_lift import artificial_lift_class
     #a_l = artificial_lift_class()
 
-    def __init__(self, parent, session_id:str, prod_prof):
-        self.__session_id = session_id
-        self.__production_profile = prod_prof
+    def __init__(self, parent):
+        #self.__session_id = session_id
         self.__NPV_variables = []
         self.__CAPEX = []
         self.__OPEX = []

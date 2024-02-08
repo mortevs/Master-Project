@@ -69,7 +69,7 @@ class main_page_GUI():
 class FIELD_DEVELOPMENT():
     def __init__(self):
         from Modules.FIELD_DEVELOPMENT.run_Analysis import DryGasAnalysis
-        Analysis = DryGasAnalysis(parent = FIELD_DEVELOPMENT, session_id='DryGasAnalysis')
+        Analysis = DryGasAnalysis(parent = self, session_id='DryGasAnalysis')
         on_information = st.toggle("Show me information on how to use the field development feature", value=False, label_visibility="visible")
         if on_information:
             st.write("""The table below on the right side contains default values for 16 parameters, in which the production profile estimation
@@ -101,7 +101,6 @@ class FIELD_DEVELOPMENT():
                     IPR instead of Nodal, and explicit instead of implicit. Nodal implicit is the most accurate method, but 
                      also the most computational costly. For more details see the report. 
                      """)
-
         col0, col1 = st.columns(2)
         plot_comp = False
         with col0:
@@ -136,7 +135,6 @@ class FIELD_DEVELOPMENT():
         if plot_comp == True:
             Analysis.plot(comp = True)
         Analysis.plot()
-        self.parent = parent
         
         opts = []
         i = 1
@@ -159,6 +157,13 @@ class FIELD_DEVELOPMENT():
             alert = st.warning("You must create a production profile first")
             time.sleep(5)
             alert.empty()
+
+#class NPV_ANALYSIS(parent = FIELD_DEVELOPMENT):
+    def __init__(self, parent):
+        self.parent = parent
+        from Modules.FIELD_DEVELOPMENT.run_Analysis import NPVAnalysis
+    #NPV_calc = NPVAnalysis(parent = FIELD_DEVELOPMENT)
+    #st.write(NPV_calc.getResult())
   
 class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA():
     def __init__(self):
@@ -253,7 +258,7 @@ class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA():
             RES_Analysis.clear_output()
 
         RES_Analysis.plot()
-        self.parent = parent
+        #self.parent = parent
         
 class SODIR_feature():
     def __init__(self):
@@ -303,7 +308,7 @@ class SODIR_feature():
         if comp:
             sodir_obj.plot(comp = True)
         sodir_obj.plot()
-        self.parent = parent
+        #self.parent = parent
 
         st.write(' ')
         st.write(' ')
