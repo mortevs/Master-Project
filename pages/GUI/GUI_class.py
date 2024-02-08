@@ -6,7 +6,7 @@ import os
 from Data.dataProcessing import get_field_list_inc_No_field_chosen
 from Data.ManualData import manualData_RP
 fieldnames = get_field_list_inc_No_field_chosen()
-class main_page_GUI(): 
+class main_page_GUI: 
     def __init__(self):
         col1, col2, col3, col4, col5 = st.columns(5)
         with col5:
@@ -66,10 +66,10 @@ class main_page_GUI():
         #elif opt == 'NPD DATA':
              #self.NPD_DATA = NPD_DATA(GUI)           
 
-class FIELD_DEVELOPMENT():
+class FIELD_DEVELOPMENT:
     def __init__(self):
         from Modules.FIELD_DEVELOPMENT.run_Analysis import DryGasAnalysis
-        Analysis = DryGasAnalysis(parent = self, session_id='DryGasAnalysis')
+        Analysis = DryGasAnalysis(session_id='DryGasAnalysis')
         on_information = st.toggle("Show me information on how to use the field development feature", value=False, label_visibility="visible")
         if on_information:
             st.write("""The table below on the right side contains default values for 16 parameters, in which the production profile estimation
@@ -119,11 +119,9 @@ class FIELD_DEVELOPMENT():
                 Analysis.updateField(field)
         with col1:  
             Analysis.updateFromDropdown(method = method, precision=precision)
-            Analysis.updateParameterListfromTable() 
-        
+            Analysis.updateParameterListfromTable()     
         if clear:
             Analysis.clear_output()
-
         field_name = Analysis.get_current_field()
         if run and field_name == 'No field chosen':
             result = Analysis.run()
@@ -148,7 +146,7 @@ class FIELD_DEVELOPMENT():
             with col0:
                 opt = display.dropdown(label = 'Choose which production profile to run the NPV-analysis with',options = opts, labelVisibility="visible")
             from Modules.FIELD_DEVELOPMENT.run_Analysis import NPVAnalysis
-            NPV = NPVAnalysis(parent = FIELD_DEVELOPMENT, session_id='DryGasAnalysis', prod_prof = production_profiles[opt-1]['Field rates [sm3/d]'])
+            NPV = NPVAnalysis(parent = DryGasAnalysis, prod_prof = production_profiles[opt-1]['Field rates [sm3/d]'])
             NPV.updateParameterListfromTable()
             runNPV = st.button('Run Net-Present-Value analysis', 'Run NPV')
             if runNPV:
@@ -158,14 +156,14 @@ class FIELD_DEVELOPMENT():
             time.sleep(5)
             alert.empty()
 
-#class NPV_ANALYSIS(parent = FIELD_DEVELOPMENT):
-    def __init__(self, parent):
-        self.parent = parent
-        from Modules.FIELD_DEVELOPMENT.run_Analysis import NPVAnalysis
+# class NPV_ANALYSIS(parent = FIELD_DEVELOPMENT):
+#     def __init__(self, parent):
+#         self.parent = parent
+#         from Modules.FIELD_DEVELOPMENT.run_Analysis import NPVAnalysis
     #NPV_calc = NPVAnalysis(parent = FIELD_DEVELOPMENT)
     #st.write(NPV_calc.getResult())
   
-class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA():
+class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA:
     def __init__(self):
         self.place_holder = 1
         on_information = st.toggle("Show me information on how to use the reservoir pressure from production data feature", value=False, label_visibility="visible")
@@ -260,7 +258,7 @@ class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA():
         RES_Analysis.plot()
         #self.parent = parent
         
-class SODIR_feature():
+class SODIR_feature:
     def __init__(self):
         on_information = st.toggle("Show me information on how to use the SODIR data feature", value=False, label_visibility="visible")
         if on_information:
@@ -336,5 +334,3 @@ class SODIR_feature():
         show_more_PA = st.toggle(label = "Show me more information about the P&A wells on this field") 
         if show_more_PA:
             st.dataframe(get.PA_wlb(field))
-
-

@@ -17,8 +17,8 @@ st.set_page_config(
         'About': "# Master project by Morten Vier Simensen"
     }
     )
-from pages.GUI.GUI_class import FIELD_DEVELOPMENT
 st.title('Field Development')
+from pages.GUI.GUI_class import FIELD_DEVELOPMENT
 field_development = FIELD_DEVELOPMENT()
 #from pages.GUI.GUI_class import NPVAnalysis
 

@@ -2,11 +2,10 @@ import pandas as pd
 from Data.Storage.Cache import SessionState
 import pages.GUI.GUI_functions as display
 from Data.ManualData import manualData
-from pages.GUI.GUI_class import FIELD_DEVELOPMENT
 import streamlit as st
 
-class DryGasAnalysis(FIELD_DEVELOPMENT):
-    def __init__(self, parent, session_id:str, inputs:list = [], method:str = None, precision:str = None, field:str = 'No field chosen'):
+class DryGasAnalysis():
+    def __init__(self, session_id:str, inputs:list = [], method:str = None, precision:str = None, field:str = 'No field chosen'):
         self.__parameters:list = inputs
         self.__method = method
         self.__precision = precision
@@ -14,7 +13,7 @@ class DryGasAnalysis(FIELD_DEVELOPMENT):
         self.__session_id = session_id
         self.__result = pd.DataFrame()
         self.__state = SessionState.get(id=session_id, result=[], method=[], precision=[], field=[])
-        self.parent  = parent
+       
 
     def updateFromDropdown(self, method, precision):
             self.__method, self.__precision = method, precision
@@ -106,7 +105,6 @@ class DryGasAnalysis(FIELD_DEVELOPMENT):
         session_state = self.__state.get(self.__session_id)
         return getattr(session_state, 'precision', None)
 
-    @staticmethod
     def getResult(self) -> list:
         session_state = self.__state.get(self.__session_id)
         return getattr(session_state, 'result', [])
@@ -138,12 +136,11 @@ class DryGasAnalysis(FIELD_DEVELOPMENT):
     def append_field(self, item) -> str:
         SessionState.append(id = self.__session_id, key = 'field', value = item)
         
-class NPVAnalysis(FIELD_DEVELOPMENT):
+class NPVAnalysis(DryGasAnalysis):
     from Modules.FIELD_DEVELOPMENT.Artificial_lift import artificial_lift_class
     #a_l = artificial_lift_class()
-
-    def __init__(self, parent):
-        #self.__session_id = session_id
+    def __init__(self, parent, prod_prof):
+        self.__production_profile = prod_prof
         self.__NPV_variables = []
         self.__CAPEX = []
         self.__OPEX = []
@@ -151,7 +148,6 @@ class NPVAnalysis(FIELD_DEVELOPMENT):
         self.__tot=[]
         self.parent  = parent
         const_NPV = st.toggle("constant Gas Price and Discount rate ", value=True, label_visibility="visible")
-        #st.write(self.__production_profile)
     
     def updateParameterListfromTable(self):
         from Data.ManualData import manualData_NPV, manualData_NPV_CAPEX, manualData_NPV_OPEX
