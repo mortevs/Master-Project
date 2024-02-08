@@ -1,12 +1,12 @@
 import streamlit as st
-import GUI.GUI_functions as display
+import pages.GUI.GUI_functions as display
 import time
 import Data.getData as get
 import os
 from Data.dataProcessing import get_field_list_inc_No_field_chosen
 from Data.ManualData import manualData_RP
 fieldnames = get_field_list_inc_No_field_chosen()
-class GUI(): 
+class main_page_GUI(): 
     def __init__(self):
         col1, col2, col3, col4, col5 = st.columns(5)
         with col5:
@@ -66,8 +66,8 @@ class GUI():
         #elif opt == 'NPD DATA':
              #self.NPD_DATA = NPD_DATA(GUI)           
 
-class FIELD_DEVELOPMENT(GUI):
-    def __init__(self, parent = GUI):
+class FIELD_DEVELOPMENT():
+    def __init__(self):
         from Modules.FIELD_DEVELOPMENT.run_Analysis import DryGasAnalysis
         Analysis = DryGasAnalysis(parent = FIELD_DEVELOPMENT, session_id='DryGasAnalysis')
         on_information = st.toggle("Show me information on how to use the field development feature", value=False, label_visibility="visible")
@@ -160,9 +160,8 @@ class FIELD_DEVELOPMENT(GUI):
             time.sleep(5)
             alert.empty()
   
-
-class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA(GUI):
-    def __init__(self, parent = GUI):
+class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA():
+    def __init__(self):
         self.place_holder = 1
         on_information = st.toggle("Show me information on how to use the reservoir pressure from production data feature", value=False, label_visibility="visible")
         if on_information:
@@ -256,8 +255,8 @@ class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA(GUI):
         RES_Analysis.plot()
         self.parent = parent
         
-class SODIR_feature(GUI):
-    def __init__(self, parent = GUI):
+class SODIR_feature():
+    def __init__(self):
         on_information = st.toggle("Show me information on how to use the SODIR data feature", value=False, label_visibility="visible")
         if on_information:
             st.write(""" To compare fields follow these steps, 'Step 1 - Choose a field, Step 2- Click Plot production profile, Step 3 - 

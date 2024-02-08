@@ -1,8 +1,8 @@
 import pandas as pd
 from Data.Storage.Cache import SessionState
-import GUI.GUI_functions as display
+import pages.GUI.GUI_functions as display
 import streamlit as st
-from GUI.GUI_class import RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA
+from pages.GUI.GUI_class import RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA
 import Data.getData as get
 class ReservoirPressureAnalysis(RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA):
     def __init__(self, parent, session_id:str, field:str = 'No field chosen', time: str = 'Yearly'):

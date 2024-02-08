@@ -1,8 +1,8 @@
 import pandas as pd
 from Data.Storage.Cache import SessionState
-import GUI.GUI_functions as display
+import pages.GUI.GUI_functions as display
 from Data.ManualData import manualData
-from GUI.GUI_class import FIELD_DEVELOPMENT
+from pages.GUI.GUI_class import FIELD_DEVELOPMENT
 import streamlit as st
 
 class DryGasAnalysis(FIELD_DEVELOPMENT):

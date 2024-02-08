@@ -1,5 +1,5 @@
 if __name__ == "__main__":
-    from GUI.GUI_class import GUI
+    from pages.GUI.GUI_class import main_page_GUI
     import streamlit as st
     email_address = "morten.viersi@gmail.com"
     
@@ -19,13 +19,4 @@ if __name__ == "__main__":
          'About': "# Master project by Morten Vier Simensen"
      }
         )
-    #st.switch_page(GUI())
-    GUI()
-
-        
-
-
-    
-
-
-    
+    main_page_GUI()

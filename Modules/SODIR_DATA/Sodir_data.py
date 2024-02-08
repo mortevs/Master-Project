@@ -1,7 +1,7 @@
 import pandas as pd
 from Data.Storage.Cache import SessionState
-import GUI.GUI_functions as display
-from GUI.GUI_class import SODIR_feature
+import pages.GUI.GUI_functions as display
+from pages.GUI.GUI_class import SODIR_feature
 import streamlit as st
 from shapely.wkt import loads
 from shapely.geometry import Polygon, MultiPolygon
