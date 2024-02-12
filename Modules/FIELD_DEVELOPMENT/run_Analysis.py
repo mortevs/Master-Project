@@ -33,18 +33,21 @@ class DryGasAnalysis():
 
     def updateParameterListfromTable(self):
         list1 = ['Target Rate [sm3/d]', 'Initial Reservoir Pressure [bara]', 'Rate of Abandonment [sm3/d]', 'Reservoir Temperature [degree C]', 'Gas Molecular Weight [g/mol]', 'Inflow backpressure coefficient', 'Inflow backpressure exponent', 'Number of Templates', 'Number of Wells per Template', 'Uptime [days]', 'Tubing Flow Coefficient', 'Tubing Elevation Coefficient', 'Flowline Coefficient from Template-PLEM', 'Pipeline coefficient from PLEM-Shore', 'Seperator Pressure [bara]', 'Initial Gas in Place [sm3]']
-        self.__parameters.append(display.display_table(list1=list1, list2=manualData(), edible=True))
+        self.__parameters = (display.display_table(list1=list1, list2=manualData(), edible=True))
+
+
 
     def run(self):
         self.append_method(self.__method)
         self.append_precision(self.__precision)
         self.append_field(self.__field)
+        self.append_parameters(self.__parameters)
         if self.__method == 'IPR':
             from Modules.FIELD_DEVELOPMENT.IPR.IPRAnalysis import IPRAnalysis
-            df = IPRAnalysis(self.__precision, self.__parameters[-1])
+            df = IPRAnalysis(self.__precision, self.__parameters)
         else:
             from Modules.FIELD_DEVELOPMENT.Nodal.NodalAnalysis import NodalAnalysis
-            df = NodalAnalysis(self.__precision, self.__parameters[-1])
+            df = NodalAnalysis(self.__precision, self.__parameters)
         self.__result = df
         return df
     
@@ -120,7 +123,11 @@ class DryGasAnalysis():
     def getState(self) -> SessionState:
         session_state = self.__state.get(self.__session_id)
         return session_state
-    
+
+    def get_production_profile(self, opt) -> list:
+        return self.getResult()[opt-1]['Field rates [sm3/d]']
+
+        
     def append_method(self, item) -> str:
         SessionState.append(id = self.__session_id, key = 'method', value = item)
 
@@ -131,24 +138,27 @@ class DryGasAnalysis():
         SessionState.append(id = self.__session_id, key = 'result', value = item)
 
     def append_parameters(self, item) -> str:
-        SessionState.append(id = self.__session_id, key = 'parameter', value = item)
+        SessionState.append(id = self.__session_id, key = 'parameters', value = item)
     
     def append_field(self, item) -> str:
         SessionState.append(id = self.__session_id, key = 'field', value = item)
-        
+
+
+
+
 class NPVAnalysis(DryGasAnalysis):
     from Modules.FIELD_DEVELOPMENT.Artificial_lift import artificial_lift_class
     #a_l = artificial_lift_class()
-    def __init__(self, parent, prod_prof):
-        self.__production_profile = prod_prof
-        self.__NPV_variables = []
+    def __init__(self, parent, Analysis, opt):
+        self.__Analysis = Analysis
+        self.__opt = opt
         self.__CAPEX = []
         self.__OPEX = []
         self.__sheet = []
-        self.__tot=[]
-        self.parent  = parent
+        self.__parent  = parent
         const_NPV = st.toggle("constant Gas Price and Discount rate ", value=True, label_visibility="visible")
-    
+        self.__production_profile = Analysis.get_production_profile(opt = opt)
+
     def updateParameterListfromTable(self):
         from Data.ManualData import manualData_NPV, manualData_NPV_CAPEX, manualData_NPV_OPEX
         CAPEX = ["Well cost [MUSD]"]
@@ -163,8 +173,7 @@ class NPVAnalysis(DryGasAnalysis):
         with col2:
             st.title('OPEX variables')
             self.__OPEX = (display.display_table_NPV(list1=OPEX, list2=manualData_NPV_OPEX(), edible=True, key = 'df_table_editor2_OPEX'))
-        self.__sheet = display.display_table_NPV_Sheet(df = self.__production_profile, list1=OPEX, list2=manualData_NPV_OPEX(), key = 'df_table_sheet')
-        
+        self.__sheet = display.NPV_sheet(parent = NPVAnalysis, Analysis = self.__Analysis, opt = self.__opt, key = 'df_table_sheet')
         
 
 

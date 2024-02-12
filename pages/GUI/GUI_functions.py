@@ -150,29 +150,38 @@ def display_table_NPV(list1, list2, edible=False, key = 'df_table_editor'):
     else:
         st.table(df_table)
 
-def display_table_NPV_Sheet(df, list1, list2, key = 'df_table_editor'):
+from Modules.FIELD_DEVELOPMENT.run_Analysis import NPVAnalysis
+
+class NPV_sheet(NPVAnalysis):
+    def __init__(self, parent, Analysis, opt, key):
+        self.parent = parent
+        self.__Analysis = Analysis
+        self.__opt = opt
+        self.__production_profile = Analysis.get_production_profile(opt = opt)
+        self.__sheet = self.display_table_NPV_Sheet(key)
     
-    year_stop_production = len(df)
-    years = []
-    for i in range(year_stop_production):
-        years.append(i)
-    df_table = pd.DataFrame({
-        'End of year': years,
-        'Nr Wells': years,
-        'DRILLEX': years,
-        'Pipeline & Umbilicals': years,
-        'Manifold & Compressors': years,
-        'Other': years,
-        'TOTAL CAPEX': years,
-        'Yearly gas offtake': years,
-        'Revenues': years,
-        'OPEX': years,
-        'Cash Flow': years,
-        'Discounted Cash Flow': years,
-        'NPV': years,
-    })
-    edited_df = st.data_editor(df_table, key=key, width=4000, height=500, hide_index=True)
-    return edited_df['Nr Wells'].to_list(), edited_df['DRILLEX'].to_list()
+    def display_table_NPV_Sheet(self, key):
+        stop_prod = len(self.__production_profile)
+        years = []
+        for i in range(stop_prod):
+            years.append(i)
+        df_table = pd.DataFrame({
+            'End of year': years,
+            'Nr Wells': years,
+            'DRILLEX': years,
+            'Pipeline & Umbilicals': years,
+            'Manifold & Compressors': years,
+            'Other': years,
+            'TOTAL CAPEX': years,
+            'Yearly gas offtake': self.__production_profile,
+            'Revenues': years,
+            'OPEX': years,
+            'Cash Flow': years,
+            'Discounted Cash Flow': years,
+            'NPV': years,
+        })
+        edited_df = st.data_editor(df_table, key=key, width=4000, height=500, hide_index=True)
+        return edited_df['Nr Wells'].to_list(), edited_df['DRILLEX'].to_list()
 
 class edible_df():
     def __init__(self, list2):

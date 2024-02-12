@@ -135,18 +135,19 @@ class FIELD_DEVELOPMENT:
         Analysis.plot()
         
         opts = []
-        i = 1
         production_profiles = Analysis.getResult()
-        for production_profile in production_profiles:
+        i = len(production_profiles)
+        for pp in reversed(production_profiles):
             opts.append(i)
-            i += 1
+            i -= 1
+        st.write('------------------------')
         makeNPV = st.button('Make Net-Present-Value analysis', 'make NPV')       
         if makeNPV and len(production_profiles) != 0:
             col0, col1, col2 = st.columns(3)
             with col0:
-                opt = display.dropdown(label = 'Choose which production profile to run the NPV-analysis with',options = opts, labelVisibility="visible")
+                opt = display.dropdown(label = 'Choose production profile to run NPV-analysis with',options = opts, labelVisibility="visible")
             from Modules.FIELD_DEVELOPMENT.run_Analysis import NPVAnalysis
-            NPV = NPVAnalysis(parent = DryGasAnalysis, prod_prof = production_profiles[opt-1]['Field rates [sm3/d]'])
+            NPV = NPVAnalysis(parent = DryGasAnalysis, Analysis = Analysis, opt = opt)
             NPV.updateParameterListfromTable()
             runNPV = st.button('Run Net-Present-Value analysis', 'Run NPV')
             if runNPV:
@@ -155,13 +156,6 @@ class FIELD_DEVELOPMENT:
             alert = st.warning("You must create a production profile first")
             time.sleep(5)
             alert.empty()
-
-# class NPV_ANALYSIS(parent = FIELD_DEVELOPMENT):
-#     def __init__(self, parent):
-#         self.parent = parent
-#         from Modules.FIELD_DEVELOPMENT.run_Analysis import NPVAnalysis
-    #NPV_calc = NPVAnalysis(parent = FIELD_DEVELOPMENT)
-    #st.write(NPV_calc.getResult())
   
 class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA:
     def __init__(self):
