@@ -34,11 +34,49 @@ def manualData_NPV() -> list:
     return list
 
 def manualData_NPV_CAPEX() -> list:
-    well_cost = 100 #1E06 USD
-    list = [well_cost]
+    well_cost = 100 #MUSD
+    p_u = 500 #MUSD, Pipeline and umbilicals
+    Mani = 20 #MUSD , Cost Per Subsea Manifold  
+    list = [well_cost, p_u, Mani]
     return list
 
 def manualData_NPV_OPEX() -> list:
     well_cost = 100 #1E06 USD
     list = [well_cost]
     return list
+
+def default_well_template_distribution(NWellsPerTemplate, N_temp, prod_stop) ->list:
+    import streamlit as st
+    def_well_list = [0 for _ in range(prod_stop)]
+    def_temp_list = def_well_list.copy()    
+    nr_wells = NWellsPerTemplate*N_temp
+    
+    if nr_wells == 0 and N_temp == 0:
+        return def_well_list, def_temp_list
+    
+    elif nr_wells == 1:
+        def_well_list[0] = 1
+        def_temp_list[0] = 1
+        return def_well_list, def_temp_list
+    
+    well_count = 0
+    if nr_wells % 2 == 0:
+        for i in range(prod_stop):
+            def_well_list[i] = 2
+            well_count +=2
+            if well_count == nr_wells:
+                break
+    else:
+        for i in range(prod_stop):
+            def_well_list[i] = 2
+            well_count +=2
+            if well_count+1 == nr_wells:
+                def_well_list[i+1] = 1
+                break
+
+
+    m= int(min(prod_stop, NWellsPerTemplate))
+    for i in range (m):
+        def_temp_list[i] = 1
+    
+    return def_well_list, def_temp_list

@@ -153,29 +153,53 @@ def display_table_NPV(list1, list2, edible=False, key = 'df_table_editor'):
 from Modules.FIELD_DEVELOPMENT.run_Analysis import NPVAnalysis
 
 class NPV_sheet(NPVAnalysis):
-    def __init__(self, parent, Analysis, opt, key):
+    def __init__(self, parent, Analysis, opt, user_input, key):
         self.parent = parent
         self.__Analysis = Analysis
         self.__opt = opt
         self.__production_profile = Analysis.get_production_profile(opt = opt)
+        self.__NPV_variables = user_input[0]
+        self.__CAPEX = user_input[1]
+        self.__OPEX = user_input[2]
         self.__sheet = self.display_table_NPV_Sheet(key)
-    
+ 
+
     def display_table_NPV_Sheet(self, key):
+        param = (self.__Analysis.getParameters())[self.__opt-1]
+        N_temp = param[7]
+        N_Wells_per_Temp = param[8]
+        from Data.ManualData import default_well_template_distribution
+        self.__end_prod = len(self.__production_profile)
+        well, templ = default_well_template_distribution(N_temp, N_Wells_per_Temp, self.__end_prod)
+        self.__Gas_Price = self.__NPV_variables[0]
+        self.__Discount_Rate = self.__NPV_variables[1]
+        self.__Well_Cost = self.__CAPEX[0]
+        self.__p_u = self.__CAPEX[1]
+        p_u_list = [self.__p_u]
+        for i in range(1, self.__end_prod):
+            p_u_list.append(0)
+
+        self.__Mani = self.__CAPEX[2]
+
+        self.__OPEX = self.__OPEX[0]
+        self.__DRILLEX =[element * self.__Well_Cost for element in well]
+
+        
         stop_prod = len(self.__production_profile)
         years = []
         for i in range(stop_prod):
-            years.append(i)
+            years.append(i)            
         df_table = pd.DataFrame({
             'End of year': years,
-            'Nr Wells': years,
-            'DRILLEX': years,
-            'Pipeline & Umbilicals': years,
-            'Manifold & Compressors': years,
-            'Other': years,
+            'Nr Wells': well,
+            'DRILLEX': self.__DRILLEX,
+            'Pipeline & Umbilicals': p_u_list,
+            'Manifold & Compressors': [element * self.__Mani for element in templ],
+            'Other': [0 for element in well],
             'TOTAL CAPEX': years,
             'Yearly gas offtake': self.__production_profile,
             'Revenues': years,
-            'OPEX': years,
+            'OPEX': [self.__OPEX for element in well],
             'Cash Flow': years,
             'Discounted Cash Flow': years,
             'NPV': years,

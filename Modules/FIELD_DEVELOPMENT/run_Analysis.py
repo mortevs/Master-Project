@@ -154,26 +154,30 @@ class NPVAnalysis(DryGasAnalysis):
         self.__opt = opt
         self.__CAPEX = []
         self.__OPEX = []
+        self.__NPV_variables = []
         self.__sheet = []
-        self.__parent  = parent
+        self.parent  = parent
+        self.__data_For_NPV_sheet = []
         const_NPV = st.toggle("constant Gas Price and Discount rate ", value=True, label_visibility="visible")
         self.__production_profile = Analysis.get_production_profile(opt = opt)
 
     def updateParameterListfromTable(self):
         from Data.ManualData import manualData_NPV, manualData_NPV_CAPEX, manualData_NPV_OPEX
-        CAPEX = ["Well cost [MUSD]"]
+        CAPEX = ["Well Cost [MUSD]", 'Pipeline & Umbilicals [MUSD]', 'Subsea Manifold Cost [MUSD]']
         OPEX = ["OPEX [MUSD]"]
         col0, col1, col2 = st.columns(3)
         with col0:
             st.title("NPV variables")
-            self.__NPV_variables = (display.display_table_NPV(list1=['GAS_Price', 'Discount_Rate'], list2=manualData_NPV(), edible=True, key = 'df_table_editor_NPV'))
+            self.__NPV_variables = (display.display_table_NPV(list1=['Gas Price [USD per Sm3]', 'Discount Rate [%]'], list2=manualData_NPV(), edible=True, key = 'df_table_editor_NPV'))
         with col1:
             st.title('CAPEX variables')
             self.__CAPEX = (display.display_table_NPV(list1=CAPEX, list2=manualData_NPV_CAPEX(), edible=True, key = 'df_table_editor2_CAPEX'))
         with col2:
             st.title('OPEX variables')
             self.__OPEX = (display.display_table_NPV(list1=OPEX, list2=manualData_NPV_OPEX(), edible=True, key = 'df_table_editor2_OPEX'))
-        self.__sheet = display.NPV_sheet(parent = NPVAnalysis, Analysis = self.__Analysis, opt = self.__opt, key = 'df_table_sheet')
+        
+        self.__data_For_NPV_sheet = [self.__NPV_variables, self.__CAPEX, self.__OPEX]
+        self.__sheet = display.NPV_sheet(parent = NPVAnalysis, Analysis = self.__Analysis, opt = self.__opt, user_input = self.__data_For_NPV_sheet, key = 'df_table_sheet')
         
 
 

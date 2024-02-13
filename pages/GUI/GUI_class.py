@@ -142,7 +142,7 @@ class FIELD_DEVELOPMENT:
             i -= 1
         st.write('------------------------')
         makeNPV = st.button('Make Net-Present-Value analysis', 'make NPV')       
-        if makeNPV and len(production_profiles) != 0:
+        if len(production_profiles) != 0:
             col0, col1, col2 = st.columns(3)
             with col0:
                 opt = display.dropdown(label = 'Choose production profile to run NPV-analysis with',options = opts, labelVisibility="visible")
@@ -152,10 +152,10 @@ class FIELD_DEVELOPMENT:
             runNPV = st.button('Run Net-Present-Value analysis', 'Run NPV')
             if runNPV:
                 pass
-        elif makeNPV and len(production_profiles) == 0:
-            alert = st.warning("You must create a production profile first")
-            time.sleep(5)
-            alert.empty()
+        # elif makeNPV and len(production_profiles) == 0:
+        #     alert = st.warning("You must create a production profile first")
+        #     time.sleep(5)
+        #     alert.empty()
   
 class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA:
     def __init__(self):
