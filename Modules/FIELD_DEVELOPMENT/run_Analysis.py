@@ -93,13 +93,11 @@ class DryGasAnalysis():
                 st.header('Compared models', divider='red')
                 display.multi_plot(dfs, addAll=False)
     
-
     def clear_output(self):
         from Data.Storage.Cache import SessionState
         SessionState.delete(id = 'DryGasAnalysis')
         self.__state = SessionState.get(self.__session_id, result=[], method=[], precision=[], field=[])
     
-
     def getMethod(self) -> str:
         session_state = self.__state.get(self.__session_id)
         return getattr(session_state, 'method', None)
@@ -125,9 +123,9 @@ class DryGasAnalysis():
         return session_state
 
     def get_production_profile(self, opt) -> list:
-        return self.getResult()[opt-1]['Field rates [sm3/d]']
-
-        
+        Fr = self.getResult()[opt-1]['Field rates [sm3/d]'].to_list()
+        return Fr
+       
     def append_method(self, item) -> str:
         SessionState.append(id = self.__session_id, key = 'method', value = item)
 
@@ -143,9 +141,6 @@ class DryGasAnalysis():
     def append_field(self, item) -> str:
         SessionState.append(id = self.__session_id, key = 'field', value = item)
 
-
-
-
 class NPVAnalysis(DryGasAnalysis):
     from Modules.FIELD_DEVELOPMENT.Artificial_lift import artificial_lift_class
     #a_l = artificial_lift_class()
@@ -158,17 +153,20 @@ class NPVAnalysis(DryGasAnalysis):
         self.__sheet = []
         self.parent  = parent
         self.__data_For_NPV_sheet = []
-        const_NPV = st.toggle("constant Gas Price and Discount rate ", value=True, label_visibility="visible")
+        const_NPV_toggle = st.toggle("constant Gas Price and Discount rate ", value=True, label_visibility="visible")
+        build_up_NPV_toggle =  st.toggle("Include build up period", value=True, label_visibility="visible")
+        if build_up_NPV_toggle == 0:
+            buildUp_length = 0
         self.__production_profile = Analysis.get_production_profile(opt = opt)
 
     def updateParameterListfromTable(self):
         from Data.ManualData import manualData_NPV, manualData_NPV_CAPEX, manualData_NPV_OPEX
-        CAPEX = ["Well Cost [MUSD]", 'Pipeline & Umbilicals [MUSD]', 'Subsea Manifold Cost [MUSD]']
+        CAPEX = ["Well Cost [MUSD]", 'Pipeline & Umbilicals [MUSD]', 'Subsea Manifold Cost [MUSD]', 'LNG Plant [MUSD]', 'LNG Vessels [MUSD]']
         OPEX = ["OPEX [MUSD]"]
         col0, col1, col2 = st.columns(3)
         with col0:
             st.title("NPV variables")
-            self.__NPV_variables = (display.display_table_NPV(list1=['Gas Price [USD per Sm3]', 'Discount Rate [%]'], list2=manualData_NPV(), edible=True, key = 'df_table_editor_NPV'))
+            self.__NPV_variables = (display.display_table_NPV(list1=['Gas Price [USD per Sm3]', 'Discount Rate [%]', 'Length of Build-up Period [years]', 'uptime [days]'], list2=manualData_NPV(), edible=True, key = 'df_table_editor_NPV'))
         with col1:
             st.title('CAPEX variables')
             self.__CAPEX = (display.display_table_NPV(list1=CAPEX, list2=manualData_NPV_CAPEX(), edible=True, key = 'df_table_editor2_CAPEX'))
@@ -178,7 +176,8 @@ class NPVAnalysis(DryGasAnalysis):
         
         self.__data_For_NPV_sheet = [self.__NPV_variables, self.__CAPEX, self.__OPEX]
         self.__sheet = display.NPV_sheet(parent = NPVAnalysis, Analysis = self.__Analysis, opt = self.__opt, user_input = self.__data_For_NPV_sheet, key = 'df_table_sheet')
-        
+        NPV_str = str("Final NPV: " + str(self.__sheet.get_final_NPV().round(1)) + ' MUSD')
+        st.title(NPV_str)
 
 
         #mylist2 =

@@ -141,7 +141,7 @@ class FIELD_DEVELOPMENT:
             opts.append(i)
             i -= 1
         st.write('------------------------')
-        makeNPV = st.button('Make Net-Present-Value analysis', 'make NPV')       
+        #makeNPV = st.button('Make Net-Present-Value analysis', 'make NPV')       
         if len(production_profiles) != 0:
             col0, col1, col2 = st.columns(3)
             with col0:
@@ -149,9 +149,9 @@ class FIELD_DEVELOPMENT:
             from Modules.FIELD_DEVELOPMENT.run_Analysis import NPVAnalysis
             NPV = NPVAnalysis(parent = DryGasAnalysis, Analysis = Analysis, opt = opt)
             NPV.updateParameterListfromTable()
-            runNPV = st.button('Run Net-Present-Value analysis', 'Run NPV')
-            if runNPV:
-                pass
+            #runNPV = st.button('Run Net-Present-Value analysis', 'Run NPV')
+            #if runNPV:
+            #    pass
         # elif makeNPV and len(production_profiles) == 0:
         #     alert = st.warning("You must create a production profile first")
         #     time.sleep(5)
