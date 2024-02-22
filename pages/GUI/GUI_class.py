@@ -4,8 +4,9 @@ import time
 import Data.getData as get
 import os
 from Data.dataProcessing import get_field_list_inc_No_field_chosen
-from Data.ManualData import manualData_RP
+from Data.DefaultData import manualData_RP
 fieldnames = get_field_list_inc_No_field_chosen()
+
 class main_page_GUI: 
     def __init__(self):
         col1, col2, col3, col4, col5 = st.columns(5)
@@ -68,6 +69,11 @@ class main_page_GUI:
 
 class FIELD_DEVELOPMENT:
     def __init__(self):
+        m = st.markdown("""<style>
+        div.stButton > button:first-child {
+        background-color: rgb(204, 49, 49);
+        }
+        </style>""", unsafe_allow_html=True)
         from Modules.FIELD_DEVELOPMENT.run_Analysis import DryGasAnalysis
         Analysis = DryGasAnalysis(session_id='DryGasAnalysis')
         on_information = st.toggle("Show me information on how to use the field development feature", value=False, label_visibility="visible")
@@ -159,6 +165,11 @@ class FIELD_DEVELOPMENT:
   
 class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA:
     def __init__(self):
+        m = st.markdown("""<style>
+        div.stButton > button:first-child {
+        background-color: rgb(204, 49, 49);
+        }
+        </style>""", unsafe_allow_html=True)
         self.place_holder = 1
         on_information = st.toggle("Show me information on how to use the reservoir pressure from production data feature", value=False, label_visibility="visible")
         if on_information:
@@ -253,6 +264,11 @@ class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA:
         #self.parent = parent
         
 class SODIR_feature:
+    m = st.markdown("""<style>
+        div.stButton > button:first-child {
+        background-color: rgb(204, 49, 49);
+        }
+        </style>""", unsafe_allow_html=True)
     def __init__(self):
         on_information = st.toggle("Show me information on how to use the SODIR data feature", value=False, label_visibility="visible")
         if on_information:

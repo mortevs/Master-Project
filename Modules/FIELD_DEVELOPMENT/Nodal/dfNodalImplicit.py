@@ -6,7 +6,7 @@ from Equations.pWfMinEstimation import pWfMinEstimation
 from Equations.MBgastank_PR import MBgastank_PR
 from Equations.RF import RF
 from scipy.optimize import root
-def Nodal(qFieldTarget: float, PRi: float, abandonmentRate: float, TR:float, gasMolecularWeight: float, C_R: float, n:float, N_temp: float, NWellsPerTemplate: float, upTime: int, C_t: float, S:float, C_FL:float, C_PL:float, P_sep: float, IGIP: float) -> pd.DataFrame: 
+def Nodal(qFieldTarget: float, PRi: float, abandonmentRate: float, TR:float, gasMolecularWeight: float, C_R: float, n:float, N_temp: float, NWellsPerTemplate: float, upTime: int, C_t: float, S:float, C_FL:float, C_PL:float, P_sep: float, IGIP: float, build_up: int) -> pd.DataFrame: 
     """
     qFieldTarget =  plateau rate, [sm3/day]
     PRi = initial reservoir pressure, [bara]

@@ -1,7 +1,7 @@
-from Data.ManualData import manualData
+from Data.DefaultData import default_FD_data
 import Data.dataProcessing as dP 
 
-def IPRAnalysis(precision: str, parameters: list = manualData()):
+def IPRAnalysis(precision: str, parameters: list = default_FD_data()):
     if precision == 'Explicit':
         from Modules.FIELD_DEVELOPMENT.IPR.dfIPRExplicit import IPROnly
     else: 

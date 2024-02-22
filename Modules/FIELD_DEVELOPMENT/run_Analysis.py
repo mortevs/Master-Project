@@ -1,7 +1,7 @@
 import pandas as pd
 from Data.Storage.Cache import SessionState
-import pages.GUI.GUI_functions as display
-from Data.ManualData import manualData
+import pages.GUI.GUI_functions as GUI
+from Data.DefaultData import default_FD_data
 import streamlit as st
 
 class DryGasAnalysis():
@@ -32,8 +32,8 @@ class DryGasAnalysis():
 
 
     def updateParameterListfromTable(self):
-        list1 = ['Target Rate [sm3/d]', 'Initial Reservoir Pressure [bara]', 'Rate of Abandonment [sm3/d]', 'Reservoir Temperature [degree C]', 'Gas Molecular Weight [g/mol]', 'Inflow backpressure coefficient', 'Inflow backpressure exponent', 'Number of Templates', 'Number of Wells per Template', 'Uptime [days]', 'Tubing Flow Coefficient', 'Tubing Elevation Coefficient', 'Flowline Coefficient from Template-PLEM', 'Pipeline coefficient from PLEM-Shore', 'Seperator Pressure [bara]', 'Initial Gas in Place [sm3]']
-        self.__parameters = (display.display_table(list1=list1, list2=manualData(), edible=True))
+        list1 = ['Target Rate [sm3/d]', 'Initial Reservoir Pressure [bara]', 'Rate of Abandonment [sm3/d]', 'Reservoir Temperature [degree C]', 'Gas Molecular Weight [g/mol]', 'Inflow backpressure coefficient', 'Inflow backpressure exponent', 'Number of Templates', 'Number of Wells per Template', 'Uptime [days]', 'Tubing Flow Coefficient', 'Tubing Elevation Coefficient', 'Flowline Coefficient from Template-PLEM', 'Pipeline coefficient from PLEM-Shore', 'Seperator Pressure [bara]', 'Initial Gas in Place [sm3]', 'build-up period [years]']
+        self.__parameters = (GUI.display_FD_variables_table(list1=list1, list2=default_FD_data(), edible=True))
 
 
 
@@ -71,27 +71,26 @@ class DryGasAnalysis():
         import streamlit as st
         from pandas import DataFrame
         res = self.getResult()
-        with st.container(height = 750):
-            if comp == False:
-                for i in reversed(range(len(res))):
-                    if isinstance(res[i], DataFrame):
-                        field = self.getField()
-                        method = self.getMethod()
-                        prec = self.getPrecision()
-                        st.header('Prod-profile: ' + str(i + 1), divider='red')
-                        if field[i] != 'No field chosen':
-                            st.write(method[i], prec[i], field[i])
-                            display.multi_plot([res[i]], addProduced=True)
-                        else:
-                            st.write(method[i], prec[i])
-                            display.multi_plot([res[i]], addAll=False)
-            else:
-                dfs = []
-                for df in self.__state.result:
-                    reset_ind_df = df.reset_index(drop = True)
-                    dfs.append(reset_ind_df)
-                st.header('Compared models', divider='red')
-                display.multi_plot(dfs, addAll=False)
+        if comp == False:
+            for i in reversed(range(len(res))):
+                if isinstance(res[i], DataFrame):
+                    field = self.getField()
+                    method = self.getMethod()
+                    prec = self.getPrecision()
+                    st.header('Prod-profile: ' + str(i + 1), divider='red')
+                    if field[i] != 'No field chosen':
+                        st.write(method[i], prec[i], field[i])
+                        GUI.multi_plot([res[i]], addProduced=True)
+                    else:
+                        st.write(method[i], prec[i])
+                        GUI.multi_plot([res[i]], addAll=False)
+        else:
+            dfs = []
+            for df in self.__state.result:
+                reset_ind_df = df.reset_index(drop = True)
+                dfs.append(reset_ind_df)
+            st.header('Compared models', divider='red')
+            GUI.multi_plot(dfs, addAll=False)
     
     def clear_output(self):
         from Data.Storage.Cache import SessionState
@@ -160,22 +159,22 @@ class NPVAnalysis(DryGasAnalysis):
         self.__production_profile = Analysis.get_production_profile(opt = opt)
 
     def updateParameterListfromTable(self):
-        from Data.ManualData import manualData_NPV, manualData_NPV_CAPEX, manualData_NPV_OPEX
+        from Data.DefaultData import manualData_NPV, manualData_NPV_CAPEX, manualData_NPV_OPEX
         CAPEX = ["Well Cost [MUSD]", 'Pipeline & Umbilicals [MUSD]', 'Subsea Manifold Cost [MUSD]', 'LNG Plant [MUSD]', 'LNG Vessels [MUSD]']
         OPEX = ["OPEX [MUSD]"]
         col0, col1, col2 = st.columns(3)
         with col0:
             st.title("NPV variables")
-            self.__NPV_variables = (display.display_table_NPV(list1=['Gas Price [USD per Sm3]', 'Discount Rate [%]', 'Length of Build-up Period [years]', 'uptime [days]'], list2=manualData_NPV(), edible=True, key = 'df_table_editor_NPV'))
+            self.__NPV_variables = (GUI.display_table_NPV(list1=['Gas Price [USD per Sm3]', 'Discount Rate [%]', 'Length of Build-up Period [years]', 'uptime [days]'], list2=manualData_NPV(), edible=True, key = 'df_table_editor_NPV'))
         with col1:
             st.title('CAPEX variables')
-            self.__CAPEX = (display.display_table_NPV(list1=CAPEX, list2=manualData_NPV_CAPEX(), edible=True, key = 'df_table_editor2_CAPEX'))
+            self.__CAPEX = (GUI.display_table_NPV(list1=CAPEX, list2=manualData_NPV_CAPEX(), edible=True, key = 'df_table_editor2_CAPEX'))
         with col2:
             st.title('OPEX variables')
-            self.__OPEX = (display.display_table_NPV(list1=OPEX, list2=manualData_NPV_OPEX(), edible=True, key = 'df_table_editor2_OPEX'))
+            self.__OPEX = (GUI.display_table_NPV(list1=OPEX, list2=manualData_NPV_OPEX(), edible=True, key = 'df_table_editor2_OPEX'))
         
         self.__data_For_NPV_sheet = [self.__NPV_variables, self.__CAPEX, self.__OPEX]
-        self.__sheet = display.NPV_sheet(parent = NPVAnalysis, Analysis = self.__Analysis, opt = self.__opt, user_input = self.__data_For_NPV_sheet, key = 'df_table_sheet')
+        self.__sheet = GUI.NPV_sheet(parent = NPVAnalysis, Analysis = self.__Analysis, opt = self.__opt, user_input = self.__data_For_NPV_sheet, key = 'df_table_sheet')
         NPV_str = str("Final NPV: " + str(self.__sheet.get_final_NPV().round(1)) + ' MUSD')
         st.title(NPV_str)
 

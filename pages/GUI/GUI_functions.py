@@ -117,13 +117,13 @@ def multi_plot(dfs, addAll = True, addProduced = False):
     )
     st.plotly_chart(fig)
 
-def display_table(list1, list2, edible=False, key = 'df_table_editor'):
+def display_FD_variables_table(list1, list2, edible=False, key = 'df_table_editor'):
     df_table = pd.DataFrame({
         'Input': list1,
         'Value': list2
     })
     if edible:
-        edited_df = st.data_editor(df_table, key=key, width=750, height=596, hide_index=True)
+        edited_df = st.data_editor(df_table, key=key, width=750, height=632, hide_index=True)
         return edited_df['Value'].to_list()
     else:
         st.table(df_table)
@@ -168,7 +168,7 @@ class NPV_sheet(NPVAnalysis):
         param = (self.__Analysis.getParameters())[self.__opt-1]
         N_temp = param[7]
         N_Wells_per_Temp = param[8]
-        from Data.ManualData import default_well_template_distribution
+        from Data.DefaultData import default_well_template_distribution
         self.__Gas_Price = self.__NPV_variables[0]
         self.__discount_rate = self.__NPV_variables[1]
         self.__buildUp_length = int(self.__NPV_variables[2])
