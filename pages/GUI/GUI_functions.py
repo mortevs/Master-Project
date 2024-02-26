@@ -150,8 +150,8 @@ def display_table_NPV(list1, list2, edible=False, key = 'df_table_editor'):
     else:
         st.table(df_table)
 
-from Modules.FIELD_DEVELOPMENT.run_Analysis import NPVAnalysis
 
+from Modules.FIELD_DEVELOPMENT.run_Analysis import NPVAnalysis
 class NPV_sheet(NPVAnalysis):
     def __init__(self, parent, Analysis, opt, user_input, key):
         self.parent = parent
@@ -171,7 +171,8 @@ class NPV_sheet(NPVAnalysis):
         from Data.DefaultData import default_well_template_distribution
         self.__Gas_Price = self.__NPV_variables[0]
         self.__discount_rate = self.__NPV_variables[1]
-        self.__buildUp_length = int(self.__NPV_variables[2])
+        #self.__buildUp_length = int(self.__NPV_variables[2])
+        self.__buildUp_length = 0
         self.__uptime = param[9]
 
         self.__end_prod = int(len(self.__production_profile)+self.__buildUp_length)
@@ -198,12 +199,13 @@ class NPV_sheet(NPVAnalysis):
         self.__OPEX = self.__OPEX[0]
         self.__DRILLEX =[element * self.__Well_Cost for element in well]
         my_list = []
-        if self.__buildUp_length != 0:
-            self.__buildup_rate = self.__production_profile[0]/self.__buildUp_length
-            for i in range(self.__buildUp_length):        
-                my_list.append(i*self.__buildup_rate)
-        self.__daily_gas_offtake = my_list + (self.__production_profile)
-        self.__yearly_gas_offtake = [element * self.__uptime for element in self.__daily_gas_offtake]
+
+        # if self.__buildUp_length != 0:
+        #     self.__buildup_rate = self.__production_profile[0]/self.__buildUp_length
+        #     for i in range(self.__buildUp_length):        
+        #         my_list.append(i*self.__buildup_rate)
+        #self.__daily_gas_offtake = my_list + (self.__production_profile)
+        self.__yearly_gas_offtake = [element * self.__uptime for element in self.__production_profile]
         self.__m_c_list = [element * self.__Mani for element in templ]
         years = []         
         for i in range(self.__end_prod):
@@ -227,7 +229,7 @@ class NPV_sheet(NPVAnalysis):
             'LNG Vessels' : self.__LNG_vessels_list,
             'Other': [0 for element in years],
             'TOTAL CAPEX': self.__total_CAPEX,
-            'Gas Offtake per Day[sm3/d]': self.__daily_gas_offtake,
+            'Gas Offtake per Day[sm3/d]': self.__production_profile,
             'Yearly gas offtake [sm3]': self.__yearly_gas_offtake,
             'Revenue [MUSD]': self.__revenue,
             'OPEX': self.__OPEX_list,

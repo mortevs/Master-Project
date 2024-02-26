@@ -12,17 +12,14 @@ class DryGasAnalysis():
         self.__field = field
         self.__session_id = session_id
         self.__result = pd.DataFrame()
-        self.__state = SessionState.get(id=session_id, result=[], method=[], precision=[], field=[])
-       
-
+        self.__state = SessionState.get(id=session_id, result=[], method=[], precision=[], field=[])      
+    
     def updateFromDropdown(self, method, precision):
             self.__method, self.__precision = method, precision
-
     def updateField(self, fieldName):
-         self.__field = fieldName
-    
+         self.__field = fieldName  
     def get_current_field(self):
-        return self.__field
+        return self.__field   
     def get_current_method(self):
         return self.__method
     def get_current_precision(self):
@@ -30,10 +27,50 @@ class DryGasAnalysis():
     def get_current_result(self):
         return self.__result
 
-
     def updateParameterListfromTable(self):
-        list1 = ['Target Rate [sm3/d]', 'Initial Reservoir Pressure [bara]', 'Rate of Abandonment [sm3/d]', 'Reservoir Temperature [degree C]', 'Gas Molecular Weight [g/mol]', 'Inflow backpressure coefficient', 'Inflow backpressure exponent', 'Number of Templates', 'Number of Wells per Template', 'Uptime [days]', 'Tubing Flow Coefficient', 'Tubing Elevation Coefficient', 'Flowline Coefficient from Template-PLEM', 'Pipeline coefficient from PLEM-Shore', 'Seperator Pressure [bara]', 'Initial Gas in Place [sm3]', 'build-up period [years]']
+        list1 = ['Target Rate [sm3/d]', 'Initial Reservoir Pressure [bara]', 'Rate of Abandonment [sm3/d]', 'Reservoir Temperature [degree C]', 'Gas Molecular Weight [g/mol]', 'Inflow backpressure coefficient', 'Inflow backpressure exponent', 'Number of Templates', 'Number of Wells per Template', 'Uptime [days]', 'Tubing Flow Coefficient', 'Tubing Elevation Coefficient', 'Flowline Coefficient from Template-PLEM', 'Pipeline coefficient from PLEM-Shore', 'Seperator Pressure [bara]', 'Initial Gas in Place [sm3]', 'Build-up period [years]']
         self.__parameters = (GUI.display_FD_variables_table(list1=list1, list2=default_FD_data(), edible=True))
+        def validate_parameters(list1 = self.__parameters):
+            if list1[0] <= 0:
+                st.error("Target Rate [sm3/d] must be greater than 0")
+                st.stop()            
+            elif list1[1] <= 0:
+                st.error("Initial Reservoir Pressure [bare] must be greater than 0")
+                st.stop()
+            elif list1[2] <= 0:
+                st.error('Rate of Abandonment [sm3/d] must be greater than 0')
+                st.stop()
+            elif list1[3] < -273.15:
+                st.error("'Reservoir Temperature can not be lower than -273.15 degree C'")
+                st.stop()
+            elif list1[4] <= 0:
+                st.error('Gas Molecular Weight [g/mol] must greater than 0')
+                st.stop()  
+            elif list1[7] <= 0:
+                st.error('Number of Templates must be greater than 0')
+                st.stop()  
+            elif list1[8] <= 0:
+                st.error('Number of Wells per Template must be greater than 0')
+                st.stop()  
+            elif list1[9] <= 0:
+                st.error('Uptime [days] must be greater than 0')
+                st.stop()
+            elif list1[9] > 365:
+                st.error('Uptime [days] must be less than or equal 365 days')
+                st.stop()  
+            elif list1[14] <= 0:
+                st.error('Seperator Pressure [Bara] must be greater than 0')
+                st.stop() 
+            elif list1[15] <= 0:
+                st.error('Initial Gas in Place [sm3] must be greater than 0]')
+                st.stop()  
+            elif list1[16] <= 0:
+                st.error('Build-up period [years] must be greater than 0')
+                st.stop()  
+        validate_parameters()
+
+
+        
 
 
 
@@ -42,6 +79,7 @@ class DryGasAnalysis():
         self.append_precision(self.__precision)
         self.append_field(self.__field)
         self.append_parameters(self.__parameters)
+
         if self.__method == 'IPR':
             from Modules.FIELD_DEVELOPMENT.IPR.IPRAnalysis import IPRAnalysis
             df = IPRAnalysis(self.__precision, self.__parameters)
@@ -58,10 +96,10 @@ class DryGasAnalysis():
 
         if self.__method == 'IPR':
             from Modules.FIELD_DEVELOPMENT.IPR.IPRAnalysis import IPRAnalysis
-            df = IPRAnalysis(self.__precision, self.__parameters[-1])
+            df = IPRAnalysis(self.__precision, self.__parameters)
         else:
             from Modules.FIELD_DEVELOPMENT.Nodal.NodalAnalysis import NodalAnalysis
-            df = NodalAnalysis(self.__precision, self.__parameters[-1])
+            df = NodalAnalysis(self.__precision, self.__parameters)
         import Data.dataProcessing as dP
         df = dP.addActualProdYtoDF(field, df)
         df = dP.addProducedYears(field, df)

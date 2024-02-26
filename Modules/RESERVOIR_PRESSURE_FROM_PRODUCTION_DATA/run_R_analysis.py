@@ -25,8 +25,6 @@ class ReservoirPressureAnalysis(RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA):
         list1 = ['Initial Reservoir Pressure [bara]', 'Reservoir Temperature [degree C]', 'Gas Molecular Weight [g/mol]', 'Initial Gas in Place [sm3]']
         self.__parameters = (display.display_table_RESPRES(list1=list1, list2=list2, edible=True))
 
-
-
     def get__PR_NPD_data(self):
         PRi = get.initial_reservoir_pressure(self.__field)
         T_R = get.Temp(self.__field)        

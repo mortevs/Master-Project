@@ -1,6 +1,5 @@
 from Data.DefaultData import default_FD_data
-import Data.dataProcessing as dP
-def NodalAnalysis(precision: str, Parameters: list = default_FD_data(), i = '1'):
+def NodalAnalysis(precision: str, Parameters: list = default_FD_data()):
     """precision = 'implicit' or 'explicit' and field. The implicit method is more accurate, but may fail due to root-finding problems."""
     if precision == 'Explicit':
         from Modules.FIELD_DEVELOPMENT.Nodal.dfNodalExplicit import Nodal

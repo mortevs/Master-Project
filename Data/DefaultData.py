@@ -27,7 +27,6 @@ def manualData_RP() -> list:
     list = [PRi, TR, gasMolecularWeight, IGIP]
     return list
 
-
 def manualData_NPV() -> list:
     GAS_Price = 0.1 #uds/Sm^3
     Discount_Rate = 5 #%
