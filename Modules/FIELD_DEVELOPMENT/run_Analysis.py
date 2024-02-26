@@ -190,35 +190,30 @@ class NPVAnalysis(DryGasAnalysis):
         self.__sheet = []
         self.parent  = parent
         self.__data_For_NPV_sheet = []
-        const_NPV_toggle = st.toggle("constant Gas Price and Discount rate ", value=True, label_visibility="visible")
-        build_up_NPV_toggle =  st.toggle("Include build up period", value=True, label_visibility="visible")
-        if build_up_NPV_toggle == 0:
-            buildUp_length = 0
+        #const_NPV_toggle = st.toggle("constant Gas Price and Discount rate ", value=True, label_visibility="visible")
         self.__production_profile = Analysis.get_production_profile(opt = opt)
 
     def updateParameterListfromTable(self):
-        from Data.DefaultData import manualData_NPV, manualData_NPV_CAPEX, manualData_NPV_OPEX
-        CAPEX = ["Well Cost [MUSD]", 'Pipeline & Umbilicals [MUSD]', 'Subsea Manifold Cost [MUSD]', 'LNG Plant [MUSD]', 'LNG Vessels [MUSD]']
+        from Data.DefaultData import default_data_NPV, default_data_NPV_CAPEX, default_data_NPV_OPEX
+        NPV = ['Gas Price [USD per sm3]', 'Discount Rate [%]', 'Max Number of Wells Drilled per year', 'CAPEX Period Prior to Production Startup']
+        CAPEX = ["Well Cost [1E6 USD]", 'Pipeline & Umbilicals [1E6 USD]', 'Subsea Manifold Cost [1E6 USD]', 'LNG Plant [1E6 USD]', 'LNG Vessels [1E6 USD]']
         OPEX = ["OPEX [MUSD]"]
         col0, col1, col2 = st.columns(3)
         with col0:
             st.title("NPV variables")
-            self.__NPV_variables = (GUI.display_table_NPV(list1=['Gas Price [USD per Sm3]', 'Discount Rate [%]', 'Length of Build-up Period [years]', 'uptime [days]'], list2=manualData_NPV(), edible=True, key = 'df_table_editor_NPV'))
+            self.__NPV_variables = (GUI.display_table_NPV(list1=NPV, list2=default_data_NPV(), edible=True, key = 'df_table_editor_NPV'))
         with col1:
             st.title('CAPEX variables')
-            self.__CAPEX = (GUI.display_table_NPV(list1=CAPEX, list2=manualData_NPV_CAPEX(), edible=True, key = 'df_table_editor2_CAPEX'))
+            self.__CAPEX = (GUI.display_table_NPV(list1=CAPEX, list2=default_data_NPV_CAPEX(), edible=True, key = 'df_table_editor2_CAPEX'))
         with col2:
             st.title('OPEX variables')
-            self.__OPEX = (GUI.display_table_NPV(list1=OPEX, list2=manualData_NPV_OPEX(), edible=True, key = 'df_table_editor2_OPEX'))
+            self.__OPEX = (GUI.display_table_NPV(list1=OPEX, list2=default_data_NPV_OPEX(), edible=True, key = 'df_table_editor2_OPEX'))
         
         self.__data_For_NPV_sheet = [self.__NPV_variables, self.__CAPEX, self.__OPEX]
         self.__sheet = GUI.NPV_sheet(parent = NPVAnalysis, Analysis = self.__Analysis, opt = self.__opt, user_input = self.__data_For_NPV_sheet, key = 'df_table_sheet')
         NPV_str = str("Final NPV: " + str(self.__sheet.get_final_NPV().round(1)) + ' MUSD')
         st.title(NPV_str)
 
-
-        #mylist2 =
-        #self.__tot.append(display.display_table_NPV(list1=OPEX, list2=manualData_NPV_OPEX(), edible=True, key = 'df_table_editor2_OPEX'))
 
 
 

@@ -1,5 +1,4 @@
 if __name__ == "__main__":
-    from pages.GUI.GUI_class import main_page_GUI
     import streamlit as st
     email_address = "morten.viersi@gmail.com"
     
@@ -10,6 +9,7 @@ if __name__ == "__main__":
     email_body_BUG = "Hi Morten, \n\n I'm sending you an email experiencing a bug while using the SMIPPS Application. I experienced the bug after performing the following steps .........."
     email_link_Help = f"mailto:{email_address}?subject={email_subject_Help}&body={email_body_Help}"
     email_link_BUG = f"mailto:{email_address}?subject={email_subject_BUG}&body={email_body_BUG}"
+    from pages.GUI.GUI_class import main_page_GUI
 
     st.set_page_config(
         page_title="Smipps",

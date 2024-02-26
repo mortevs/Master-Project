@@ -27,15 +27,15 @@ def manualData_RP() -> list:
     list = [PRi, TR, gasMolecularWeight, IGIP]
     return list
 
-def manualData_NPV() -> list:
+def default_data_NPV() -> list:
     GAS_Price = 0.1 #uds/Sm^3
     Discount_Rate = 5 #%
-    buildUp_length = 2
-    uptime = 365
-    list = [GAS_Price, Discount_Rate, buildUp_length, uptime]
+    nr_wells_per_year = 4
+    CAPEX_period = 5
+    list = [GAS_Price, Discount_Rate, nr_wells_per_year, CAPEX_period]
     return list
 
-def manualData_NPV_CAPEX() -> list:
+def default_data_NPV_CAPEX() -> list:
     well_cost = 100 #MUSD
     p_u = 500 #MUSD, Pipeline and umbilicals
     Mani = 20 #MUSD , Cost Per Subsea Manifold  
@@ -44,7 +44,7 @@ def manualData_NPV_CAPEX() -> list:
     list = [well_cost, p_u, Mani, LNG_plant, LNG_vessels]
     return list
 
-def manualData_NPV_OPEX() -> list:
+def default_data_NPV_OPEX() -> list:
     well_cost = 200 #1E06 USD
     list = [well_cost]
     return list
