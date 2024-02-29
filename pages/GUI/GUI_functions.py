@@ -146,7 +146,7 @@ def display_table_NPV(list1, list2, list3, edible=False, key = 'df_table_editor'
         'Unit': list3
     })
     if edible:
-        edited_df = st.data_editor(df_table, key=key, use_container_width=True, hide_index=True)
+        edited_df = st.data_editor(df_table, key=key, hide_index=True)
         return edited_df['Value'].to_list()
     else:
         st.table(df_table)
@@ -160,7 +160,7 @@ def display_table_grid_search(list1, list2, list3, list4, edible=False, key = 'd
 
     })
     if edible:
-        edited_df = st.data_editor(df_table, key=key, use_container_width=True, hide_index=True)
+        edited_df = st.data_editor(df_table, key=key, hide_index=True)
         return edited_df['Steps'].to_list()
     else:
         st.table(df_table)

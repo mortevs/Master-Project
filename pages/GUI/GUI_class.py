@@ -166,7 +166,7 @@ class FIELD_DEVELOPMENT:
             nr_temps =parameters[8]
             pertemp = parameters[0]
             import pages.GUI.GUI_functions as GUI
-            list1 = ['Plateau rate', 'Nr Templates', 'Nr Wells per Template']
+            list1 = ['Plateau rate [Sm3/d]', 'Nr Templates', 'Nr Wells per Template']
             list2 = [plataeu/2,nr_temps/nr_temps,pertemp/pertemp] 
             list3 = [plataeu*2,nr_temps/nr_temps*5,pertemp/pertemp*5] 
             list4 = [5,5,5] 
