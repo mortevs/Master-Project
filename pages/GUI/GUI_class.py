@@ -78,7 +78,7 @@ class FIELD_DEVELOPMENT:
         Analysis = DryGasAnalysis(session_id='DryGasAnalysis')
         on_information = st.toggle("Show me information on how to use the field development feature", value=False, label_visibility="visible")
         if on_information:
-            st.write("""The table below on the right side contains default values for 16 parameters, in which the production profile estimation
+            st.write("""The table below on the right side contains default values for 17 parameters, in which the production profile estimation
                      is based upon. The values can be changed as the user sees fit. For example, if the user wants to run with a pressure of 
                      250 bara, and a different temperature, click the values in the table and change them to the desired values directly.""")
             st.write(""" 
@@ -147,21 +147,18 @@ class FIELD_DEVELOPMENT:
             opts.append(i)
             i -= 1
         st.write('------------------------')
-        #makeNPV = st.button('Make Net-Present-Value analysis', 'make NPV')       
         if len(production_profiles) != 0:
             col0, col1, col2 = st.columns(3)
             with col0:
                 opt = display.dropdown(label = 'Choose production profile to run NPV-analysis with',options = opts, labelVisibility="visible")
-            from Modules.FIELD_DEVELOPMENT.run_Analysis import NPVAnalysis
-            NPV = NPVAnalysis(parent = DryGasAnalysis, Analysis = Analysis, opt = opt)
-            NPV.updateParameterListfromTable()
-            #runNPV = st.button('Run Net-Present-Value analysis', 'Run NPV')
-            #if runNPV:
-            #    pass
-        # elif makeNPV and len(production_profiles) == 0:
-        #     alert = st.warning("You must create a production profile first")
-        #     time.sleep(5)
-        #     alert.empty()
+            from Modules.FIELD_DEVELOPMENT.run_Analysis import NPV_dry_gas, NPVAnalysis
+            
+            dry_gas_NPV = NPV_dry_gas(parent = NPVAnalysis, Analysis = Analysis, opt = opt)
+            dry_gas_NPV.NPV_gas_field_update_edible_tables()
+            dry_gas_NPV.dry_gas_NPV_calc_sheet()
+            #NPV = NPVAnalysis(parent = DryGasAnalysis, Analysis = Analysis, opt = opt)
+            #NPV_child_sheet.updateParameterListfromTable()
+
   
 class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA:
     def __init__(self):

@@ -49,38 +49,41 @@ def default_data_NPV_OPEX() -> list:
     list = [well_cost]
     return list
 
-def default_well_template_distribution(NWellsPerTemplate, N_temp, prod_stop) ->list:
-    import streamlit as st
+def default_well_distribution(NWellsPerTemplate, N_temp, prod_stop, Max_Number_Wells) -> list:
     def_well_list = [0 for _ in range(prod_stop)]
-    def_temp_list = def_well_list.copy()    
-    nr_wells = NWellsPerTemplate*N_temp
     
-    if nr_wells == 0 and N_temp == 0:
-        return def_well_list, def_temp_list
-    
-    elif nr_wells == 1:
-        def_well_list[0] = 1
-        def_temp_list[0] = 1
-        return def_well_list, def_temp_list
-    
-    well_count = 0
-    if nr_wells % 2 == 0:
+    nr_wells = NWellsPerTemplate * N_temp
+
+    if nr_wells % Max_Number_Wells == 0:
+        well_count = 0
         for i in range(prod_stop):
-            def_well_list[i] = 2
-            well_count +=2
+            def_well_list[i] = Max_Number_Wells
+            well_count += Max_Number_Wells
             if well_count == nr_wells:
                 break
     else:
+        well_count = 0
         for i in range(prod_stop):
-            def_well_list[i] = 2
-            well_count +=2
-            if well_count+1 == nr_wells:
-                def_well_list[i+1] = 1
+            if well_count + Max_Number_Wells <= nr_wells:
+                def_well_list[i] = Max_Number_Wells
+                well_count += Max_Number_Wells
+            else:
+                def_well_list[i] = nr_wells - well_count
+                well_count = nr_wells
+            if well_count == nr_wells:
                 break
+    return def_well_list
 
+def default_template_distribution(def_well_list, N_temp, NWellsPerTemp, prod_stop):
+    def_temp_list = [0] * prod_stop
+    temp_count = sum(def_temp_list)
 
-    m= int(min(prod_stop, NWellsPerTemplate))
-    for i in range (m):
-        def_temp_list[i] = 1
-    
-    return def_well_list, def_temp_list
+    free_slots = 0
+    for i in range(prod_stop):
+        while def_temp_list[i]*NWellsPerTemp < (def_well_list[i]-free_slots) and temp_count < N_temp:
+            def_temp_list[i] += 1
+            temp_count +=1
+        free_slots += def_temp_list[i]*NWellsPerTemp-def_well_list[i]
+        if temp_count == N_temp:
+            break
+    return def_temp_list
