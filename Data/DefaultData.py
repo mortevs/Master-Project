@@ -35,12 +35,17 @@ def default_data_NPV() -> list:
     list = [GAS_Price, Discount_Rate, nr_wells_per_year, CAPEX_period]
     return list
 
-def default_data_NPV_CAPEX() -> list:
+def default_data_NPV_CAPEX(plateau, uptime) -> list:
     well_cost = 100 #MUSD
-    p_u = 500 #MUSD, Pipeline and umbilicals
+    p_u = 250 #MUSD, Pipeline and umbilicals
     Mani = 20 #MUSD , Cost Per Subsea Manifold  
-    LNG_plant = 2000
-    LNG_vessels = 500
+    LNG_unit_cost = 160 #usd/ Sm^3/d
+    LNG_plant = plateau *LNG_unit_cost / 1e6
+    LNG_carrier_cost= 200
+
+    import math
+    number_of_LNG_vessels = (math.ceil(plateau*uptime/((86000000*22)))) #rough estimation
+    LNG_vessels = LNG_carrier_cost*number_of_LNG_vessels
     list = [well_cost, p_u, Mani, LNG_plant, LNG_vessels]
     return list
 

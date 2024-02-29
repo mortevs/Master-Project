@@ -152,12 +152,30 @@ class FIELD_DEVELOPMENT:
             with col0:
                 opt = display.dropdown(label = 'Choose production profile to run NPV-analysis with',options = opts, labelVisibility="visible")
             from Modules.FIELD_DEVELOPMENT.run_Analysis import NPV_dry_gas, NPVAnalysis
-            
+            opt = opt-1
             dry_gas_NPV = NPV_dry_gas(parent = NPVAnalysis, Analysis = Analysis, opt = opt)
             dry_gas_NPV.NPV_gas_field_update_edible_tables()
             dry_gas_NPV.dry_gas_NPV_calc_sheet()
-            #NPV = NPVAnalysis(parent = DryGasAnalysis, Analysis = Analysis, opt = opt)
-            #NPV_child_sheet.updateParameterListfromTable()
+            final_NPV_value = str(dry_gas_NPV.get_final_NPV())
+            font_size = "32px"  # You can adjust the size as needed
+            NPV_str = f"<div style='font-size:{font_size};'>Final NPV of Project: <span style='color:red;'>{final_NPV_value}</span> 1E6 USD</div>"
+            st.markdown(NPV_str, unsafe_allow_html=True)
+            optimize_NPV = st.button(label = "Optimize NPV with grid search")
+            parameters = Analysis.getParameters()[opt]
+            plataeu = parameters[0]
+            nr_temps =parameters[8]
+            pertemp = parameters[0]
+            import pages.GUI.GUI_functions as GUI
+            list1 = ['Plateau rate', 'Nr Templates', 'Nr Wells per Template']
+            list2 = [plataeu/2,nr_temps/nr_temps,pertemp/pertemp] 
+            list3 = [plataeu*2,nr_temps/nr_temps*5,pertemp/pertemp*5] 
+            list4 = [5,5,5] 
+
+            col9, co10 = st.columns(2)
+            with col9:
+                GUI.display_table_grid_search(list1, list2, list3, list4, edible=True, key = "grid")
+
+
 
   
 class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA:

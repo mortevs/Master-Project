@@ -151,6 +151,19 @@ def display_table_NPV(list1, list2, list3, edible=False, key = 'df_table_editor'
     else:
         st.table(df_table)
 
+def display_table_grid_search(list1, list2, list3, list4, edible=False, key = 'df_table_editor'):
+    df_table = pd.DataFrame({
+        'Input': list1,
+        'Min': list2,
+        'Max': list3,
+        'Steps': list4
+
+    })
+    if edible:
+        edited_df = st.data_editor(df_table, key=key, use_container_width=True, hide_index=True)
+        return edited_df['Steps'].to_list()
+    else:
+        st.table(df_table)
 class edible_df():
     def __init__(self, list2):
         self.df = self.initialize_table(list2)

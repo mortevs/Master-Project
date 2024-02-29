@@ -208,7 +208,8 @@ class NPVAnalysis(DryGasAnalysis):
         self._sheet = []
         self.parent  = parent
         self._data_For_NPV_sheet = []
-        self._production_profile = Analysis.get_production_profile(opt = opt)   
+        self._production_profile = Analysis.get_production_profile(opt = opt)
+   
         #const_NPV_toggle = st.toggle("constant Gas Price and Discount rate ", value=True, label_visibility="visible")
 
 
@@ -223,21 +224,20 @@ class NPV_dry_gas(NPVAnalysis):
     def NPV_gas_field_update_edible_tables(self):
         from Data.DefaultData import default_data_NPV, default_data_NPV_CAPEX, default_data_NPV_OPEX
         NPV = ['Gas Price', 'Discount Rate', 'Max Number of Wells Drilled per Year', 'CAPEX Period Prior to Production Startup']
-        CAPEX = ["Well Cost", 'Pipeline & Umbilicals', 'Subsea Manifold Cost', 'LNG Plant', 'LNG Vessels']
+        CAPEX = ["Well Cost", 'Pipeline & Umbilicals', 'Subsea Manifold Cost', 'LNG Plant (Default Scales with Rate)', 'LNG Vessels (Default Scales with Rate)']
         OPEX = ["OPEX"]
         NPV_units =['USD/Sm3', '%', '-', 'Years']
         CAPEX_units =['1E6 USD', '1E6 USD', '1E6 USD', '1E6 USD', '1E6 USD']
         OPEX_units = ['1E6 USD']
 
-        #CAPEX_unit =
-        #OPEX_unit = 
+
         col0, col1, col2 = st.columns(3)
         with col0:
             st.title("NPV variables")
             self.__NPV_variables = (GUI.display_table_NPV(list1=NPV, list2=default_data_NPV(), list3 = NPV_units, edible=True, key = 'df_table_editor_NPV'))
         with col1:
             st.title('CAPEX variables')
-            self.__CAPEX = (GUI.display_table_NPV(list1=CAPEX, list2=default_data_NPV_CAPEX(), list3= CAPEX_units, edible=True, key = 'df_table_editor2_CAPEX'))
+            self.__CAPEX = (GUI.display_table_NPV(list1=CAPEX, list2=default_data_NPV_CAPEX(plateau = (self._Analysis.getParameters())[self._opt][0], uptime=(self._Analysis.getParameters())[self._opt][9]), list3= CAPEX_units, edible=True, key = 'df_table_editor2_CAPEX'))
         with col2:
             st.title('OPEX variables')
             self.__OPEX = (GUI.display_table_NPV(list1=OPEX, list2=default_data_NPV_OPEX(), list3 = OPEX_units, edible=True, key = 'df_table_editor2_OPEX'))
@@ -257,7 +257,8 @@ class NPV_dry_gas(NPVAnalysis):
     def dry_gas_NPV_calc_sheet(self, key='dry_gas_NPV_Sheet'):
 
         #field development parameters
-        self._param = (self._Analysis.getParameters())[self._opt-1]
+        self._OPEX_cost = float(self.__OPEX[0])
+        self._param = (self._Analysis.getParameters())[self._opt]
         self._N_temp = self._param[7]
         self._N_Wells_per_Temp = self._param[8]
         self._uptime = int(self._param[9])
@@ -286,16 +287,16 @@ class NPV_dry_gas(NPVAnalysis):
         
         self._Well_Cost = self.__CAPEX[0]
         self._p_u = self.__CAPEX[1]
-        self._p_u_list = [self._p_u]
-        for i in range(1, self._end_prod):
+        self._p_u_list = [self._p_u, self._p_u]
+        for i in range(2, self._end_prod):
             self._p_u_list.append(0)
         
         self._Mani = self.__CAPEX[2]
         self._LNG_plant = self.__CAPEX[3]
         self._LNG_vessels = self.__CAPEX[4]
 
-        self._LNG_plant_list = [self._LNG_plant, self._LNG_plant]
-        self._LNG_vessels_list = [self._LNG_vessels, self._LNG_vessels]
+        self._LNG_plant_list = [self._LNG_plant/2, self._LNG_plant/2]
+        self._LNG_vessels_list = [self._LNG_vessels/2, self._LNG_vessels/2]
         for i in range(2, self._end_prod):
             self._LNG_plant_list.append(0)
             self._LNG_vessels_list.append(0)
@@ -319,10 +320,8 @@ class NPV_dry_gas(NPVAnalysis):
 
         self._total_CAPEX = [sum(x) for x in zip(self._DRILLEX, self._p_u_list, self._m_c_list, self._LNG_plant_list, self._LNG_vessels_list)]
         self._revenue = [offtake/(1000000) * self._Gas_Price for offtake in self._yearly_gas_offtake]
-        self._OPEX_list = [self._OPEX for year in years]
+        self._OPEX_list = [0 for i in range (self._CAPEX_period_prior)] +  [self._OPEX_cost for i in range (int(len(self._production_profile)-1))]
         import numpy as np
-
-
         self._cash_flow = [sum(x) for x in zip(self._revenue, np.negative(self._total_CAPEX), np.negative(self._OPEX_list))]
         self._discounted_cash_flow = [self._cash_flow[i]/(1+self._discount_rate/100)**i for i in range(len(self._cash_flow))]
         self._NPV_list = [sum(self._discounted_cash_flow[0:(i+1)]) for i in range(self._end_prod)]
@@ -341,11 +340,11 @@ class NPV_dry_gas(NPVAnalysis):
             'TOTAL CAPEX': self._total_CAPEX,
             'Gas Offtake per Day[sm3/d]':self.__NPV_prod_profile,
             'Yearly gas offtake [sm3]': self._yearly_gas_offtake,
-            'Revenue [MUSD]': self._revenue,
-            # 'OPEX': self._OPEX_list,
-            # 'Cash Flow': self._cash_flow,
-            # 'Discounted Cash Flow': self._discounted_cash_flow,
-            # 'NPV': self._NPV_list,
+            'Revenue [1E6 USD]': self._revenue,
+            'OPEX': self._OPEX_list,
+            'Cash Flow': self._cash_flow,
+            'Discounted Cash Flow': self._discounted_cash_flow,
+            'NPV': self._NPV_list,
         })
         def make_pretty(styler):
             styler.set_properties(**{'background-color': 'pink'})
@@ -367,6 +366,6 @@ class NPV_dry_gas(NPVAnalysis):
         #return edited_df['Nr Wells'].to_list(), edited_df['DRILLEX'].to_list()
 
     def get_final_NPV(self):
-        return self._NPV_list[-1]
+        return round(self._NPV_list[-1], 1)
 
 
