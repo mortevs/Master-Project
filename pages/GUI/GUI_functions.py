@@ -111,11 +111,9 @@ def multi_plot(dfs, addAll = True, addProduced = False):
 
     # Update remaining layout properties
     fig.update_layout(
-        height=600,
-        width=1000
-    
+        height=600,    
     )
-    st.plotly_chart(fig)
+    st.plotly_chart(fig, use_container_width=True)
 
 def display_FD_variables_table(list1, list2, edible=False, key = 'df_table_editor'):
     df_table = pd.DataFrame({
@@ -123,10 +121,26 @@ def display_FD_variables_table(list1, list2, edible=False, key = 'df_table_edito
         'Value': list2
     })
     if edible:
-        edited_df = st.data_editor(df_table, key=key, width=750, height=632, hide_index=True)
+        edited_df = st.data_editor(df_table, key=key, use_container_width=True, height=213, hide_index=True)
         return edited_df['Value'].to_list()
     else:
         st.table(df_table)
+def display_FD_variables_table2(list2):
+    def make_pretty(styler):
+        styler.set_properties(**{'color': 'red'})
+        #styler.set_caption("Weather Conditions")
+        #styler.background_gradient(axis=None, vmin=1, vmax=5, cmap="YlGnBu")
+        #styler.set_table_styles([{'selector': 'tr:hover', 'props': 'background-color: yellow; font-size: 1em;'}])
+        return styler
+    list1 = ['Target Rate [Sm3/d]', 'Initial Reservoir Pressure [bara]', 'Rate of Abandonment [Sm3/d]', 'Reservoir Temperature [degree C]', 'Gas Molecular Weight [g/mol]', 'Inflow backpressure coefficient', 'Inflow backpressure exponent', 'Number of Templates', 'Number of Wells per Template', 'Uptime [days]', 'Tubing Flow Coefficient', 'Tubing Elevation Coefficient', 'Flowline Coefficient from Template-PLEM', 'Pipeline coefficient from PLEM-Shore', 'Seperator Pressure [bara]', 'Initial Gas in Place [sm3]', 'Build-up period [years]']
+    pd.set_option('display.float_format', '{:.0f}'.format)
+    df_table = pd.DataFrame({
+        'Input': list1,
+        'Value': list2
+    })
+    df_table['Value'] = df_table['Value'].astype(str)
+    pd.set_option("display.max_rows", 2)
+    st.dataframe(df_table.style.pipe(make_pretty), hide_index=True, use_container_width=True, height=633)
 
 def display_table_RESPRES(list1, list2, edible = False, clear_table = False) ->list:
     # Create a DataFrame from the two lists
@@ -136,17 +150,16 @@ def display_table_RESPRES(list1, list2, edible = False, clear_table = False) ->l
     })
 
     if edible:
-        edited_df = st.data_editor(df_table, key='df_table_editor', width=790, height=175, hide_index=True)
+        edited_df = st.data_editor(df_table, key='df_table_editor', use_container_width=True, height=175, hide_index=True)
         return edited_df['Value'].to_list()
 
-def display_table_NPV(list1, list2, list3, edible=False, key = 'df_table_editor'):
+def display_table_NPV(list1, list2, edible=False, key = 'df_table_editor'):
     df_table = pd.DataFrame({
         'Input': list1,
         'Value': list2,
-        'Unit': list3
     })
     if edible:
-        edited_df = st.data_editor(df_table, key=key, hide_index=True)
+        edited_df = st.data_editor(df_table, key=key, use_container_width=True, hide_index=True)
         return edited_df['Value'].to_list()
     else:
         st.table(df_table)

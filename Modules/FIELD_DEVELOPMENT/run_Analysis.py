@@ -28,7 +28,7 @@ class DryGasAnalysis():
         return self.__result
 
     def updateParameterListfromTable(self):
-        list1 = ['Target Rate [sm3/d]', 'Initial Reservoir Pressure [bara]', 'Rate of Abandonment [sm3/d]', 'Reservoir Temperature [degree C]', 'Gas Molecular Weight [g/mol]', 'Inflow backpressure coefficient', 'Inflow backpressure exponent', 'Number of Templates', 'Number of Wells per Template', 'Uptime [days]', 'Tubing Flow Coefficient', 'Tubing Elevation Coefficient', 'Flowline Coefficient from Template-PLEM', 'Pipeline coefficient from PLEM-Shore', 'Seperator Pressure [bara]', 'Initial Gas in Place [sm3]', 'Build-up period [years]']
+        list1 = ['Target Rate [Sm3/d]', 'Initial Reservoir Pressure [bara]', 'Rate of Abandonment [Sm3/d]', 'Reservoir Temperature [degree C]', 'Gas Molecular Weight [g/mol]', 'Inflow backpressure coefficient', 'Inflow backpressure exponent', 'Number of Templates', 'Number of Wells per Template', 'Uptime [days]', 'Tubing Flow Coefficient', 'Tubing Elevation Coefficient', 'Flowline Coefficient from Template-PLEM', 'Pipeline coefficient from PLEM-Shore', 'Seperator Pressure [bara]', 'Initial Gas in Place [sm3]', 'Build-up period [years]']
         self.__parameters = (GUI.display_FD_variables_table(list1=list1, list2=default_FD_data(), edible=True))
         def validate_parameters(list1 = self.__parameters):
             if list1[0] <= 0:
@@ -112,6 +112,7 @@ class DryGasAnalysis():
         self.append_method(self.__method)
         self.append_precision(self.__precision)
         self.append_field(field)
+        self.append_parameters(self.__parameters)
 
         if self.__method == 'IPR':
             from Modules.FIELD_DEVELOPMENT.IPR.IPRAnalysis import IPRAnalysis
@@ -120,27 +121,35 @@ class DryGasAnalysis():
             from Modules.FIELD_DEVELOPMENT.Nodal.NodalAnalysis import NodalAnalysis
             df = NodalAnalysis(self.__precision, self.__parameters)
         import Data.dataProcessing as dP
-        df = dP.addActualProdYtoDF(field, df)
+        df = dP.addActualProdYtoDF(field, df, upTime=int(self.__parameters[9]))
         df = dP.addProducedYears(field, df)
         return df
     
+
     def plot(self, comp=False):
-        import streamlit as st
-        from pandas import DataFrame
         res = self.getResult()
         if comp == False:
             for i in reversed(range(len(res))):
-                if isinstance(res[i], DataFrame):
+                if isinstance(res[i], pd.DataFrame):
                     field = self.getField()
                     method = self.getMethod()
                     prec = self.getPrecision()
-                    st.header('Prod-profile: ' + str(i + 1), divider='red')
+
+                    st.header('Production Profile ' + str(i + 1), divider='red')
+                    tab1, tab2 = st.tabs(["Plot", "Variables"])
                     if field[i] != 'No field chosen':
-                        st.write(method[i], prec[i], field[i])
-                        GUI.multi_plot([res[i]], addProduced=True)
+                        with tab2:        
+                            st.write(method[i], prec[i], field[i])
+                        with tab1:
+                            GUI.multi_plot([res[i]], addProduced=True)
                     else:
-                        st.write(method[i], prec[i])
-                        GUI.multi_plot([res[i]], addAll=False)
+                        with tab2:
+                            st.write(method[i], prec[i])
+                        with tab1:
+                            GUI.multi_plot([res[i]], addAll=False)
+                with tab2:
+                    from pages.GUI.GUI_functions import display_FD_variables_table2
+                    display_FD_variables_table2(list2=self.getParameters()[i])
         else:
             dfs = []
             for df in self.__state.result:
@@ -149,6 +158,9 @@ class DryGasAnalysis():
             st.header('Compared models', divider='red')
             GUI.multi_plot(dfs, addAll=False)
     
+    def getParameters(self) -> pd.DataFrame:
+        session_state = self.__state.get(self.__session_id)
+        return getattr(session_state, 'parameters', pd.DataFrame())
     def clear_output(self):
         from Data.Storage.Cache import SessionState
         SessionState.delete(id = 'DryGasAnalysis')
@@ -165,10 +177,6 @@ class DryGasAnalysis():
     def getResult(self) -> list:
         session_state = self.__state.get(self.__session_id)
         return getattr(session_state, 'result', [])
-
-    def getParameters(self) -> pd.DataFrame:
-        session_state = self.__state.get(self.__session_id)
-        return getattr(session_state, 'parameters', pd.DataFrame())
     
     def getField(self) -> pd.DataFrame:
         session_state = self.__state.get(self.__session_id)
@@ -179,7 +187,7 @@ class DryGasAnalysis():
         return session_state
 
     def get_production_profile(self, opt) -> list:
-        Fr = self.getResult()[opt-1]['Field rates [sm3/d]'].to_list()
+        Fr = self.getResult()[opt]['Field rates [sm3/d]'].to_list()
         return Fr
        
     def append_method(self, item) -> str:
@@ -223,36 +231,22 @@ class NPV_dry_gas(NPVAnalysis):
               
     def NPV_gas_field_update_edible_tables(self):
         from Data.DefaultData import default_data_NPV, default_data_NPV_CAPEX, default_data_NPV_OPEX
-        NPV = ['Gas Price', 'Discount Rate', 'Max Number of Wells Drilled per Year', 'CAPEX Period Prior to Production Startup']
-        CAPEX = ["Well Cost", 'Pipeline & Umbilicals', 'Subsea Manifold Cost', 'LNG Plant (Default Scales with Rate)', 'LNG Vessels (Default Scales with Rate)']
-        OPEX = ["OPEX"]
-        NPV_units =['USD/Sm3', '%', '-', 'Years']
-        CAPEX_units =['1E6 USD', '1E6 USD', '1E6 USD', '1E6 USD', '1E6 USD']
-        OPEX_units = ['1E6 USD']
+        NPV = ['Gas Price [USD/Sm3]', 'Discount Rate [%]', 'Max Wells Drilled p/ Year', 'CAPEX Period [Years]']
+        CAPEX = ["Well Cost [1E6 USD]", 'Pipe & Umbilical [1E6 USD]', 'Subsea Manifold [1E6 USD]', 'LNG Plant [1E6 USD]', 'LNG Vessels [1E6 USD]']
+        OPEX = ["OPEX [1E6 USD]"]
+
 
 
         col0, col1, col2 = st.columns(3)
         with col0:
-            st.title("NPV variables")
-            self.__NPV_variables = (GUI.display_table_NPV(list1=NPV, list2=default_data_NPV(), list3 = NPV_units, edible=True, key = 'df_table_editor_NPV'))
+            st.markdown("**NPV variables**")
+            self.__NPV_variables = (GUI.display_table_NPV(list1=NPV, list2=default_data_NPV(), edible=True, key = 'df_table_editor_NPV'))
         with col1:
-            st.title('CAPEX variables')
-            self.__CAPEX = (GUI.display_table_NPV(list1=CAPEX, list2=default_data_NPV_CAPEX(plateau = (self._Analysis.getParameters())[self._opt][0], uptime=(self._Analysis.getParameters())[self._opt][9]), list3= CAPEX_units, edible=True, key = 'df_table_editor2_CAPEX'))
+            st.markdown('**CAPEX variables**')
+            self.__CAPEX = (GUI.display_table_NPV(list1=CAPEX, list2=default_data_NPV_CAPEX(plateau = (self._Analysis.getParameters())[self._opt][0], uptime=(self._Analysis.getParameters())[self._opt][9]), edible=True, key = 'df_table_editor2_CAPEX'))
         with col2:
-            st.title('OPEX variables')
-            self.__OPEX = (GUI.display_table_NPV(list1=OPEX, list2=default_data_NPV_OPEX(), list3 = OPEX_units, edible=True, key = 'df_table_editor2_OPEX'))
-        
-        
-        #self.__data_For_NPV_sheet = [self.__NPV_variables, self.__CAPEX, self.__OPEX]
-        #self.__sheet = NPV_sheet(parent = NPVAnalysis, Analysis= self.__Analysis, opt = self.__opt)
-        #self.__Analysis = Analysis
-        #self.__opt = opt
-        #self.__production_profile = Analysis.get_production_profile(opt = opt)
-
-        #self.__NPV_variables = user_input[0]
-        #self.__CAPEX = user_input[1]
-        #self.__OPEX = user_input[2]
-        #self.__sheet = self.display_table_NPV_Sheet(key)
+            st.markdown('**OPEX variables**')
+            self.__OPEX = (GUI.display_table_NPV(list1=OPEX, list2=default_data_NPV_OPEX(), edible=True, key = 'df_table_editor2_OPEX'))
             
     def dry_gas_NPV_calc_sheet(self, key='dry_gas_NPV_Sheet'):
 
@@ -265,7 +259,6 @@ class NPV_dry_gas(NPVAnalysis):
         self._buildUp_length = int(self._param[16])
 
         #NPV table 
-
         self._Gas_Price = self.__NPV_variables[0]
         self._discount_rate = self.__NPV_variables[1]
         self._Max_Well_per_year_nr = int(self.__NPV_variables[2])
@@ -304,14 +297,8 @@ class NPV_dry_gas(NPVAnalysis):
         self._DRILLEX =[element * self._Well_Cost for element in self._def_well_list]
         my_list = []
 
-        # if self.__buildUp_length != 0:
-        #     self.__buildup_rate = self.__production_profile[0]/self.__buildUp_length
-        #     for i in range(self.__buildUp_length):        
-        #         my_list.append(i*self.__buildup_rate)
-        #self.__daily_gas_offtake = my_list + (self.__production_profile)
-
         self._yearly_gas_offtake = [0 for i in range (self._CAPEX_period_prior-1)] + [element * self._uptime for element in self._production_profile]
-        self.__NPV_prod_profile = [0 for i in range (self._CAPEX_period_prior-1)] + self._production_profile
+        self._NPV_prod_profile = [0 for i in range (self._CAPEX_period_prior-1)] + self._production_profile
         
         self._m_c_list = [element * self._Mani for element in self._templ_list]
         years = []         
@@ -338,7 +325,7 @@ class NPV_dry_gas(NPVAnalysis):
             'LNG Vessels' : self._LNG_vessels_list,
             'Other': [0 for element in years],
             'TOTAL CAPEX': self._total_CAPEX,
-            'Gas Offtake per Day[sm3/d]':self.__NPV_prod_profile,
+            'Gas Offtake per Day[sm3/d]':self._NPV_prod_profile,
             'Yearly gas offtake [sm3]': self._yearly_gas_offtake,
             'Revenue [1E6 USD]': self._revenue,
             'OPEX': self._OPEX_list,
@@ -346,21 +333,9 @@ class NPV_dry_gas(NPVAnalysis):
             'Discounted Cash Flow': self._discounted_cash_flow,
             'NPV': self._NPV_list,
         })
-        def make_pretty(styler):
-            styler.set_properties(**{'background-color': 'pink'})
-            #styler.set_caption("Weather Conditions")
-            #styler.background_gradient(axis=None, vmin=1, vmax=5, cmap="YlGnBu")
-            #styler.set_table_styles([{'selector': 'tr:hover', 'props': 'background-color: yellow; font-size: 1em;'}])
-            return styler
-        #st.dataframe(df_table.style.pipe(make_pretty))
-
-    #     st.dataframe(
-    #        # df_table.style.set_properties(**{'background-color': 'pink'}),
-    #        df_table.style.set_caption("Weather Conditions")
-
-        # def highlight_max(x, color):
-        #     return np.where(x != 100, f"color: {color};", None)
-        # styled_df = st.dataframe(df_table.style.map(highlight_max, color='red'))
+        # def make_pretty(styler):
+        #     styler.set_properties(**{'background-color': 'pink'})
+        #     return styler
         edited_df = st.data_editor(df_table, key=key, use_container_width=True, height=500, hide_index=True)
         
         #return edited_df['Nr Wells'].to_list(), edited_df['DRILLEX'].to_list()

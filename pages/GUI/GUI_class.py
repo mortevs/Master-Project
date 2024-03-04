@@ -76,36 +76,51 @@ class FIELD_DEVELOPMENT:
         </style>""", unsafe_allow_html=True)
         from Modules.FIELD_DEVELOPMENT.run_Analysis import DryGasAnalysis
         Analysis = DryGasAnalysis(session_id='DryGasAnalysis')
-        on_information = st.toggle("Show me information on how to use the field development feature", value=False, label_visibility="visible")
-        if on_information:
-            st.write("""The table below on the right side contains default values for 17 parameters, in which the production profile estimation
-                     is based upon. The values can be changed as the user sees fit. For example, if the user wants to run with a pressure of 
-                     250 bara, and a different temperature, click the values in the table and change them to the desired values directly.""")
+        on_pp_information = st.toggle("Show me information on how to estimate dry gas production profiles", value=False, label_visibility="visible")
+        if on_pp_information:
+            st.write("""The following feature allows for modeling of the production profile for a dry gas field. 
+                     The table below on the right side contains default values for 17 variables, for which the production profile estimation
+                     is based upon. The values can be changed as the user sees fit. For example, if the user wants to run with a Target Rate of 15 1E6 Sm3, a pressure of 
+                     250 bara, and a build-up period of 5 years, these changes may directly be applied in the table below to the right.""")
             st.write(""" 
                     The production profile is estimated with the values in the table when the user clicks <Run Analysis>. 
-                    The first production profile will display as Prod-profile 1. The parameters used for each Prod-profile are stored. The
-                    user can change the parameters and click <Run Analysis> again. This will display a second prod-profile.
-                    The user can create as many production profiles as desired.""")
-                     
-            st.write("""The <Compare different models> button
-                     will create a new plot, where all the production profiles are compared in one plot.""")
+                    If desireable, the user can create multiple production profiles with different sets of variables. The first production profile will display as Production Profile 1, the second as Production Profile 2, the third as Production Profile 3, and so on.
+                    For each production profile the corresponding variables are available for the user to see in the Variables tab under the Production Profile title.
+                    """) 
             st.write( 
-                    """Each production profile plot contains a dropdown menu. From the dropdown menu, sub-calculations for the production profile can be displayed 
-                    instead of the production profile. This includes among other, Recovery Factor, Z-factor, Reservoir pressure and choke pressure.""")
+                    """Each resulting Production Profile contains a dropdown menu.
+                    From the dropdown menu sub-calculations for the present production profile can be displayed.
+                    These sub-calculations include the estimated yearly gas of take, cumulative gas of take,
+                    recovery factor, Z-factor, reservoir pressure, rates per well, bottomhole pressure, wellhead pressure,
+                    template pressure, PLEM pressure, seperator pressure, rates per template, choke pressure,
+                    ratio of template pressure to wellhead pressure, and the production potential.""")
+            st.write("""The <Compare Profiles> button will create a new plot, where all the current production profiles are compared in the same plot.""")
             
             st.write("""
-                    Clicking the <Clear output> button will remove all the plots and stored parameters. You will start over creating 
-                    production profile 1 again after clicking this button.""")
+                    The production profiles and corresponding variables are stored in session-states in the application.
+                    Even if the application is closed, the production profiles and variables are stored. Pressing the <Clear Output> button will remove all the resulting production profiles.
+                    If the user wants to retrieve the default table values, refresh the page.""")
                      
-            st.write("""The feature has a <Choose field to compare with> dropdown menu. By choosing a field from NPD, 
-                     instead of default "No Field Chosen", the daily average SM^3 volumes of water, oil, gas and condensate rates for that particular field are possible to 
-                     display for the user.""")
+            st.write("""The feature also has an experimental <Choose field to compare with> dropdown option. The user can choose a field from the Norwegian Continental Shelf.
+                    By choosing a field from the dropdown menu, instead of the default "No Field Chosen", the average daily rates (Sm3/day) of gas 
+                    for that field can be displayed for the user after pressing <Run Analysis>. The average daily rates of NGL, oil, condensate, oil-equivalents, and water 
+                    are also available for the user to display from the dropdown menu.
+                    The average rates are calculated based on yearly produced volumes for the field (fetched from SODIR) and the upTime variable in the table.
+                    The  <Choose field to compare with> is an experimental option. By providing an option for the user to
+                    quickly compare estimated gas rates with produced gas rates for a chosen field, it intends to give the user insight
+                    into wheter the estimates are somewhat realistic or not.
+                    """)
+            
             st.write("""
-                     There is also two options the user can choose from to run different models. 
+                     There is two dropdown menus from which the user can choose to run different mathematical models. 
                      These options decide the mathematical method for obtaining the production profile. 
-                     By default the production profile is estimated using implicit Nodal approach. However, from the two dropdown menu, the user can choose 
-                    IPR instead of Nodal, and explicit instead of implicit. Nodal implicit is the most accurate method, but 
-                     also the most computational costly. For more details see the report. 
+                     By default the production profile is estimated using the implicit Nodal approach. 
+                     From the two dropdown menu, the user can choose IPR instead of Nodal, and explicit instead of implicit. 
+                     Nodal implicit is the most accurate method, but 
+                     also the most computational costly. If Nodal Implicit fails to find a solution,
+                     the user has the option to run the analysis using a simpler, but less computational costly method.
+                     IPR explicit is the method with the lowest computational cost. 
+                     For more details on the IPR, Nodal, Explicit and Implcit methods, see my Masters report. 
                      """)
         col0, col1 = st.columns(2)
         plot_comp = False
@@ -115,7 +130,7 @@ class FIELD_DEVELOPMENT:
             with col4:
                 run = st.button('Run Analysis', 'Run DG')
             with col5: 
-                if st.button('Compare different models', 'Compare'):
+                if st.button('Compare Profiles', 'Compare'):
                         plot_comp = True
             col7, col8 = st.columns(2)
             with col7:
@@ -148,9 +163,30 @@ class FIELD_DEVELOPMENT:
             i -= 1
         st.write('------------------------')
         if len(production_profiles) != 0:
+            on_NPV_information = st.toggle("Show me information on how to generate NPV estimates ", value=False, label_visibility="visible", key = "")
+            if on_NPV_information:
+                st.write("""The following feature allows for automatic modeling of the Net-Present-Value of a project. The NPV is based on a resulting 
+                         production profile and corresponding field-variables from the table above, together with key economic variables found in the tables below. 
+                        The tables below contain default variables, for which the NPV estimation
+                        is based upon. The values can be changed as the user sees fit. For example, if the user wants to run with a discount rate
+                        of 7% , a CAPEX period (period without income from production) of 3 years and a well cost of 150 1E6 USD, these changes may directly be applied in the 
+                        tables below.""")
+                st.write(""" From the dropdown menu below, the user can choose which production profile to make the NPV analysis for. The
+                        NPV-analysis will take the field-variables corresponding to the chosen produciton profile into consideration. By default,
+                         the latest production profile generated will be utilized""")
+                st.write(""" 
+                        The NPV is estimated utilizing variables from the table above in the production profile section, and the tables below.
+                        Keep in mind that the number of wells (Number of templates and wells per template) will affect the production profile, in addition to 
+                        having a cost per well. To study how number of wells affect the NPV, genereate for instance two produciton profiles,
+                        with different nummber of templates, and choose from the drop-down option mentioned above.
+                         
+                        If desireable, the user can create multiple production profiles with different sets of variables. The first production profile will display as Production Profile 1, the second as Production Profile 2, the third as Production Profile 3, and so on.
+                        For each production profile the corresponding variables are available for the user to see in the Variables tab under the Production Profile title.
+                        """) 
             col0, col1, col2 = st.columns(3)
             with col0:
-                opt = display.dropdown(label = 'Choose production profile to run NPV-analysis with',options = opts, labelVisibility="visible")
+                opt = display.dropdown(label = 'Choose production profile for NPV-analysis',options = opts, labelVisibility="visible")
+
             from Modules.FIELD_DEVELOPMENT.run_Analysis import NPV_dry_gas, NPVAnalysis
             opt = opt-1
             dry_gas_NPV = NPV_dry_gas(parent = NPVAnalysis, Analysis = Analysis, opt = opt)

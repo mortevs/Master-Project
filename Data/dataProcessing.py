@@ -27,7 +27,7 @@ def estimatedReservoirPressure(TVD: float) -> float:
     pressure = TVD/10 * 1.1
     return pressure
 
-def addActualProdYtoDF(field: str, df: DataFrame,  adjustLength = True) ->DataFrame:
+def addActualProdYtoDF(field: str, df: DataFrame,  adjustLength = True, upTime = 365) ->DataFrame:
     gas, NGL, oil, cond, Oe, w = get.CSVProductionYearly(field)
     if adjustLength == True: #should i remove 0 production
         while len(df) != len(gas):
@@ -42,13 +42,13 @@ def addActualProdYtoDF(field: str, df: DataFrame,  adjustLength = True) ->DataFr
             Oe.append(0)
         while len(df) != len(w):
             w.append(0)
-    gas = [i*10**9/365 for i in gas] #prfPrdGasNetBillSm3
+    gas = [i*10**9/upTime for i in gas] #prfPrdGasNetBillSm3
     df = df.assign(gasSM3perday=gas)
-    NGL = [i*10**6/365 for i in NGL] #prfPrdOilNetMillSm3
-    oil = [i*10**6/365 for i in oil] #prfPrdCondensateNetMillSm3
-    cond = [i*10**6/365 for i in cond] #prfPrdOeNetMillSm3
-    Oe = [i*10**6/365 for i in Oe] #prfPrdOeNetMillSm3
-    w = [i*10**6/365 for i in w] #prfPrdProducedWaterInFieldMillSm3
+    NGL = [i*10**6/upTime for i in NGL] #prfPrdOilNetMillSm3
+    oil = [i*10**6/upTime for i in oil] #prfPrdCondensateNetMillSm3
+    cond = [i*10**6/upTime for i in cond] #prfPrdOeNetMillSm3
+    Oe = [i*10**6/upTime for i in Oe] #prfPrdOeNetMillSm3
+    w = [i*10**6/upTime for i in w] #prfPrdProducedWaterInFieldMillSm3
     df = df.assign(NGLSM3perday=NGL)
     df = df.assign(oilSM3perday=oil)
     df = df.assign(condensateSM3perday=cond)
