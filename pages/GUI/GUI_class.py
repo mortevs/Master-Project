@@ -176,16 +176,24 @@ class FIELD_DEVELOPMENT:
                          the latest production profile generated will be utilized.""")
                 st.write(""" 
                         The NPV is estimated utilizing variables from the table above in the production profile section, and the tables below.
-                        Keep in mind that the number of wells (Number of templates and wells per template) will affect the production profile, in addition to 
-                        having a cost per well. To study how the number of wells affect the NPV, generate for instance two production profiles,
-                        with different nummber of templates. Switch from the drop-down option mentioned above between 2 and 1 to see the NPV difference. Well costs in the NPV analysis
-                        will be distributed according to the number of wells (numer of templates and well per templates), and Max Wells Drilled per year automaticly.
+                        Well costs in the NPV analysis will be distributed according to the number of wells (numer of templates and well per templates), and Max Wells Drilled per year automaticly.
                         The template distribution will be distributed to match so that a new template is only installed when there are no available slots. As an example,
                         if max 1 well is to be drilled every year, number of templates is 3,  number of wells per template is 3, cost for a new template will be 
-                        covered the first, fourth and seventh year.
+                        covered the first, fourth and seventh year. The user can choose to change the automated distribution of costs. Wells, templates, pipeline & Umbilical, LNG Plant, LNG Vessels and OPEX cost may be adjustes to the users preference
+                        in the editable dataframe below.
+                         
+                        The edible dataframe is generated based on the three variable tables. By changing the OPEX value or Well Cost in the variable tables below, the editable dataframe will automaticly be
+                         updated. The edible dataframe may be adjusted by changing the variables, or may be customized direcly in the Editable dataframe. Based on the editable dataframe
+                         a Non-editable table is generated that displays the DRILLEX, Templates, Total Capex and ultimately the NPV for each year.
                          
                         The cost of LNG plant and LNG Vessels scale with the plateau rate. 
-                        """) 
+                         
+                        Keep in mind that the number of wells (Number of templates and wells per template) will affect the production profile, in addition to 
+                        having a cost per well. To study how the number of wells affect the NPV, generate for instance two production profiles,
+                        with different nummber of templates. Switch from the drop-down option mentioned above between 2 and 1 to see the NPV difference.
+                        """
+                         
+                       ) 
             col0, col1, col2 = st.columns(3)
             with col0:
                 opt = display.dropdown(label = 'Choose production profile for NPV-analysis',options = opts, labelVisibility="visible")
@@ -194,11 +202,25 @@ class FIELD_DEVELOPMENT:
             opt = opt-1
             dry_gas_NPV = NPV_dry_gas(parent = NPVAnalysis, Analysis = Analysis, opt = opt)
             dry_gas_NPV.NPV_gas_field_update_edible_tables()
-            dry_gas_NPV.dry_gas_NPV_calc_sheet()
+            edible_df = dry_gas_NPV.dry_gas_NPV_calc_sheet()
+            col0, col1 = st.columns(2)
+            with col0:
+                st.markdown("**Editable**")
+                edible_df = st.data_editor(edible_df, hide_index=True, use_container_width=True, height=350)
+
+            def make_pretty(styler):
+                styler.set_properties(subset = None, **{'color': 'red'})
+                return styler
+            
+            red_df = dry_gas_NPV.update_dry_gas_NPV_calc_sheet(edible_df)
+        
             final_NPV_value = str(dry_gas_NPV.get_final_NPV())
-            font_size = "32px"  # You can adjust the size as needed
+            font_size = "64px"  # You can adjust the size as needed
             NPV_str = f"<div style='font-size:{font_size};'>Final NPV of Project: <span style='color:red;'>{final_NPV_value}</span> 1E6 USD</div>"
             st.markdown(NPV_str, unsafe_allow_html=True)
+            with col1:
+                st.markdown("**Non-editable**")
+                st.dataframe(red_df.style.format("{:.0f}").pipe(make_pretty), hide_index=True, use_container_width=True, height=350)
             optimize_NPV = st.button(label = "Optimize NPV with grid search")
             parameters = Analysis.getParameters()[opt]
             plataeu = parameters[0]

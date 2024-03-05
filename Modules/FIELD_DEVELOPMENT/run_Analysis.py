@@ -3,6 +3,7 @@ from Data.Storage.Cache import SessionState
 import pages.GUI.GUI_functions as GUI
 from Data.DefaultData import default_FD_data
 import streamlit as st
+import numpy as np
 
 class DryGasAnalysis():
     def __init__(self, session_id:str, inputs:list = [], method:str = None, precision:str = None, field:str = 'No field chosen'):
@@ -232,7 +233,7 @@ class NPV_dry_gas(NPVAnalysis):
     def NPV_gas_field_update_edible_tables(self):
         from Data.DefaultData import default_data_NPV, default_data_NPV_CAPEX, default_data_NPV_OPEX
         NPV = ['Gas Price [USD/Sm3]', 'Discount Rate [%]', 'Max Wells Drilled p/ Year', 'CAPEX Period [Years]']
-        CAPEX = ["Well Cost [1E6 USD]", 'Pipe & Umbilical [1E6 USD]', 'Subsea Manifold [1E6 USD]', 'LNG Plant [1E6 USD]', 'LNG Vessels [1E6 USD]']
+        CAPEX = ["Well Cost [1E6 USD]", 'Pipe & Umbilical [1E6 USD]', 'Template [1E6 USD]', 'LNG Plant [1E6 USD]', 'LNG Vessels [1E6 USD]']
         OPEX = ["OPEX [1E6 USD]"]
 
 
@@ -249,7 +250,6 @@ class NPV_dry_gas(NPVAnalysis):
             self.__OPEX = (GUI.display_table_NPV(list1=OPEX, list2=default_data_NPV_OPEX(), edible=True, key = 'df_table_editor2_OPEX'))
             
     def dry_gas_NPV_calc_sheet(self, key='dry_gas_NPV_Sheet'):
-
         #field development parameters
         self._OPEX_cost = float(self.__OPEX[0])
         self._param = (self._Analysis.getParameters())[self._opt]
@@ -274,6 +274,9 @@ class NPV_dry_gas(NPVAnalysis):
         #CAPEX table 
         from Data.DefaultData import default_well_distribution, default_template_distribution
         self._end_prod = int(len(self._production_profile)+ (self._CAPEX_period_prior-1))
+        self._years = []         
+        for i in range(self._end_prod):
+            self._years.append(i)    
 
         self._def_well_list  = default_well_distribution(self._N_temp, self._N_Wells_per_Temp, self._end_prod, self._Max_Well_per_year_nr)
         self._templ_list = default_template_distribution(self._def_well_list, self._N_temp, self._N_Wells_per_Temp, self._end_prod)
@@ -284,7 +287,7 @@ class NPV_dry_gas(NPVAnalysis):
         for i in range(2, self._end_prod):
             self._p_u_list.append(0)
         
-        self._Mani = self.__CAPEX[2]
+        self._temp_cost = self.__CAPEX[2]
         self._LNG_plant = self.__CAPEX[3]
         self._LNG_vessels = self.__CAPEX[4]
 
@@ -294,84 +297,59 @@ class NPV_dry_gas(NPVAnalysis):
             self._LNG_plant_list.append(0)
             self._LNG_vessels_list.append(0)
 
-        self._DRILLEX =[element * self._Well_Cost for element in self._def_well_list]
-        my_list = []
-
-        self._yearly_gas_offtake = [0 for i in range (self._CAPEX_period_prior-1)] + [element * self._uptime for element in self._production_profile]
-        self._NPV_prod_profile = [0 for i in range (self._CAPEX_period_prior-1)] + self._production_profile
-        
-        self._m_c_list = [element * self._Mani for element in self._templ_list]
-        years = []         
-        for i in range(self._end_prod):
-            years.append(i)            
-
-        self._total_CAPEX = [sum(x) for x in zip(self._DRILLEX, self._p_u_list, self._m_c_list, self._LNG_plant_list, self._LNG_vessels_list)]
-        self._revenue = [offtake/(1000000) * self._Gas_Price for offtake in self._yearly_gas_offtake]
         self._OPEX_list = [0 for i in range (self._CAPEX_period_prior)] +  [self._OPEX_cost for i in range (int(len(self._production_profile)-1))]
-        import numpy as np
-        self._cash_flow = [sum(x) for x in zip(self._revenue, np.negative(self._total_CAPEX), np.negative(self._OPEX_list))]
-        self._discounted_cash_flow = [self._cash_flow[i]/(1+self._discount_rate/100)**i for i in range(len(self._cash_flow))]
-        self._NPV_list = [sum(self._discounted_cash_flow[0:(i+1)]) for i in range(self._end_prod)]
-
-
-        df_table = pd.DataFrame({
-            'Year': years,
+        
+        self.__df_table = pd.DataFrame({
+            'Year': self._years,
             'Nr Wells': self._def_well_list,
-            'DRILLEX [1E6 USD]': self._DRILLEX,
-            'Nr Manifolds': self._templ_list,
-            'Manifold & Compressors [1E6 USD]': self._m_c_list,
+            'Nr Templates': self._templ_list,
             'Pipeline & Umbilicals [1E6 USD]': self._p_u_list,
             'LNG Plant [1E6 USD]' : self._LNG_plant_list,
             'LNG Vessels [1E6 USD]' : self._LNG_vessels_list,
-            'TOTAL CAPEX [1E6 USD]': self._total_CAPEX,
+            'OPEX [1E6 USD]': self._OPEX_list,
+        })
+        return self.__df_table
+
+
+    def update_dry_gas_NPV_calc_sheet(self, edited_df):
+        def validate_edited_df(edited_df):
+            N_wells = self._N_Wells_per_Temp*self._N_temp
+            if sum(edited_df["Nr Wells"]) != N_wells:
+                error_str = "The sum of wells in the Nr Wells column needs to be (" + str(int(N_wells)) + ") because the number of templates is ("+ str(int(self._N_temp)) + ") and the number of wells per template is (" + str(int(self._N_Wells_per_Temp)) + "). You need to change the N Wells columns so that the sum of the Nr Wells columns matches (" + str(int(N_wells)) + "). Current sum is (" + str(sum(edited_df["Nr Wells"])) +"). The reason for this is that changing the number of wells will affect the production profile directly, and not just the NPV. If desired then create a new production profile with the desired amount of wells by changing Number of Templates and Number of Wells per Template in the table at the top right."
+                st.error(error_str)
+                st.stop()
+        validate_edited_df(edited_df)
+        self._yearly_gas_offtake = [0 for i in range (self._CAPEX_period_prior-1)] + [element * self._uptime for element in self._production_profile]
+        self._NPV_prod_profile = [0 for i in range (self._CAPEX_period_prior-1)] + self._production_profile
+        self._revenue = [offtake/(1000000) * self._Gas_Price for offtake in self._yearly_gas_offtake]
+        
+        self._years = []         
+        for i in range(self._end_prod):
+            self._years.append(i)            
+
+        
+        self.__df_table2 = pd.DataFrame({
+            'Year': self._years,
+            'DRILLEX [1E6 USD]': [element * self._Well_Cost for element in edited_df['Nr Wells']],
+            'Templates [1E6 USD]': [element * self._temp_cost for element in edited_df['Nr Templates']],
+            'TOTAL CAPEX [1E6 USD]': self._years,
             'Daily gas rate [sm3/d]':self._NPV_prod_profile,
             'Yearly gas offtake [sm3]': self._yearly_gas_offtake,
             'Revenue [1E6 USD]': self._revenue,
-            'OPEX [1E6 USD]': self._OPEX_list,
-            'Cash Flow [1E6 USD]': self._cash_flow,
-            'Discounted Cash Flow [1E6 USD]': self._discounted_cash_flow,
-            'NPV [1E6 USD]': self._NPV_list,
+            'Cash Flow [1E6 USD]': self._years,
+            'Discounted Cash Flow [1E6 USD]': self._years,
+            'NPV [1E6 USD]': self._years,
         })
-        # def make_pretty(styler):
-        #     styler.set_properties(**{'background-color': 'pink'})
-        #     return styler
-
-        # editable_columns = [
-        #     'Nr Wells',
-        #     'DRILLEX [1E6 USD]', 
-        #     'Nr Manifolds',
-        #     'Manifold & Compressors [1E6 USD]',
-        #     'Pipeline & Umbilicals [1E6 USD]',
-        #     'LNG Plant [1E6 USD]',
-        #     'LNG Vessels [1E6 USD]',
-        # ]
-        # color_columns = [
-        #     'Year',
-        #     'TOTAL CAPEX [1E6 USD]',
-        #     'Daily gas rate [sm3/d]',
-        #     'Yearly gas offtake [sm3]',
-        #     'Revenue [1E6 USD]',
-        #     'OPEX [1E6 USD]',
-        #     'Cash Flow [1E6 USD]',
-        #     'Discounted Cash Flow [1E6 USD]',
-        #     'NPV [1E6 USD]'
-
-        # ]
-        # def make_pretty(styler):
-        #     styler.set_properties(subset = color_columns, **{'color': 'red'})
-        #     return styler
-
-        #st.data_editor(df_table.style.pipe(make_pretty), hide_index=True, use_container_width=True, height=400)
-        edited_df = st.data_editor(df_table, hide_index=True, use_container_width=True, height=400)
-        return edited_df['Nr Wells'].to_list()
-
-
-
-        #edited_df = st.data_editor(df_table, key=key, use_container_width=True, height=500, hide_index=True)
         
-        #return edited_df['Nr Wells'].to_list(), edited_df['DRILLEX'].to_list()
+        self.__df_table2[ 'TOTAL CAPEX [1E6 USD]'] = [sum(x) for x in zip(self.__df_table2['DRILLEX [1E6 USD]'], edited_df['Pipeline & Umbilicals [1E6 USD]'], self.__df_table2['Templates [1E6 USD]'], edited_df['LNG Plant [1E6 USD]'], edited_df['LNG Vessels [1E6 USD]'])]
+        self.__df_table2['Cash Flow [1E6 USD]'] = [sum(x) for x in zip(self._revenue, np.negative(self.__df_table2['TOTAL CAPEX [1E6 USD]']), np.negative(edited_df['OPEX [1E6 USD]']))]
+        self.__df_table2['Discounted Cash Flow [1E6 USD]'] = self.__df_table2['Cash Flow [1E6 USD]']/(1+self._discount_rate/100)** self.__df_table2['Year']
+        self.__df_table2['NPV [1E6 USD]'] = [sum(self.__df_table2['Discounted Cash Flow [1E6 USD]'][0:(i+1)]) for i in range(self._end_prod)]
+        return self.__df_table2
+
 
     def get_final_NPV(self):
-        return round(self._NPV_list[-1], 1)
+        self.__final_NPV = self.__df_table2['NPV [1E6 USD]'].to_list()[-1]
+        return round(self.__final_NPV, 1)
 
 
