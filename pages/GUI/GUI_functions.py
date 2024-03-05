@@ -128,9 +128,7 @@ def display_FD_variables_table(list1, list2, edible=False, key = 'df_table_edito
 def display_FD_variables_table2(list2):
     def make_pretty(styler):
         styler.set_properties(**{'color': 'red'})
-        #styler.set_caption("Weather Conditions")
-        #styler.background_gradient(axis=None, vmin=1, vmax=5, cmap="YlGnBu")
-        #styler.set_table_styles([{'selector': 'tr:hover', 'props': 'background-color: yellow; font-size: 1em;'}])
+
         return styler
     list1 = ['Target Rate [Sm3/d]', 'Initial Reservoir Pressure [bara]', 'Rate of Abandonment [Sm3/d]', 'Reservoir Temperature [degree C]', 'Gas Molecular Weight [g/mol]', 'Inflow backpressure coefficient', 'Inflow backpressure exponent', 'Number of Templates', 'Number of Wells per Template', 'Uptime [days]', 'Tubing Flow Coefficient', 'Tubing Elevation Coefficient', 'Flowline Coefficient from Template-PLEM', 'Pipeline coefficient from PLEM-Shore', 'Seperator Pressure [bara]', 'Initial Gas in Place [sm3]', 'Build-up period [years]']
     pd.set_option('display.float_format', '{:.0f}'.format)

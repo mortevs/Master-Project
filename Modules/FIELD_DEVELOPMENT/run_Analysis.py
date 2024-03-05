@@ -317,26 +317,57 @@ class NPV_dry_gas(NPVAnalysis):
         df_table = pd.DataFrame({
             'Year': years,
             'Nr Wells': self._def_well_list,
+            'DRILLEX [1E6 USD]': self._DRILLEX,
             'Nr Manifolds': self._templ_list,
-            'DRILLEX': self._DRILLEX,
-            'Pipeline & Umbilicals': self._p_u_list,
-            'Manifold & Compressors': self._m_c_list,
-            'LNG Plant' : self._LNG_plant_list,
-            'LNG Vessels' : self._LNG_vessels_list,
-            'Other': [0 for element in years],
-            'TOTAL CAPEX': self._total_CAPEX,
-            'Gas Offtake per Day[sm3/d]':self._NPV_prod_profile,
+            'Manifold & Compressors [1E6 USD]': self._m_c_list,
+            'Pipeline & Umbilicals [1E6 USD]': self._p_u_list,
+            'LNG Plant [1E6 USD]' : self._LNG_plant_list,
+            'LNG Vessels [1E6 USD]' : self._LNG_vessels_list,
+            'TOTAL CAPEX [1E6 USD]': self._total_CAPEX,
+            'Daily gas rate [sm3/d]':self._NPV_prod_profile,
             'Yearly gas offtake [sm3]': self._yearly_gas_offtake,
             'Revenue [1E6 USD]': self._revenue,
-            'OPEX': self._OPEX_list,
-            'Cash Flow': self._cash_flow,
-            'Discounted Cash Flow': self._discounted_cash_flow,
-            'NPV': self._NPV_list,
+            'OPEX [1E6 USD]': self._OPEX_list,
+            'Cash Flow [1E6 USD]': self._cash_flow,
+            'Discounted Cash Flow [1E6 USD]': self._discounted_cash_flow,
+            'NPV [1E6 USD]': self._NPV_list,
         })
         # def make_pretty(styler):
         #     styler.set_properties(**{'background-color': 'pink'})
         #     return styler
-        edited_df = st.data_editor(df_table, key=key, use_container_width=True, height=500, hide_index=True)
+
+        # editable_columns = [
+        #     'Nr Wells',
+        #     'DRILLEX [1E6 USD]', 
+        #     'Nr Manifolds',
+        #     'Manifold & Compressors [1E6 USD]',
+        #     'Pipeline & Umbilicals [1E6 USD]',
+        #     'LNG Plant [1E6 USD]',
+        #     'LNG Vessels [1E6 USD]',
+        # ]
+        # color_columns = [
+        #     'Year',
+        #     'TOTAL CAPEX [1E6 USD]',
+        #     'Daily gas rate [sm3/d]',
+        #     'Yearly gas offtake [sm3]',
+        #     'Revenue [1E6 USD]',
+        #     'OPEX [1E6 USD]',
+        #     'Cash Flow [1E6 USD]',
+        #     'Discounted Cash Flow [1E6 USD]',
+        #     'NPV [1E6 USD]'
+
+        # ]
+        # def make_pretty(styler):
+        #     styler.set_properties(subset = color_columns, **{'color': 'red'})
+        #     return styler
+
+        #st.data_editor(df_table.style.pipe(make_pretty), hide_index=True, use_container_width=True, height=400)
+        edited_df = st.data_editor(df_table, hide_index=True, use_container_width=True, height=400)
+        return edited_df['Nr Wells'].to_list()
+
+
+
+        #edited_df = st.data_editor(df_table, key=key, use_container_width=True, height=500, hide_index=True)
         
         #return edited_df['Nr Wells'].to_list(), edited_df['DRILLEX'].to_list()
 

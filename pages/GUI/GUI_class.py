@@ -165,23 +165,26 @@ class FIELD_DEVELOPMENT:
         if len(production_profiles) != 0:
             on_NPV_information = st.toggle("Show me information on how to generate NPV estimates ", value=False, label_visibility="visible", key = "")
             if on_NPV_information:
-                st.write("""The following feature allows for automatic modeling of the Net-Present-Value of a project. The NPV is based on a resulting 
-                         production profile and corresponding field-variables from the table above, together with key economic variables found in the tables below. 
+                st.write("""The following feature allows for automatic modeling of the Net-Present-Value of a project. The NPV is based on a  
+                         production profile and corresponding field-variables from the production profile section above, together with key economic variables found in the tables below. 
                         The tables below contain default variables, for which the NPV estimation
                         is based upon. The values can be changed as the user sees fit. For example, if the user wants to run with a discount rate
                         of 7% , a CAPEX period (period without income from production) of 3 years and a well cost of 150 1E6 USD, these changes may directly be applied in the 
                         tables below.""")
                 st.write(""" From the dropdown menu below, the user can choose which production profile to make the NPV analysis for. The
-                        NPV-analysis will take the field-variables corresponding to the chosen produciton profile into consideration. By default,
-                         the latest production profile generated will be utilized""")
+                        NPV-analysis will take the field-variables corresponding to the chosen production profile into consideration. By default,
+                         the latest production profile generated will be utilized.""")
                 st.write(""" 
                         The NPV is estimated utilizing variables from the table above in the production profile section, and the tables below.
                         Keep in mind that the number of wells (Number of templates and wells per template) will affect the production profile, in addition to 
-                        having a cost per well. To study how number of wells affect the NPV, genereate for instance two produciton profiles,
-                        with different nummber of templates, and choose from the drop-down option mentioned above.
+                        having a cost per well. To study how the number of wells affect the NPV, generate for instance two production profiles,
+                        with different nummber of templates. Switch from the drop-down option mentioned above between 2 and 1 to see the NPV difference. Well costs in the NPV analysis
+                        will be distributed according to the number of wells (numer of templates and well per templates), and Max Wells Drilled per year automaticly.
+                        The template distribution will be distributed to match so that a new template is only installed when there are no available slots. As an example,
+                        if max 1 well is to be drilled every year, number of templates is 3,  number of wells per template is 3, cost for a new template will be 
+                        covered the first, fourth and seventh year.
                          
-                        If desireable, the user can create multiple production profiles with different sets of variables. The first production profile will display as Production Profile 1, the second as Production Profile 2, the third as Production Profile 3, and so on.
-                        For each production profile the corresponding variables are available for the user to see in the Variables tab under the Production Profile title.
+                        The cost of LNG plant and LNG Vessels scale with the plateau rate. 
                         """) 
             col0, col1, col2 = st.columns(3)
             with col0:
