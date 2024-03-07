@@ -9,6 +9,13 @@ from Data.Storage.Cache import delete_files
 import Data.Storage.Cache as c
 data_storage_folder = os.path.join(os.getcwd(), 'Data', 'Storage')
 
+def swap_columns(df, col1, col2):
+    col_list = list(df.columns)
+    x, y = col_list.index(col1), col_list.index(col2)
+    col_list[y], col_list[x] = col_list[x], col_list[y]
+    df = df[col_list]
+    return df
+
 def ZiptoDF(zipname='fldArea.zip', zipFileUrl='https://factpages.sodir.no/downloads/csv/fldArea.zip'):
     zip_file_path = os.path.join(data_storage_folder, zipname)
     if os.path.exists(zip_file_path):
@@ -43,26 +50,38 @@ def wlbPoint_field_sorted(fieldName):
 def producing_wlb(fieldName):
     p = wlbPoint_field_sorted(fieldName)
     p.drop(p[p['wlbStatus'] != 'PRODUCING'].index, inplace=True)
+    p = swap_columns(p, "wlbNpdidWellbore", "wlbWellboreName")
+    p = p.astype(str)
+   
     return p
 
 def injecting_wlb(fieldName):
     p = wlbPoint_field_sorted(fieldName)
     p.drop(p[p['wlbStatus'] != 'INJECTING'].index, inplace=True)
+    p = swap_columns(p, "wlbNpdidWellbore", "wlbWellboreName")
+    p = p.astype(str)
+
     return p
 
 def PA_wlb(fieldName):
     p = wlbPoint_field_sorted(fieldName)
     p.drop(p[p['wlbStatus'] != 'P&A'].index, inplace=True)
+    p = swap_columns(p, "wlbNpdidWellbore", "wlbWellboreName")
+    p = p.astype(str)
     return p
 
 def closed_wlb(fieldName):
     p = wlbPoint_field_sorted(fieldName)
     p.drop(p[p['wlbStatus'] != 'CLOSED'].index, inplace=True)
+    p = swap_columns(p, "wlbNpdidWellbore", "wlbWellboreName")
+    p = p.astype(str)
     return p
 
 def junked_wlb(fieldName):
     p = wlbPoint_field_sorted(fieldName)
     p.drop(p[p['wlbStatus'] != 'junked'].index, inplace=True)
+    p.set_index("WlbWellboreName", drop = True, inplace = True)
+
     return p
 
 def CSVProductionMonthly(fieldName: str):

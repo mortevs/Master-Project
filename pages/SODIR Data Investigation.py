@@ -14,6 +14,12 @@ st.set_page_config(
         'About': "# Master project by Morten Vier Simensen"
     }
     )
+m = st.markdown("""
+    <style>
+    div.stButton > button:first-child {
+        background-color: rgb(204, 49, 49);
+    }
+    </style>""", unsafe_allow_html=True)
 from pages.GUI.GUI_class import SODIR_feature
 st.title('Sodir Data Investigation')
 NPD_DATA = SODIR_feature()

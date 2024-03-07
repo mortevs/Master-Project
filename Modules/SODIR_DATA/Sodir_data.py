@@ -54,6 +54,7 @@ class Sodir_prod(SODIR_feature):
                     st.title('Produced volumes: ' + field[i])
                     display.multi_plot([res[i]], addAll= False)
         else:
+            st.title('Comparison of Produced volumes between fields')
             dfs = []
             for df in self.__state.result:
                 reset_ind_df = df.reset_index(drop = True)

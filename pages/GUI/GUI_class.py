@@ -67,6 +67,9 @@ class main_page_GUI:
         #elif opt == 'NPD DATA':
              #self.NPD_DATA = NPD_DATA(GUI)           
 
+def make_pretty(styler):
+    styler.set_properties(subset = None, **{'color': 'red'})
+    return styler
 class FIELD_DEVELOPMENT:
     def __init__(self):
         m = st.markdown("""<style>
@@ -208,9 +211,6 @@ class FIELD_DEVELOPMENT:
                 st.markdown("**Editable**")
                 edible_df = st.data_editor(edible_df, hide_index=True, use_container_width=True, height=350)
 
-            def make_pretty(styler):
-                styler.set_properties(subset = None, **{'color': 'red'})
-                return styler
             
             red_df = dry_gas_NPV.update_dry_gas_NPV_calc_sheet(edible_df)
         
@@ -362,15 +362,18 @@ class SODIR_feature:
             field = display.dropdown(label = 'Choose a field', options = fieldnames, labelVisibility="visible")
         with col5:
             time = display.dropdown(label = 'Time frame of interest', options = ['Yearly', 'Monthly'], labelVisibility="visible")
-        
+
         sodir_obj.updateFromDropDown(fieldName = field, time = time)
-        col6, col7, col8 = st.columns(3)
+        col6, col7 = st.columns(2)
         with col6:
-            run = st.button('Plot production profile', 'Show produced volumes')
+            run = st.button('Plot production profile', 'Show produced volumes', use_container_width=True)
         with col7:
-            comp = st.button('Compare fields', 'Compare')
-        with col8: 
-            clear =  st.button('Clear output', 'clear FD')
+            comp = st.button('Compare fields', 'Compare', use_container_width=True)
+        col8, col9 = st.columns(2)
+        with col8:
+            poly_button = st.button('Plot reservoir area', 'polygon plotter', use_container_width=True)
+        with col9:
+            clear =  st.button('Clear output', 'clear FD', use_container_width=True)
         
         if run and field == 'No field chosen':
             import time as t
@@ -389,7 +392,10 @@ class SODIR_feature:
         if clear:
             sodir_obj.clear_output()
 
-        if comp:
+        if comp and len(sodir_obj.getResult()) == 0:
+            st.error("""No fields to compare. Choose a field and press Plot production proile. Choose another field and then press
+                     Plot production profile again. Then press compare field""")
+        elif comp:
             sodir_obj.plot(comp = True)
         sodir_obj.plot()
         #self.parent = parent
@@ -398,7 +404,6 @@ class SODIR_feature:
         st.write(' ')
         st.write(' ')
 
-        poly_button = st.button('Plot reservoir area', 'polygon plotter', use_container_width=True)
         if poly_button and field == 'No field chosen':
             import time
             alert4 = st.warning('Choose a field first')
@@ -409,14 +414,27 @@ class SODIR_feature:
             makePlot(field)
         show_more_prod = st.toggle(label = "Show me more information about the producing wells on this field")    
         if show_more_prod:
-            st.dataframe(get.producing_wlb(field))
+            if field == "No field chosen":
+                st.error("No field chosen")
+            else:
+                st.dataframe(get.producing_wlb(field).style.pipe(make_pretty), hide_index=True, use_container_width=True)
+
         show_more_inj = st.toggle(label = "Show me more information about the injection wells on this field") 
         if show_more_inj:
-            st.dataframe(get.injecting_wlb(field))
+            if field == "No field chosen":
+                st.error("No field chosen")
+            else:
+                st.dataframe(get.injecting_wlb(field).style.pipe(make_pretty), hide_index=True, use_container_width=True)
         
         show_more_closed = st.toggle(label = "Show me more information about the closed wells on this field") 
         if show_more_closed:
-            st.dataframe(get.closed_wlb(field))
+            if field == "No field chosen":
+                st.error("No field chosen")
+            else:
+                st.dataframe(get.closed_wlb(field).style.pipe(make_pretty), hide_index=True, use_container_width=True)
         show_more_PA = st.toggle(label = "Show me more information about the P&A wells on this field") 
         if show_more_PA:
-            st.dataframe(get.PA_wlb(field))
+            if field == "No field chosen":
+                st.error("No field chosen")
+            else:
+                st.dataframe(get.PA_wlb(field).style.pipe(make_pretty), hide_index=True, use_container_width=True)
