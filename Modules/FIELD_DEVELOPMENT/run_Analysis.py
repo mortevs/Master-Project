@@ -238,10 +238,10 @@ class NPV_dry_gas(NPVAnalysis):
         self._opt = opt
         super().__init__()
               
-    def NPV_gas_field_update_edible_tables(self, ):
+    def NPV_gas_field_update_edible_tables(self):
         from Data.DefaultData import default_data_NPV, default_data_NPV_CAPEX, default_data_NPV_OPEX
         NPV = ['Gas Price [USD/Sm3]', 'Discount Rate [%]', 'Max Wells Drilled p/ Year', 'CAPEX Period [Years]']
-        CAPEX = ["Well Cost [1E6 USD]", 'Pipe & Umbilical [1E6 USD]', 'Template [1E6 USD]', 'LNG Plant [1E6 USD]', 'LNG Vessels [1E6 USD]']
+        CAPEX = ["Well Cost [1E6 USD]", 'Pipe & Umbilical [1E6 USD]', 'Template [1E6 USD]', 'LNG Plant [1E6 USD] (scales)', 'LNG Vessels [1E6 USD] (scales)']
         OPEX = ["OPEX [1E6 USD]"]
         self._plateau_rate = self.__field_variables[0]
         self._uptime = self.__field_variables[9]

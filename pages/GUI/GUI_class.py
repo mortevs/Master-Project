@@ -155,7 +155,12 @@ class FIELD_DEVELOPMENT:
         elif run and field_name != 'No field chosen':
             result = Analysis.run_field(field)
             Analysis.append_result(result)
-        if plot_comp == True:
+        
+        if plot_comp and len(Analysis.getResult()) == 0:
+            st.error("""No profiles to compare. Press Run Analysis (with the desired field charateristics in the table above to the right). Then change the field charateristics, 
+                     and press Run Analysis once again. THEN press compare fields to compare the two (or more) production 
+                     profiles.""")
+        elif plot_comp == True:
             Analysis.plot(comp = True)
         Analysis.plot()
         
@@ -207,11 +212,11 @@ class FIELD_DEVELOPMENT:
             #variables=Analysis.getParameters()[opt]
             dry_gas_NPV = NPV_dry_gas(self._fieldVariables, opt)
             dry_gas_NPV.NPV_gas_field_update_edible_tables()
-            editable_df = dry_gas_NPV.dry_gas_NPV_calc_sheet()
+            self.__editable_df = dry_gas_NPV.dry_gas_NPV_calc_sheet()
             col0, col1 = st.columns(2)
             with col0:
                 st.markdown("**Editable**")
-                edited_df = st.data_editor(editable_df, hide_index=True, use_container_width=True, height=350)
+                edited_df = st.data_editor(self.__editable_df, hide_index=True, use_container_width=True, height=350)
 
             
             self.__ned_df = dry_gas_NPV.update_dry_gas_NPV_calc_sheet(edited_df)
@@ -230,7 +235,7 @@ class FIELD_DEVELOPMENT:
                 edited_grid = GUI.display_table_grid_search(self._fieldVariables, key = "grid")
                 optimize_NPV = st.button(label = "Optimize NPV with grid search")
             
-            def this_func(minP, maxP, pStep, field_variables):
+            def grid_production_profiles(minP, maxP, pStep, field_variables):
                 pp_list = []
                 stepping_field_variables = field_variables
                 for i in range(pStep):
@@ -251,16 +256,16 @@ class FIELD_DEVELOPMENT:
             if optimize_NPV:
                 dry_gas_NPV.update_grid_variables(edited_grid)
                 minP, maxP, pStep = dry_gas_NPV.get_grid_variables()
-                st.write(this_func(minP, maxP, pStep, self._fieldVariables))
-
-                #for i in range(len(grid_profiles)):
-                #    start_t = time.time()
-                    #new_NPV = dry_gas_NPV.run_grid_NPV(editable_df = editable_df, production_profile = grid_profiles[i])
-                    #NPV_grid_list.append(new_NPV)
-                    #stop_t = time.time()
-                    #error_message = "Approximately" + str((stop_t-start_t)*(len(grid_profiles))) + "seconds left"
-                    #st.write(error_message)
-                # st.write(NPV_grid_list)
+                prodProfiles_to_NPV = grid_production_profiles(minP, maxP, pStep, self._fieldVariables)
+                NPV_grid_list = []
+                for pp in (prodProfiles_to_NPV):
+                    start_t = time.time()
+                    new_NPV = dry_gas_NPV.run_grid_NPV(editable_df = self.__editable_df, production_profile = pp)
+                    NPV_grid_list.append(new_NPV)
+                    # stop_t = time.time()
+                    # error_message = "Approximately" + str((stop_t-start_t)*(len(grid_profiles))) + "seconds left"
+                    # st.write(error_message)
+                st.write(NPV_grid_list)
 
                 
     
