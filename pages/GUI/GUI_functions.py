@@ -161,10 +161,10 @@ def display_table_NPV(list1, list2, edible=False, key = 'df_table_editor'):
     else:
         st.table(df_table)
 
-def display_table_grid_search(parameters, key = 'df_table_editor'):
-    #plataeu = parameters[0]
-    #nr_temps =parameters[8]
-    #pertemp = parameters[0]
+def display_table_grid_search(f_variables, key = 'df_table_editor'):
+    #plataeu = f_variables[0]
+    #nr_temps =f_variables[8]
+    #pertemp = f_variables[0]
     list1 = ['Plateau rate [Sm3/d]', 'Nr Templates', 'Nr Wells per Template']
     list2 = [10000000,1,1] 
     list3 = [40000000,5,5] 
@@ -176,7 +176,7 @@ def display_table_grid_search(parameters, key = 'df_table_editor'):
         'Steps': list4
 
     })
-    edited_df = st.data_editor(df_table, key=key, hide_index=True)
+    edited_df = st.data_editor(df_table, hide_index=True, use_container_width=True)
     return edited_df
 
 # class edible_df():

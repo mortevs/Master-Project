@@ -8,15 +8,15 @@ import time
 class DryGasAnalysis():
     def __init__(self, session_id:str, inputs:list = [], method:str = None, precision:str = None, field:str = 'No field chosen'):
         self.__parameters:list = inputs
-        self.__method = method
-        self.__precision = precision
+        self._method = method
+        self._precision = precision
         self.__field = field
         self.__session_id = session_id
         self.__result = pd.DataFrame()
         self.__state = SessionState.get(id=session_id, result=[], method=[], precision=[], field=[])      
     
     def updateFromDropdown(self, method, precision):
-            self.__method, self.__precision = method, precision
+            self._method, self._precision = method, precision
     def updateField(self, fieldName):
          self.__field = fieldName  
     def get_current_field(self):
@@ -96,32 +96,34 @@ class DryGasAnalysis():
         return self.__parameters
 
     def run(self):
-        self.append_method(self.__method)
-        self.append_precision(self.__precision)
+        self.append_method(self._method)
+        self.append_precision(self._precision)
         self.append_field(self.__field)
         self.append_parameters(self.__parameters)
 
-        if self.__method == 'IPR':
+        if self._method == 'IPR':
             from Modules.FIELD_DEVELOPMENT.IPR.IPRAnalysis import IPRAnalysis
-            df = IPRAnalysis(self.__precision, self.__parameters)
-        else:
+            df = IPRAnalysis(self._precision, self.__parameters)
+        elif self._method == "NODAL":
             from Modules.FIELD_DEVELOPMENT.Nodal.NodalAnalysis import NodalAnalysis
-            df = NodalAnalysis(self.__precision, self.__parameters)
+            df = NodalAnalysis(self._precision, self.__parameters)
+        else:
+            st.error("An error has occured, method is not NODAL or IPR")
         self.__result = df
         return df
     
     def run_field(self, field):
-        self.append_method(self.__method)
-        self.append_precision(self.__precision)
+        self.append_method(self._method)
+        self.append_precision(self._precision)
         self.append_field(field)
         self.append_parameters(self.__parameters)
 
         if self.__method == 'IPR':
             from Modules.FIELD_DEVELOPMENT.IPR.IPRAnalysis import IPRAnalysis
-            df = IPRAnalysis(self.__precision, self.__parameters)
+            df = IPRAnalysis(self._precision, self.__parameters)
         else:
             from Modules.FIELD_DEVELOPMENT.Nodal.NodalAnalysis import NodalAnalysis
-            df = NodalAnalysis(self.__precision, self.__parameters)
+            df = NodalAnalysis(self._precision, self.__parameters)
         import Data.dataProcessing as dP
         df = dP.addActualProdYtoDF(field, df, upTime=int(self.__parameters[9]))
         df = dP.addProducedYears(field, df)
@@ -233,18 +235,18 @@ class NPVAnalysis(DryGasAnalysis):
         #st.title(NPV_str)
 
 class NPV_dry_gas(NPVAnalysis):
-    def __init__(self, variables, opt):
-        self.__field_variables = variables
+    def __init__(self, opt):
         self._opt = opt
         super().__init__()
+        self.__field_variables = self.getParameters()[self._opt]
               
     def NPV_gas_field_update_edible_tables(self):
         from Data.DefaultData import default_data_NPV, default_data_NPV_CAPEX, default_data_NPV_OPEX
         NPV = ['Gas Price [USD/Sm3]', 'Discount Rate [%]', 'Max Wells Drilled p/ Year', 'CAPEX Period [Years]']
         CAPEX = ["Well Cost [1E6 USD]", 'Pipe & Umbilical [1E6 USD]', 'Template [1E6 USD]', 'LNG Plant [USD/ Sm3/d]', 'Cost per LNG Carrier [1E6 USD] ']
         OPEX = ["OPEX [1E6 USD]"]
-        self._plateau_rate = self.getParameters()[self._opt][0]
-        self._uptime = self.getParameters()[self._opt][9]
+        self._plateau_rate = self.__field_variables[0]
+        self._uptime = self.__field_variables[9]
         col0, col1, col2 = st.columns(3)
         with col0:
             st.markdown("**NPV variables**")
@@ -260,9 +262,9 @@ class NPV_dry_gas(NPVAnalysis):
     def dry_gas_NPV_calc_sheet(self):
         #field development parameters
         self._OPEX_cost = float(self.__OPEX[0])
-        self._N_temp = self.getParameters()[self._opt][7]
-        self._N_Wells_per_Temp = self.getParameters()[self._opt][8]
-        self._buildUp_length = int(self.getParameters()[self._opt][16])
+        self._N_temp = self.__field_variables[7]
+        self._N_Wells_per_Temp = self.__field_variables[8]
+        self._buildUp_length = int(self.__field_variables[16])
 
         #NPV table 
         self._Gas_Price = self.__NPV_variables[0]
@@ -399,7 +401,23 @@ class NPV_dry_gas(NPVAnalysis):
         return self._minPlat, self._maxPlat, self._platSteps
 
 
+    def grid_production_profiles(self, minP, maxP, pStep):
+        pp_list = []
+        stepping_field_variables = self.getParameters()[self._opt]
+        for i in range(pStep):
+            stepping_field_variables[0] = minP + (maxP-minP)/(pStep-1)*i
+            if self.getMethod()[self._opt] == 'IPR':
+                from Modules.FIELD_DEVELOPMENT.IPR.IPRAnalysis import IPRAnalysis
+                new_df = IPRAnalysis(self.getPrecision()[self._opt], stepping_field_variables)
+                #pp_list.append(df[])
 
+            elif self.getMethod()[self._opt] == "NODAL":
+                from Modules.FIELD_DEVELOPMENT.Nodal.NodalAnalysis import NodalAnalysis
+                new_df = NodalAnalysis(self.getPrecision()[self._opt], stepping_field_variables)
+            else:
+                st.write("this is not supposed to happen, method and precision is:", self._method, self._precision)
+            pp_list.append((new_df['Field rates [sm3/d]'].to_list()))
+        return pp_list
 
 
         

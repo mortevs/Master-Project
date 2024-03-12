@@ -129,7 +129,7 @@ class FIELD_DEVELOPMENT:
         col0, col1 = st.columns(2)
         plot_comp = False
         with col0:
-            self.__method, self.__precision = GUI.columnDisplay2(list1=[['NODAL', 'IPR'], ['IMPLICIT', 'EXPLICIT']])
+            self._method, self._precision = GUI.columnDisplay2(list1=[['NODAL', 'IPR'], ['IMPLICIT', 'EXPLICIT']])
             col4, col5 = st.columns(2)
             with col4:
                 run = st.button('Run Analysis', use_container_width=True)
@@ -143,8 +143,8 @@ class FIELD_DEVELOPMENT:
                 field = GUI.dropdown(label = 'Choose a field to compare with', options = fieldnames, labelVisibility="visible")
                 Analysis.updateField(field)
         with col1:  
-            Analysis.updateFromDropdown(method = self.__method, precision=self.__precision)
-            self._fieldVariables = Analysis.updateParameterListfromTable()
+            Analysis.updateFromDropdown(method = self._method, precision=self._precision)
+            Analysis.updateParameterListfromTable()
         if clear:
             Analysis.clear_output()
         field_name = Analysis.get_current_field()
@@ -207,10 +207,10 @@ class FIELD_DEVELOPMENT:
             with col0:
                 opt = GUI.dropdown(label = 'Choose production profile for NPV-analysis',options = opts, labelVisibility="visible")
 
-            from Modules.FIELD_DEVELOPMENT.run_Analysis import NPV_dry_gas, NPVAnalysis
+            from Modules.FIELD_DEVELOPMENT.run_Analysis import NPV_dry_gas
             opt = opt-1
             #variables=Analysis.getParameters()[opt]
-            dry_gas_NPV = NPV_dry_gas(self._fieldVariables, opt)
+            dry_gas_NPV = NPV_dry_gas(opt)
             dry_gas_NPV.NPV_gas_field_update_edible_tables()
             self.__editable_df = dry_gas_NPV.dry_gas_NPV_calc_sheet()
             col0, col1 = st.columns(2)
@@ -229,34 +229,19 @@ class FIELD_DEVELOPMENT:
                 st.markdown("**Non-editable**")
                 st.dataframe(self.__ned_df.style.format("{:.0f}").pipe(make_pretty), hide_index=True, use_container_width=True, height=350)
 
-            
+            st.write(" ")
+            st.write(" ")
+            st.write(" ")
+            st.markdown("**Field-variable optimization**")
             col9, co10 = st.columns(2)
             with col9:
-                edited_grid = GUI.display_table_grid_search(self._fieldVariables, key = "grid")
-                optimize_NPV = st.button(label = "Optimize NPV with grid search")
-            
-            def grid_production_profiles(minP, maxP, pStep, field_variables):
-                pp_list = []
-                stepping_field_variables = field_variables
-                for i in range(pStep):
-                    stepping_field_variables[0] = minP + (maxP-minP)/(pStep-1)*i
-                    if self.__method == 'IPR':
-                        from Modules.FIELD_DEVELOPMENT.IPR.IPRAnalysis import IPRAnalysis
-                        new_df = IPRAnalysis(self.__precision, stepping_field_variables)
-                        #pp_list.append(df[])
-
-                    elif self.__method == "NODAL":
-                        from Modules.FIELD_DEVELOPMENT.Nodal.NodalAnalysis import NodalAnalysis
-                        new_df = NodalAnalysis(self.__precision, stepping_field_variables)
-                    
-                    pp_list.append((new_df['Field rates [sm3/d]'].to_list()))
-                return pp_list
-
-            
+                edited_grid = GUI.display_table_grid_search(f_variables=None) #not used per now, but may come in handy to adjust grid table to field table pdate by user
+                optimize_NPV = st.button(label = "Optimize NPV with grid search", use_container_width=True)
+             
             if optimize_NPV:
                 dry_gas_NPV.update_grid_variables(edited_grid)
                 minP, maxP, pStep = dry_gas_NPV.get_grid_variables()
-                prodProfiles_to_NPV = grid_production_profiles(minP, maxP, pStep, self._fieldVariables)
+                prodProfiles_to_NPV = dry_gas_NPV.grid_production_profiles(minP, maxP, pStep)
                 NPV_grid_list = []
                 for pp in (prodProfiles_to_NPV):
                     start_t = time.time()
