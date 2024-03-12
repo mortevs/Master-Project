@@ -40,14 +40,8 @@ def default_data_NPV_CAPEX(plateau, uptime) -> list:
     p_u = 250 #MUSD, Pipeline and umbilicals
     Mani = 20 #MUSD , Cost Per Subsea Manifold  
     LNG_unit_cost = 160 #usd/ Sm^3/d
-    import streamlit as st
-    LNG_plant = plateau * LNG_unit_cost / 1e6
-    LNG_carrier_cost= 200
-
-    import math
-    number_of_LNG_vessels = (math.ceil(plateau*uptime/((86000000*22)))) #rough estimation
-    LNG_vessels = LNG_carrier_cost*number_of_LNG_vessels
-    list = [well_cost, p_u, Mani, LNG_plant, LNG_vessels]
+    LNG_carrier_cost= 200 #1E6 USD
+    list = [well_cost, p_u, Mani, LNG_unit_cost, LNG_carrier_cost]
     return list
 
 def default_data_NPV_OPEX() -> list:

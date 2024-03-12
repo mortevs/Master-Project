@@ -241,10 +241,10 @@ class NPV_dry_gas(NPVAnalysis):
     def NPV_gas_field_update_edible_tables(self):
         from Data.DefaultData import default_data_NPV, default_data_NPV_CAPEX, default_data_NPV_OPEX
         NPV = ['Gas Price [USD/Sm3]', 'Discount Rate [%]', 'Max Wells Drilled p/ Year', 'CAPEX Period [Years]']
-        CAPEX = ["Well Cost [1E6 USD]", 'Pipe & Umbilical [1E6 USD]', 'Template [1E6 USD]', 'LNG Plant [1E6 USD] (scales)', 'LNG Vessels [1E6 USD] (scales)']
+        CAPEX = ["Well Cost [1E6 USD]", 'Pipe & Umbilical [1E6 USD]', 'Template [1E6 USD]', 'LNG Plant [USD/ Sm3/d]', 'Cost per LNG Carrier [1E6 USD] ']
         OPEX = ["OPEX [1E6 USD]"]
-        self._plateau_rate = self.__field_variables[0]
-        self._uptime = self.__field_variables[9]
+        self._plateau_rate = self.getParameters()[self._opt][0]
+        self._uptime = self.getParameters()[self._opt][9]
         col0, col1, col2 = st.columns(3)
         with col0:
             st.markdown("**NPV variables**")
@@ -260,9 +260,9 @@ class NPV_dry_gas(NPVAnalysis):
     def dry_gas_NPV_calc_sheet(self):
         #field development parameters
         self._OPEX_cost = float(self.__OPEX[0])
-        self._N_temp = self.__field_variables[7]
-        self._N_Wells_per_Temp = self.__field_variables[8]
-        self._buildUp_length = int(self.__field_variables[16])
+        self._N_temp = self.getParameters()[self._opt][7]
+        self._N_Wells_per_Temp = self.getParameters()[self._opt][8]
+        self._buildUp_length = int(self.getParameters()[self._opt][16])
 
         #NPV table 
         self._Gas_Price = self.__NPV_variables[0]
@@ -295,8 +295,13 @@ class NPV_dry_gas(NPVAnalysis):
             self._p_u_list.append(0)
         
         self._temp_cost = self.__CAPEX[2]
-        self._LNG_plant = self.__CAPEX[3]
-        self._LNG_vessels = self.__CAPEX[4]
+
+        self._LNG_plant_per_Sm3 = self.__CAPEX[3]
+        self._LNG_cost_per_vessel = self.__CAPEX[4]
+        import math
+        number_of_LNG_vessels = (math.ceil(self._plateau_rate*self._uptime/((86000000*22)))) #rough estimation
+        self._LNG_plant = self._plateau_rate * self._LNG_plant_per_Sm3 / 1e6
+        self._LNG_vessels = self._LNG_cost_per_vessel*number_of_LNG_vessels
 
         self._LNG_plant_list = [self._LNG_plant/2, self._LNG_plant/2]
         self._LNG_vessels_list = [self._LNG_vessels/2, self._LNG_vessels/2]
