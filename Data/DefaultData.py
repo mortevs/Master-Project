@@ -40,7 +40,8 @@ def default_data_NPV_CAPEX(plateau, uptime) -> list:
     p_u = 250 #MUSD, Pipeline and umbilicals
     Mani = 20 #MUSD , Cost Per Subsea Manifold  
     LNG_unit_cost = 160 #usd/ Sm^3/d
-    LNG_plant = plateau *LNG_unit_cost / 1e6
+    import streamlit as st
+    LNG_plant = plateau * LNG_unit_cost / 1e6
     LNG_carrier_cost= 200
 
     import math

@@ -4,7 +4,7 @@ import pages.GUI.GUI_functions as GUI
 from Data.DefaultData import default_FD_data
 import streamlit as st
 import numpy as np
-
+import time
 class DryGasAnalysis():
     def __init__(self, session_id:str, inputs:list = [], method:str = None, precision:str = None, field:str = 'No field chosen'):
         self.__parameters:list = inputs
@@ -93,6 +93,7 @@ class DryGasAnalysis():
                     st.error('Uptime [days] must be a whole number')
                     st.stop()
         validate_parameters()
+        return self.__parameters
 
     def run(self):
         self.append_method(self.__method)
@@ -125,8 +126,7 @@ class DryGasAnalysis():
         df = dP.addActualProdYtoDF(field, df, upTime=int(self.__parameters[9]))
         df = dP.addProducedYears(field, df)
         return df
-    
-
+        
     def plot(self, comp=False):
         res = self.getResult()
         if comp == False:
@@ -162,6 +162,7 @@ class DryGasAnalysis():
     def getParameters(self) -> pd.DataFrame:
         session_state = self.__state.get(self.__session_id)
         return getattr(session_state, 'parameters', pd.DataFrame())
+    
     def clear_output(self):
         from Data.Storage.Cache import SessionState
         SessionState.delete(id = 'DryGasAnalysis')
@@ -206,18 +207,23 @@ class DryGasAnalysis():
     def append_field(self, item) -> str:
         SessionState.append(id = self.__session_id, key = 'field', value = item)
 
+
+        
+    
+        
+
+
+
 class NPVAnalysis(DryGasAnalysis):
-    from Modules.FIELD_DEVELOPMENT.Artificial_lift import artificial_lift_class
-    def __init__(self, parent, Analysis, opt):
-        self._Analysis = Analysis
-        self._opt = opt
+    #from Modules.FIELD_DEVELOPMENT.Artificial_lift import artificial_lift_class
+    def __init__(self):
+        super().__init__(session_id='DryGasAnalysis')
         self._CAPEX = []
         self._OPEX = []
         self._NPV_variables = []
         self._sheet = []
-        self.parent  = parent
         self._data_For_NPV_sheet = []
-        self._production_profile = Analysis.get_production_profile(opt = opt)
+        #self._production_profile = Analysis.get_production_profile(opt = opt)
    
         #const_NPV_toggle = st.toggle("constant Gas Price and Discount rate ", value=True, label_visibility="visible")
 
@@ -227,41 +233,42 @@ class NPVAnalysis(DryGasAnalysis):
         #st.title(NPV_str)
 
 class NPV_dry_gas(NPVAnalysis):
-    def __init__(self, parent, Analysis, opt):
-        super().__init__(parent, Analysis, opt)
+    def __init__(self, variables, opt):
+        self.__field_variables = variables
+        self._opt = opt
+        super().__init__()
               
-    def NPV_gas_field_update_edible_tables(self):
+    def NPV_gas_field_update_edible_tables(self, ):
         from Data.DefaultData import default_data_NPV, default_data_NPV_CAPEX, default_data_NPV_OPEX
         NPV = ['Gas Price [USD/Sm3]', 'Discount Rate [%]', 'Max Wells Drilled p/ Year', 'CAPEX Period [Years]']
         CAPEX = ["Well Cost [1E6 USD]", 'Pipe & Umbilical [1E6 USD]', 'Template [1E6 USD]', 'LNG Plant [1E6 USD]', 'LNG Vessels [1E6 USD]']
         OPEX = ["OPEX [1E6 USD]"]
-
-
-
+        self._plateau_rate = self.__field_variables[0]
+        self._uptime = self.__field_variables[9]
         col0, col1, col2 = st.columns(3)
         with col0:
             st.markdown("**NPV variables**")
             self.__NPV_variables = (GUI.display_table_NPV(list1=NPV, list2=default_data_NPV(), edible=True, key = 'df_table_editor_NPV'))
         with col1:
             st.markdown('**CAPEX variables**')
-            self.__CAPEX = (GUI.display_table_NPV(list1=CAPEX, list2=default_data_NPV_CAPEX(plateau = (self._Analysis.getParameters())[self._opt][0], uptime=(self._Analysis.getParameters())[self._opt][9]), edible=True, key = 'df_table_editor2_CAPEX'))
+            self.__CAPEX = (GUI.display_table_NPV(list1=CAPEX, list2=default_data_NPV_CAPEX(plateau=self._plateau_rate, uptime=self._uptime), edible=True, key = 'df_table_editor2_CAPEX'))
         with col2:
             st.markdown('**OPEX variables**')
             self.__OPEX = (GUI.display_table_NPV(list1=OPEX, list2=default_data_NPV_OPEX(), edible=True, key = 'df_table_editor2_OPEX'))
             
-    def dry_gas_NPV_calc_sheet(self, key='dry_gas_NPV_Sheet'):
+        
+    def dry_gas_NPV_calc_sheet(self):
         #field development parameters
         self._OPEX_cost = float(self.__OPEX[0])
-        self._param = (self._Analysis.getParameters())[self._opt]
-        self._N_temp = self._param[7]
-        self._N_Wells_per_Temp = self._param[8]
-        self._uptime = int(self._param[9])
-        self._buildUp_length = int(self._param[16])
+        self._N_temp = self.__field_variables[7]
+        self._N_Wells_per_Temp = self.__field_variables[8]
+        self._buildUp_length = int(self.__field_variables[16])
 
         #NPV table 
         self._Gas_Price = self.__NPV_variables[0]
         self._discount_rate = self.__NPV_variables[1]
         self._Max_Well_per_year_nr = int(self.__NPV_variables[2])
+        self._production_profile = self.get_production_profile(self._opt)
         if self._Max_Well_per_year_nr <= 0:
             st.error("Max Number of Wels Drilled per Year must be greater than 0")
             st.stop()
@@ -309,10 +316,11 @@ class NPV_dry_gas(NPVAnalysis):
             'OPEX [1E6 USD]': self._OPEX_list,
         })
         return self.__df_table
-
+    
 
     def update_dry_gas_NPV_calc_sheet(self, edited_df):
         def validate_edited_df(edited_df):
+            self.__edited_dataframe = edited_df
             N_wells = self._N_Wells_per_Temp*self._N_temp
             if sum(edited_df["Nr Wells"]) != N_wells:
                 error_str = "The sum of wells in the Nr Wells column needs to be (" + str(int(N_wells)) + ") because the number of templates is ("+ str(int(self._N_temp)) + ") and the number of wells per template is (" + str(int(self._N_Wells_per_Temp)) + "). You need to change the N Wells columns so that the sum of the Nr Wells columns matches (" + str(int(N_wells)) + "). Current sum is (" + str(sum(edited_df["Nr Wells"])) +"). The reason for this is that changing the number of wells will affect the production profile directly, and not just the NPV. If desired then create a new production profile with the desired amount of wells by changing Number of Templates and Number of Wells per Template in the table at the top right."
@@ -351,5 +359,46 @@ class NPV_dry_gas(NPVAnalysis):
     def get_final_NPV(self):
         self.__final_NPV = self.__df_table2['NPV [1E6 USD]'].to_list()[-1]
         return round(self.__final_NPV, 1)
+    
+    def run_grid_NPV(self, editable_df, production_profile):
+        yearly_gas_offtake = [0 for i in range (self._CAPEX_period_prior-1)] + [element * self._uptime for element in production_profile]
+        end_prod = len(yearly_gas_offtake)
+        revenue = [offtake/(1000000) * self._Gas_Price for offtake in yearly_gas_offtake]
+        
+        years = []         
+        for i in range(end_prod):
+            years.append(i)            
+
+        
+        DRILLEX = [element * self._Well_Cost for element in editable_df['Nr Wells']]   #DRILLEX [1E6 USD]
+        TEMPLATES = [element * self._temp_cost for element in editable_df['Nr Templates']]
+        TOTAL_CAPEX = [sum(x) for x in zip(DRILLEX, editable_df['Pipeline & Umbilicals [1E6 USD]'], TEMPLATES, editable_df['LNG Plant [1E6 USD]'], editable_df['LNG Vessels [1E6 USD]'])] #'TOTAL CAPEX [1E6 USD]'
+        CASH_FLOW = [sum(x) for x in zip(revenue, np.negative(TOTAL_CAPEX), np.negative(editable_df['OPEX [1E6 USD]']))] #'Cash Flow [1E6 USD]'
+        DISCOUNTED_CASH_FLOW =  [cf/(1+self._discount_rate/100)** year for cf, year in zip(CASH_FLOW, years)] #'Discounted Cash Flow [1E6 USD]'        
+        FINAL_NPV = sum(DISCOUNTED_CASH_FLOW) #[1E6 USD]
+        return round(FINAL_NPV, 1)
+    
+    def update_grid_variables(self, df):
+        self._minPlat = int(df["Min"][0])
+        self._minNrTemp = int(df["Min"][1])
+        self._minWellspTemp = int(df["Min"][1])
+        
+        self._maxPlat = int(df["Max"][0])
+        self._maxNrTemp = int(df["Max"][1])
+        self._maxWellspTemp = int(df["Max"][2])
+        
+        self._platSteps = int(df["Steps"][0])
+        self._TempStep = int(df["Steps"][1])
+        self._WellspTempStep = int(df["Steps"][2])
+    def get_grid_variables(self):
+        return self._minPlat, self._maxPlat, self._platSteps
+
+
+
+
+
+        
+
+
 
 

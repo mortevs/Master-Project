@@ -105,12 +105,11 @@ def Nodal(qFieldTarget: float, PRi: float, abandonmentRate: float, TR:float, gas
         if solv2.success == True:
             df[15][i] = solv2.x
         else:
-            guess_scale = [1/4, 1/3, 1/2, 2, 3, 4, 5, 10]
+            guess_scale = [1/32, 1/16, 1/8, 1/4, 1/3, 1/2, 2, 3, 4, 5, 8, 12, 20, 32]
             for scale in guess_scale:
                 guess = qFieldTarget*scale
                 solv2 = root(f, guess)
                 if solv2.success == True:
-                    st.write("yeah")
                     df[15][i] = solv2.x
                     break    
                 elif scale == 10 and solv2.success == False:

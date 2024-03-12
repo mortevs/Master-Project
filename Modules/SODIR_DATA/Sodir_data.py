@@ -78,6 +78,9 @@ class Sodir_prod(SODIR_feature):
     def getField(self) -> pd.DataFrame:
         session_state = self.__state.get(self.__session_id)
         return getattr(session_state, 'field', pd.DataFrame())
+    def getPolyPlot(self) -> pd.DataFrame:
+        session_state = self.__state.get(self.__session_id)
+        return getattr(session_state, 'polyPlot', pd.DataFrame())
 
     def getState(self) -> SessionState:
         session_state = self.__state.get(self.__session_id)
@@ -91,6 +94,9 @@ class Sodir_prod(SODIR_feature):
     
     def append_field(self, item) -> str:
         SessionState.append(id = self.__session_id, key = 'field', value = item)
+    
+    def append_polyPlot(self, item) -> str:
+        SessionState.append(id = self.__session_id, key = 'polyPlot', value = item)
         
 class PolygonPlotter:
     def __init__(self, wkt_str):
@@ -141,8 +147,8 @@ class PolygonPlotter:
                 xaxis_title="Longitude",
                 yaxis_title="Latitude",
                 showlegend=True,
-                paper_bgcolor='black',
-                plot_bgcolor='black'
+                #paper_bgcolor='black',
+                #plot_bgcolor='black'
             )
 
             return fig
@@ -161,8 +167,8 @@ def wlb_plot_production(fig, df, field):
         y=df['Latitude'],
         text=df['wlbWellboreName'],  # Use the 'wlbWellboreName' column for text labels
         mode='markers', #+text
-        name = "Production wells",
-        marker=dict(size=10, color='white', symbol='circle'))
+        name = "Producing wells",
+        marker=dict(size=10, color='green', symbol='circle'))
 
     # Add the scatter trace to the provided figure
     fig.add_trace(scatter_trace)
@@ -186,7 +192,7 @@ def wlb_plot_injection(fig, df, field):
         y=df['Latitude'],
         text=df['wlbWellboreName'],  # Use the 'wlbWellboreName' column for text labels
         mode='markers', #+text
-        name = "Injection wells",
+        name = "Injecting wells",
         #hoverinfo=df['wlbContentPlanned'],
         marker=dict(size=10, color='blue', symbol='circle'),
         showlegend= True
@@ -264,7 +270,7 @@ def wlb_plot_PA(fig, df, field):
     return fig
 
     
-def makePlot(field):
+def makePolyPlot(field):
     fig = go.Figure()
     import Data.getData as get
     wkt_str = get.polygon_coordinates(field)
@@ -274,8 +280,9 @@ def makePlot(field):
         updated_fig = wlb_plot_injection(polygon_plotter.fig, get.injecting_wlb(field), field) 
         updated_fig = wlb_plot_closed(polygon_plotter.fig, get.closed_wlb(field), field)   
         updated_fig = wlb_plot_PA(polygon_plotter.fig, get.PA_wlb(field), field)   
-
-        st.plotly_chart(updated_fig)
+        return updated_fig
     except:
         pass
    
+def plotPolyPlot(fig):
+    st.plotly_chart(fig, use_container_width=True)

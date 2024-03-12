@@ -128,7 +128,6 @@ def display_FD_variables_table(list1, list2, edible=False, key = 'df_table_edito
 def display_FD_variables_table2(list2):
     def make_pretty(styler):
         styler.set_properties(**{'color': 'red'})
-
         return styler
     list1 = ['Target Rate [Sm3/d]', 'Initial Reservoir Pressure [bara]', 'Rate of Abandonment [Sm3/d]', 'Reservoir Temperature [degree C]', 'Gas Molecular Weight [g/mol]', 'Inflow backpressure coefficient', 'Inflow backpressure exponent', 'Number of Templates', 'Number of Wells per Template', 'Uptime [days]', 'Tubing Flow Coefficient', 'Tubing Elevation Coefficient', 'Flowline Coefficient from Template-PLEM', 'Pipeline coefficient from PLEM-Shore', 'Seperator Pressure [bara]', 'Initial Gas in Place [sm3]', 'Build-up period [years]']
     pd.set_option('display.float_format', '{:.0f}'.format)
@@ -162,7 +161,14 @@ def display_table_NPV(list1, list2, edible=False, key = 'df_table_editor'):
     else:
         st.table(df_table)
 
-def display_table_grid_search(list1, list2, list3, list4, edible=False, key = 'df_table_editor'):
+def display_table_grid_search(parameters, key = 'df_table_editor'):
+    #plataeu = parameters[0]
+    #nr_temps =parameters[8]
+    #pertemp = parameters[0]
+    list1 = ['Plateau rate [Sm3/d]', 'Nr Templates', 'Nr Wells per Template']
+    list2 = [10000000,1,1] 
+    list3 = [40000000,5,5] 
+    list4 = [4,5,5] 
     df_table = pd.DataFrame({
         'Input': list1,
         'Min': list2,
@@ -170,28 +176,26 @@ def display_table_grid_search(list1, list2, list3, list4, edible=False, key = 'd
         'Steps': list4
 
     })
-    if edible:
-        edited_df = st.data_editor(df_table, key=key, hide_index=True)
-        return edited_df['Steps'].to_list()
-    else:
-        st.table(df_table)
-class edible_df():
-    def __init__(self, list2):
-        self.df = self.initialize_table(list2)
-    def initialize_table(self, list2):
-        list1 = ['Initial Reservoir Pressure [bara]', 'Reservoir Temperature [degree C]', 'Gas Molecular Weight [g/mol]', 'Initial Gas in Place [sm3]']
-        self.df_table = pd.DataFrame({
-            'Input': list1,
-            'Value': list2
-        })
-        edited_df = st.data_editor(self.df_table, key='df_table_editor', width=790, height=175, hide_index=True)
-        return edited_df
-    def update_table(self, new_values):
-        self.df_table['Value'] = new_values
-        return st.data_editor(self.df_table, key='df_table_editor__', width=790, height=175, hide_index=True)
+    edited_df = st.data_editor(df_table, key=key, hide_index=True)
+    return edited_df
+
+# class edible_df():
+#     def __init__(self, list2):
+#         self.df = self.initialize_table(list2)
+#     def initialize_table(self, list2):
+#         list1 = ['Initial Reservoir Pressure [bara]', 'Reservoir Temperature [degree C]', 'Gas Molecular Weight [g/mol]', 'Initial Gas in Place [sm3]']
+#         self.df_table = pd.DataFrame({
+#             'Input': list1,
+#             'Value': list2
+#         })
+#         edited_df = st.data_editor(self.df_table, key='df_table_editor', width=790, height=175, hide_index=True)
+#         return edited_df
+#     def update_table(self, new_values):
+#         self.df_table['Value'] = new_values
+#         return st.data_editor(self.df_table, key='df_table_editor__', width=790, height=175, hide_index=True)
     
-    def get_parameters(self):
-        return self.df_table['Value'].to_list()
+#     def get_parameters(self):
+#         return self.df_table['Value'].to_list()
         
 def dropdown(label:str = ' ', options: list = None, index:int = 0, labelVisibility: str ='collapsed') ->str:
     selected_option = st.selectbox(label, options, index, label_visibility=labelVisibility)

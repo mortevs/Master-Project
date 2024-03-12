@@ -1,11 +1,12 @@
 import streamlit as st
-import pages.GUI.GUI_functions as display
+import pages.GUI.GUI_functions as GUI
 import time
 import Data.getData as get
 import os
 from Data.dataProcessing import get_field_list_inc_No_field_chosen
 from Data.DefaultData import manualData_RP
 fieldnames = get_field_list_inc_No_field_chosen()
+
 
 class main_page_GUI: 
     def __init__(self):
@@ -58,7 +59,7 @@ class main_page_GUI:
             st.write(" ")
             st.write(" ")
             st.write(" ")
-            st.write('Specialization project by Morten Simensen, supervised by associate professor Milan Stanko')
+            st.write('Master project by Morten Simensen, supervised by associate professor Milan Stanko')
 
         #elif opt == 'FIELD DEVELOPMENT':
             #self.field_development = FIELD_DEVELOPMENT(parent=GUI)
@@ -128,22 +129,22 @@ class FIELD_DEVELOPMENT:
         col0, col1 = st.columns(2)
         plot_comp = False
         with col0:
-            method, precision = display.columnDisplay2(list1=[['NODAL', 'IPR'], ['IMPLICIT', 'EXPLICIT']])
+            self.__method, self.__precision = GUI.columnDisplay2(list1=[['NODAL', 'IPR'], ['IMPLICIT', 'EXPLICIT']])
             col4, col5 = st.columns(2)
             with col4:
-                run = st.button('Run Analysis', 'Run DG')
+                run = st.button('Run Analysis', use_container_width=True)
             with col5: 
-                if st.button('Compare Profiles', 'Compare'):
+                if st.button('Compare Profiles', use_container_width=True):
                         plot_comp = True
             col7, col8 = st.columns(2)
             with col7:
-                clear =  st.button('Clear output', 'clear FD')
+                clear =  st.button('Clear Output', use_container_width=True)
             with col8: 
-                field = display.dropdown(label = 'Choose a field to compare with', options = fieldnames, labelVisibility="visible")
+                field = GUI.dropdown(label = 'Choose a field to compare with', options = fieldnames, labelVisibility="visible")
                 Analysis.updateField(field)
         with col1:  
-            Analysis.updateFromDropdown(method = method, precision=precision)
-            Analysis.updateParameterListfromTable()     
+            Analysis.updateFromDropdown(method = self.__method, precision=self.__precision)
+            self._fieldVariables = Analysis.updateParameterListfromTable()
         if clear:
             Analysis.clear_output()
         field_name = Analysis.get_current_field()
@@ -158,9 +159,9 @@ class FIELD_DEVELOPMENT:
             Analysis.plot(comp = True)
         Analysis.plot()
         
-        opts = []
         production_profiles = Analysis.getResult()
         i = len(production_profiles)
+        opts = []
         for pp in reversed(production_profiles):
             opts.append(i)
             i -= 1
@@ -199,20 +200,21 @@ class FIELD_DEVELOPMENT:
                        ) 
             col0, col1, col2 = st.columns(3)
             with col0:
-                opt = display.dropdown(label = 'Choose production profile for NPV-analysis',options = opts, labelVisibility="visible")
+                opt = GUI.dropdown(label = 'Choose production profile for NPV-analysis',options = opts, labelVisibility="visible")
 
             from Modules.FIELD_DEVELOPMENT.run_Analysis import NPV_dry_gas, NPVAnalysis
             opt = opt-1
-            dry_gas_NPV = NPV_dry_gas(parent = NPVAnalysis, Analysis = Analysis, opt = opt)
+            #variables=Analysis.getParameters()[opt]
+            dry_gas_NPV = NPV_dry_gas(self._fieldVariables, opt)
             dry_gas_NPV.NPV_gas_field_update_edible_tables()
-            edible_df = dry_gas_NPV.dry_gas_NPV_calc_sheet()
+            editable_df = dry_gas_NPV.dry_gas_NPV_calc_sheet()
             col0, col1 = st.columns(2)
             with col0:
                 st.markdown("**Editable**")
-                edible_df = st.data_editor(edible_df, hide_index=True, use_container_width=True, height=350)
+                edited_df = st.data_editor(editable_df, hide_index=True, use_container_width=True, height=350)
 
             
-            red_df = dry_gas_NPV.update_dry_gas_NPV_calc_sheet(edible_df)
+            self.__ned_df = dry_gas_NPV.update_dry_gas_NPV_calc_sheet(edited_df)
         
             final_NPV_value = str(dry_gas_NPV.get_final_NPV())
             font_size = "64px"  # You can adjust the size as needed
@@ -220,21 +222,55 @@ class FIELD_DEVELOPMENT:
             st.markdown(NPV_str, unsafe_allow_html=True)
             with col1:
                 st.markdown("**Non-editable**")
-                st.dataframe(red_df.style.format("{:.0f}").pipe(make_pretty), hide_index=True, use_container_width=True, height=350)
-            optimize_NPV = st.button(label = "Optimize NPV with grid search")
-            parameters = Analysis.getParameters()[opt]
-            plataeu = parameters[0]
-            nr_temps =parameters[8]
-            pertemp = parameters[0]
-            import pages.GUI.GUI_functions as GUI
-            list1 = ['Plateau rate [Sm3/d]', 'Nr Templates', 'Nr Wells per Template']
-            list2 = [plataeu/2,nr_temps/nr_temps,pertemp/pertemp] 
-            list3 = [plataeu*2,nr_temps/nr_temps*5,pertemp/pertemp*5] 
-            list4 = [5,5,5] 
+                st.dataframe(self.__ned_df.style.format("{:.0f}").pipe(make_pretty), hide_index=True, use_container_width=True, height=350)
 
+            
             col9, co10 = st.columns(2)
             with col9:
-                GUI.display_table_grid_search(list1, list2, list3, list4, edible=True, key = "grid")
+                edited_grid = GUI.display_table_grid_search(self._fieldVariables, key = "grid")
+                optimize_NPV = st.button(label = "Optimize NPV with grid search")
+            
+            def this_func(minP, maxP, pStep, field_variables):
+                pp_list = []
+                stepping_field_variables = field_variables
+                for i in range(pStep):
+                    stepping_field_variables[0] = minP + (maxP-minP)/(pStep-1)*i
+                    if self.__method == 'IPR':
+                        from Modules.FIELD_DEVELOPMENT.IPR.IPRAnalysis import IPRAnalysis
+                        new_df = IPRAnalysis(self.__precision, stepping_field_variables)
+                        #pp_list.append(df[])
+
+                    elif self.__method == "NODAL":
+                        from Modules.FIELD_DEVELOPMENT.Nodal.NodalAnalysis import NodalAnalysis
+                        new_df = NodalAnalysis(self.__precision, stepping_field_variables)
+                    
+                    pp_list.append((new_df['Field rates [sm3/d]'].to_list()))
+                return pp_list
+
+            
+            if optimize_NPV:
+                dry_gas_NPV.update_grid_variables(edited_grid)
+                minP, maxP, pStep = dry_gas_NPV.get_grid_variables()
+                st.write(this_func(minP, maxP, pStep, self._fieldVariables))
+
+                #for i in range(len(grid_profiles)):
+                #    start_t = time.time()
+                    #new_NPV = dry_gas_NPV.run_grid_NPV(editable_df = editable_df, production_profile = grid_profiles[i])
+                    #NPV_grid_list.append(new_NPV)
+                    #stop_t = time.time()
+                    #error_message = "Approximately" + str((stop_t-start_t)*(len(grid_profiles))) + "seconds left"
+                    #st.write(error_message)
+                # st.write(NPV_grid_list)
+
+                
+    
+
+                
+
+               
+
+
+                
 
 
 
@@ -268,11 +304,11 @@ class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA:
         uploaded = st.file_uploader(label = "Upload a CSV file")
         col0, col1 = st.columns(2)
         with col0:
-            eq = display.dropdown(label = 'What equation do you want to use?', options = ['Material balance with Z-factor calculation'], labelVisibility="visible")
+            eq = GUI.dropdown(label = 'What equation do you want to use?', options = ['Material balance with Z-factor calculation'], labelVisibility="visible")
             if eq == 'Backpressure equation':
                 pass     
-            field = display.dropdown(label = 'Get gas production data from the following field:', options = fieldnames, labelVisibility="visible")
-            selected_time = display.dropdown(label = 'Choose yearly or monthly producted volumes', options = ['Yearly', 'Monthly'], labelVisibility="visible")
+            field = GUI.dropdown(label = 'Get gas production data from the following field:', options = fieldnames, labelVisibility="visible")
+            selected_time = GUI.dropdown(label = 'Choose yearly or monthly producted volumes', options = ['Yearly', 'Monthly'], labelVisibility="visible")
         
         from Modules.RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA.run_R_analysis import ReservoirPressureAnalysis
         RES_Analysis = ReservoirPressureAnalysis(parent = RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA, session_id='ReservoirPressureAnalysis')
@@ -348,10 +384,21 @@ class SODIR_feature:
     def __init__(self):
         on_information = st.toggle("Show me information on how to use the SODIR data feature", value=False, label_visibility="visible")
         if on_information:
-            st.write(""" To compare fields follow these steps, 'Step 1 - Choose a field, Step 2- Click Plot production profile, Step 3 - 
-                     Repeat step 1 and 2, Step 4 - Click Compare fields'""")
+            st.write(""" Choose a field from the NCS from the dropdown menu below. Choose a timeframe (yearly or montly) from the second
+                     dropdown menu. Now press Plot production profile to display the produced volumes. By default, the gas volumes are
+                     visualized, but from the plots dropdown menu the user can choose to display NGL, oil, condendsate, Oil equivilants and 
+                     water volumes produced instead.""")
+            st.write(""" To compare fields follow these steps: Step 1 - Choose a field, Step 2 - Press Plot production profile, Step 3 - 
+                     choose a new field, Step 4 - press Plot production profile again, Step 5 - press Compare fields. Keep the same timeframe,
+                     dont change between years and months when comparing multiple fields. Compare year with year or month by month, not year with month, it will
+                     result in poor comparisons.
+                     """)
+            st.write("""Be aware that comparisons are made with reference from the fields produced volumes x number of years/months from startup, NOT the dates.
+                     Comparisons between different field where one plot is displayed with regard to monthly produced
+                     volumes, and the other yearly produced volumes, will result in poor comparisons. The compared fields should be
+                     compared with the same timeframe""")
             
-            st.write(""" Click clear output to remove all the plots and start over again'""")
+            st.write(""" Click clear output to remove all the plots and start over again""")
 
             st.write("""" Click Plot reservoir area to plot a polygon of the reservor area with the production wells marked""")
 
@@ -359,9 +406,9 @@ class SODIR_feature:
         sodir_obj = Sodir_prod(parent = SODIR_feature, session_id='sodir_prod', field = 'No field chosen')
         col4, col5  = st.columns(2)
         with col4:
-            field = display.dropdown(label = 'Choose a field', options = fieldnames, labelVisibility="visible")
+            field = GUI.dropdown(label = 'Choose a field', options = fieldnames, labelVisibility="visible")
         with col5:
-            time = display.dropdown(label = 'Time frame of interest', options = ['Yearly', 'Monthly'], labelVisibility="visible")
+            time = GUI.dropdown(label = 'Time frame of interest', options = ['Yearly', 'Monthly'], labelVisibility="visible")
 
         sodir_obj.updateFromDropDown(fieldName = field, time = time)
         col6, col7 = st.columns(2)
@@ -393,8 +440,8 @@ class SODIR_feature:
             sodir_obj.clear_output()
 
         if comp and len(sodir_obj.getResult()) == 0:
-            st.error("""No fields to compare. Choose a field and press Plot production proile. Choose another field and then press
-                     Plot production profile again. Then press compare field""")
+            st.error("""No fields to compare. Choose a field and press Plot production profile. Choose another field and then press
+                     Plot production profile again. Then press compare fields.""")
         elif comp:
             sodir_obj.plot(comp = True)
         sodir_obj.plot()
@@ -403,6 +450,7 @@ class SODIR_feature:
         st.write(' ')
         st.write(' ')
         st.write(' ')
+        self.__ReservoirPlotFig = None
 
         if poly_button and field == 'No field chosen':
             import time
@@ -410,8 +458,19 @@ class SODIR_feature:
             time.sleep(1.5)
             alert4.empty()
         elif poly_button and field != 'No field chosen':
-            from Modules.SODIR_DATA.Sodir_data import makePlot
-            makePlot(field)
+            from Modules.SODIR_DATA.Sodir_data import makePolyPlot
+            sodir_obj.append_polyPlot(makePolyPlot(field))
+            
+            
+        
+
+        from Modules.SODIR_DATA.Sodir_data import plotPolyPlot
+        polyFig = sodir_obj.getPolyPlot()
+        if len(polyFig) == 0:
+            pass
+        else:
+            plotPolyPlot(polyFig[-1])
+
         show_more_prod = st.toggle(label = "Show me more information about the producing wells on this field")    
         if show_more_prod:
             if field == "No field chosen":

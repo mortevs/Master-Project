@@ -10,22 +10,26 @@ if __name__ == "__main__":
     email_link_Help = f"mailto:{email_address}?subject={email_subject_Help}&body={email_body_Help}"
     email_link_BUG = f"mailto:{email_address}?subject={email_subject_BUG}&body={email_body_BUG}"
     from pages.GUI.GUI_class import main_page_GUI
+    from streamlit.errors import StreamlitAPIException
 
-    st.set_page_config(
-        page_title="Smipps",
-        layout="wide",
-        menu_items={'Get Help': email_link_Help,
-         'Report a bug': email_link_BUG,
-         'About': "# Master project by Morten Vier Simensen"
-     }
-        )
-    m = st.markdown("""
-    <style>
-    div.stButton > button:first-child {
-        background-color: rgb(204, 49, 49);
-    }
-    </style>""", unsafe_allow_html=True)
+    try:
+        st.set_page_config(
+            page_title="Smipps",
+            layout="wide",
+            menu_items={'Get Help': email_link_Help,
+            'Report a bug': email_link_BUG,
+            'About': "# Master project by Morten Vier Simensen"
+        }
+            )
+        m = st.markdown("""
+        <style>
+        div.stButton > button:first-child {
+            background-color: rgb(204, 49, 49);
+        }
+        </style>""", unsafe_allow_html=True)
 
+    except StreamlitAPIException:
+        pass
     
     main_page_GUI()
 
