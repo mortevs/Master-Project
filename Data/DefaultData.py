@@ -35,7 +35,7 @@ def default_data_NPV() -> list:
     list = [GAS_Price, Discount_Rate, nr_wells_per_year, CAPEX_period]
     return list
 
-def default_data_NPV_CAPEX(plateau, uptime) -> list:
+def default_data_NPV_CAPEX() -> list:
     well_cost = 100 #MUSD
     p_u = 250 #MUSD, Pipeline and umbilicals
     Mani = 20 #MUSD , Cost Per Subsea Manifold  

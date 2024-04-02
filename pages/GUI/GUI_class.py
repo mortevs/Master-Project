@@ -216,10 +216,10 @@ class FIELD_DEVELOPMENT:
             col0, col1 = st.columns(2)
             with col0:
                 st.markdown("**Editable**")
-                edited_df = st.data_editor(self.__editable_df, hide_index=True, use_container_width=True, height=350)
+                self.__edited_df = st.data_editor(self.__editable_df, hide_index=True, use_container_width=True, height=350)
 
             
-            self.__ned_df = dry_gas_NPV.update_dry_gas_NPV_calc_sheet(edited_df)
+            self.__ned_df = dry_gas_NPV.update_dry_gas_NPV_calc_sheet(self.__edited_df)
         
             final_NPV_value = str(dry_gas_NPV.get_final_NPV())
             font_size = "64px"  # You can adjust the size as needed
@@ -241,11 +241,15 @@ class FIELD_DEVELOPMENT:
             if optimize_NPV:
                 dry_gas_NPV.update_grid_variables(edited_grid)
                 minP, maxP, pStep = dry_gas_NPV.get_grid_variables()
-                prodProfiles_to_NPV = dry_gas_NPV.grid_production_profiles(minP, maxP, pStep)
+                rates = []
+                for i in range(pStep):
+                    rates.append(minP + (maxP-minP)/(pStep-1)*i)
+                prodProfiles_to_NPV = dry_gas_NPV.grid_production_profiles(rates)
                 NPV_grid_list = []
-                for pp in (prodProfiles_to_NPV):
+
+                for i in range(pStep):
                     start_t = time.time()
-                    new_NPV = dry_gas_NPV.run_grid_NPV(editable_df = self.__editable_df, production_profile = pp)
+                    new_NPV = dry_gas_NPV.run_grid_NPV(edited_df = self.__edited_df, production_profile = prodProfiles_to_NPV[i], rate = rates[i])
                     NPV_grid_list.append(new_NPV)
                     # stop_t = time.time()
                     # error_message = "Approximately" + str((stop_t-start_t)*(len(grid_profiles))) + "seconds left"

@@ -5,6 +5,8 @@ from Data.DefaultData import default_FD_data
 import streamlit as st
 import numpy as np
 import time
+import math
+
 class DryGasAnalysis():
     def __init__(self, session_id:str, inputs:list = [], method:str = None, precision:str = None, field:str = 'No field chosen'):
         self.__parameters:list = inputs
@@ -253,7 +255,7 @@ class NPV_dry_gas(NPVAnalysis):
             self.__NPV_variables = (GUI.display_table_NPV(list1=NPV, list2=default_data_NPV(), edible=True, key = 'df_table_editor_NPV'))
         with col1:
             st.markdown('**CAPEX variables**')
-            self.__CAPEX = (GUI.display_table_NPV(list1=CAPEX, list2=default_data_NPV_CAPEX(plateau=self._plateau_rate, uptime=self._uptime), edible=True, key = 'df_table_editor2_CAPEX'))
+            self.__CAPEX = (GUI.display_table_NPV(list1=CAPEX, list2=default_data_NPV_CAPEX(), edible=True, key = 'df_table_editor2_CAPEX'))
         with col2:
             st.markdown('**OPEX variables**')
             self.__OPEX = (GUI.display_table_NPV(list1=OPEX, list2=default_data_NPV_OPEX(), edible=True, key = 'df_table_editor2_OPEX'))
@@ -300,7 +302,7 @@ class NPV_dry_gas(NPVAnalysis):
 
         self._LNG_plant_per_Sm3 = self.__CAPEX[3]
         self._LNG_cost_per_vessel = self.__CAPEX[4]
-        import math
+        import math #HERE IS THE PROBLEM. I DONT THINK SELF._PLATEAU_RATE IS UPDATING DURING GRID
         number_of_LNG_vessels = (math.ceil(self._plateau_rate*self._uptime/((86000000*22)))) #rough estimation
         self._LNG_plant = self._plateau_rate * self._LNG_plant_per_Sm3 / 1e6
         self._LNG_vessels = self._LNG_cost_per_vessel*number_of_LNG_vessels
@@ -367,7 +369,7 @@ class NPV_dry_gas(NPVAnalysis):
         self.__final_NPV = self.__df_table2['NPV [1E6 USD]'].to_list()[-1]
         return round(self.__final_NPV, 1)
     
-    def run_grid_NPV(self, editable_df, production_profile):
+    def run_grid_NPV(self, edited_df, production_profile, rate):
         yearly_gas_offtake = [0 for i in range (self._CAPEX_period_prior-1)] + [element * self._uptime for element in production_profile]
         end_prod = len(yearly_gas_offtake)
         revenue = [offtake/(1000000) * self._Gas_Price for offtake in yearly_gas_offtake]
@@ -377,10 +379,20 @@ class NPV_dry_gas(NPVAnalysis):
             years.append(i)            
 
         
-        DRILLEX = [element * self._Well_Cost for element in editable_df['Nr Wells']]   #DRILLEX [1E6 USD]
-        TEMPLATES = [element * self._temp_cost for element in editable_df['Nr Templates']]
-        TOTAL_CAPEX = [sum(x) for x in zip(DRILLEX, editable_df['Pipeline & Umbilicals [1E6 USD]'], TEMPLATES, editable_df['LNG Plant [1E6 USD]'], editable_df['LNG Vessels [1E6 USD]'])] #'TOTAL CAPEX [1E6 USD]'
-        CASH_FLOW = [sum(x) for x in zip(revenue, np.negative(TOTAL_CAPEX), np.negative(editable_df['OPEX [1E6 USD]']))] #'Cash Flow [1E6 USD]'
+        DRILLEX = [element * self._Well_Cost for element in edited_df['Nr Wells']]   #DRILLEX [1E6 USD]
+        TEMPLATES = [element * self._temp_cost for element in edited_df['Nr Templates']]
+
+        
+        LNG_p = edited_df['LNG Plant [1E6 USD]'].to_list()
+        LNG_v = edited_df['LNG Vessels [1E6 USD]'].to_list()
+        
+        
+        LNG_p = np.array([element / sum(LNG_p) if sum(LNG_p) != 0 else 0 for element in LNG_p]) * rate * self._LNG_plant_per_Sm3 / 1e6
+        LNG_v = np.array([element / sum(LNG_v) if sum(LNG_v) != 0 else 0 for element in LNG_v]) * (math.ceil(rate*self._uptime/((86000000*22))))*self._LNG_cost_per_vessel
+
+
+        TOTAL_CAPEX = [sum(x) for x in zip(DRILLEX, edited_df['Pipeline & Umbilicals [1E6 USD]'], TEMPLATES, LNG_p, LNG_v)] #'TOTAL CAPEX [1E6 USD]'
+        CASH_FLOW = [sum(x) for x in zip(revenue, np.negative(TOTAL_CAPEX), np.negative(edited_df['OPEX [1E6 USD]']))] #'Cash Flow [1E6 USD]'
         DISCOUNTED_CASH_FLOW =  [cf/(1+self._discount_rate/100)** year for cf, year in zip(CASH_FLOW, years)] #'Discounted Cash Flow [1E6 USD]'        
         FINAL_NPV = sum(DISCOUNTED_CASH_FLOW) #[1E6 USD]
         return round(FINAL_NPV, 1)
@@ -401,11 +413,11 @@ class NPV_dry_gas(NPVAnalysis):
         return self._minPlat, self._maxPlat, self._platSteps
 
 
-    def grid_production_profiles(self, minP, maxP, pStep):
+    def grid_production_profiles(self, rates):
         pp_list = []
         stepping_field_variables = self.getParameters()[self._opt]
-        for i in range(pStep):
-            stepping_field_variables[0] = minP + (maxP-minP)/(pStep-1)*i
+        for i in range(len(rates)):
+            stepping_field_variables[0] = rates[i]
             if self.getMethod()[self._opt] == 'IPR':
                 from Modules.FIELD_DEVELOPMENT.IPR.IPRAnalysis import IPRAnalysis
                 new_df = IPRAnalysis(self.getPrecision()[self._opt], stepping_field_variables)
