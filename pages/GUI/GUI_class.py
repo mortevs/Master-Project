@@ -232,6 +232,7 @@ class FIELD_DEVELOPMENT:
             st.write(" ")
             st.write(" ")
             st.write(" ")
+            st.write("-------------------------")
             st.markdown("**Field-variable optimization**")
             col9, co10 = st.columns(2)
             with col9:
@@ -240,7 +241,9 @@ class FIELD_DEVELOPMENT:
              
             if optimize_NPV:
                 dry_gas_NPV.update_grid_variables(edited_grid)
-                minP, maxP, pStep = dry_gas_NPV.get_grid_variables()
+                minP, maxP, pStep = dry_gas_NPV.get_grid_plateau_variables()
+                minT, maxT, tStep = dry_gas_NPV.get_grid_temp_variables()
+                minW, maxW, wStep = dry_gas_NPV.get_grid_well_variables()
                 rates = []
                 for i in range(pStep):
                     rates.append(minP + (maxP-minP)/(pStep-1)*i)
@@ -251,6 +254,10 @@ class FIELD_DEVELOPMENT:
                     start_t = time.time()
                     new_NPV = dry_gas_NPV.run_grid_NPV(edited_df = self.__edited_df, production_profile = prodProfiles_to_NPV[i], rate = rates[i])
                     NPV_grid_list.append(new_NPV)
+                
+                
+                # for i in range(tStep)
+                
                     # stop_t = time.time()
                     # error_message = "Approximately" + str((stop_t-start_t)*(len(grid_profiles))) + "seconds left"
                     # st.write(error_message)

@@ -165,10 +165,10 @@ def display_table_grid_search(f_variables, key = 'df_table_editor'):
     #plataeu = f_variables[0]
     #nr_temps =f_variables[8]
     #pertemp = f_variables[0]
-    list1 = ['Plateau rate [Sm3/d]', 'Nr Templates', 'Nr Wells per Template']
-    list2 = [10000000,1,1] 
-    list3 = [40000000,5,5] 
-    list4 = [4,5,5] 
+    list1 = ['Plateau rate [Sm3/d]', 'Nr Templates', 'Nr Wells per Template', 'Rate of Abandonment [Sm3/d]']
+    list2 = [10000000,1,1, 1e6] 
+    list3 = [40000000,5,5, 10e6] 
+    list4 = [4,5,5, 10] 
     df_table = pd.DataFrame({
         'Input': list1,
         'Min': list2,

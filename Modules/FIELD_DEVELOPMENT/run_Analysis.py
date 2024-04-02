@@ -369,6 +369,11 @@ class NPV_dry_gas(NPVAnalysis):
         self.__final_NPV = self.__df_table2['NPV [1E6 USD]'].to_list()[-1]
         return round(self.__final_NPV, 1)
     
+    def optimize_Rate_of_Abandonment(self):
+        pass
+
+
+    
     def run_grid_NPV(self, edited_df, production_profile, rate):
         yearly_gas_offtake = [0 for i in range (self._CAPEX_period_prior-1)] + [element * self._uptime for element in production_profile]
         end_prod = len(yearly_gas_offtake)
@@ -400,24 +405,33 @@ class NPV_dry_gas(NPVAnalysis):
     def update_grid_variables(self, df):
         self._minPlat = int(df["Min"][0])
         self._minNrTemp = int(df["Min"][1])
-        self._minWellspTemp = int(df["Min"][1])
-        
+        self._minWellspTemp = int(df["Min"][2])
+        self._minROA = int(df["Min"][3])
+
         self._maxPlat = int(df["Max"][0])
         self._maxNrTemp = int(df["Max"][1])
         self._maxWellspTemp = int(df["Max"][2])
+        self._maxROA = int(df["MAX"][3])
         
         self._platSteps = int(df["Steps"][0])
-        self._TempStep = int(df["Steps"][1])
-        self._WellspTempStep = int(df["Steps"][2])
-    def get_grid_variables(self):
-        return self._minPlat, self._maxPlat, self._platSteps
+        self._tempStep = int(df["Steps"][1])
+        self._wellspTempStep = int(df["Steps"][2])
+        self._ROASteps = int(df["Steps"][3])
 
+
+    def get_grid_plateau_variables(self):
+        return self._minPlat, self._maxPlat, self._platSteps
+    def get_grid_temp_variables(self):
+        return self._minNrTemp, self._maxNrTemp, self._tempStep
+    def get_grid_well_variables(self):
+        return self._minWellspTemp, self._maxWellspTemp, self._wellspTempStep
 
     def grid_production_profiles(self, rates):
         pp_list = []
         stepping_field_variables = self.getParameters()[self._opt]
         for i in range(len(rates)):
             stepping_field_variables[0] = rates[i]
+            
             if self.getMethod()[self._opt] == 'IPR':
                 from Modules.FIELD_DEVELOPMENT.IPR.IPRAnalysis import IPRAnalysis
                 new_df = IPRAnalysis(self.getPrecision()[self._opt], stepping_field_variables)
@@ -430,6 +444,7 @@ class NPV_dry_gas(NPVAnalysis):
                 st.write("this is not supposed to happen, method and precision is:", self._method, self._precision)
             pp_list.append((new_df['Field rates [sm3/d]'].to_list()))
         return pp_list
+    
 
 
         
