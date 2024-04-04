@@ -5,6 +5,9 @@ import Data.getData as get
 import os
 from Data.dataProcessing import get_field_list_inc_No_field_chosen
 from Data.DefaultData import manualData_RP
+import numpy as np
+import math
+import pandas as pd
 fieldnames = get_field_list_inc_No_field_chosen()
 
 
@@ -222,8 +225,8 @@ class FIELD_DEVELOPMENT:
             self.__ned_df = dry_gas_NPV.update_dry_gas_NPV_calc_sheet(self.__edited_df)
         
             final_NPV_value = str(dry_gas_NPV.get_final_NPV())
-            font_size = "64px"  # You can adjust the size as needed
-            NPV_str = f"<div style='font-size:{font_size};'>Final NPV of Project: <span style='color:red;'>{final_NPV_value}</span> 1E6 USD</div>"
+            font_size = "64px"  
+            NPV_str = f"<div style='font-size:{font_size};'>NPV of project: <span style='color:red;'>{final_NPV_value}</span> 1E6 USD</div>"
             st.markdown(NPV_str, unsafe_allow_html=True)
             with col1:
                 st.markdown("**Non-editable**")
@@ -244,24 +247,49 @@ class FIELD_DEVELOPMENT:
                 minP, maxP, pStep = dry_gas_NPV.get_grid_plateau_variables()
                 minT, maxT, tStep = dry_gas_NPV.get_grid_temp_variables()
                 minW, maxW, wStep = dry_gas_NPV.get_grid_well_variables()
+                minROA = dry_gas_NPV.get_ROA_variables()
                 rates = []
                 for i in range(pStep):
                     rates.append(minP + (maxP-minP)/(pStep-1)*i)
-                prodProfiles_to_NPV = dry_gas_NPV.grid_production_profiles(rates)
-                NPV_grid_list = []
 
+
+                prodProfiles_to_NPV = dry_gas_NPV.grid_production_profiles(rates, minROA)
+                
+                NPV_grid_list = []
+                NPV_dict = {}
                 for i in range(pStep):
                     start_t = time.time()
-                    new_NPV = dry_gas_NPV.run_grid_NPV(edited_df = self.__edited_df, production_profile = prodProfiles_to_NPV[i], rate = rates[i])
-                    NPV_grid_list.append(new_NPV)
+                    for j in range(len(prodProfiles_to_NPV[i])):
+                        new_NPV = dry_gas_NPV.run_grid_NPV(edited_df = self.__edited_df, production_profile = prodProfiles_to_NPV[i][:j], rate = rates[i])
+                        NPV_grid_list.append(new_NPV)
+                        NPV_dict[new_NPV] = [i, j]
+
                 
-                
+
                 # for i in range(tStep)
                 
                     # stop_t = time.time()
                     # error_message = "Approximately" + str((stop_t-start_t)*(len(grid_profiles))) + "seconds left"
                     # st.write(error_message)
-                st.write(NPV_grid_list)
+                        
+                optimized_NPV = max((NPV_grid_list))
+                optimized_rate = rates[NPV_dict[optimized_NPV][0]]
+                optimized_ROA = math.ceil((prodProfiles_to_NPV[NPV_dict[optimized_NPV][0]][NPV_dict[optimized_NPV][1]])/1000)*1000
+                opt_NPV_str = f"<div style='font-size:{font_size};'>Optimized NPV of project: <span style='color:red;'>{optimized_NPV}</span> 1E6 USD</div>"
+                st.markdown(opt_NPV_str, unsafe_allow_html=True)
+                
+                optimized_data = {
+                    "Input": ["Plateau rate [Sm3/d]", "Rate of Abandonment [Sm3/d]"],
+                    "Value": [int(optimized_rate), int(optimized_ROA)]
+                }
+                df = pd.DataFrame(optimized_data)
+                col11, col12, col13 = st.columns(3)
+                with col11:
+                    st.markdown("**Achieved with the following variables:**")
+                    st.dataframe(df.style.pipe(make_pretty), hide_index=True, use_container_width=True)
+            
+
+                                
 
                 
     

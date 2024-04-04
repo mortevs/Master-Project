@@ -134,8 +134,8 @@ def Nodal(qFieldTarget: float, PRi: float, abandonmentRate: float, TR:float, gas
         if df.iloc[i, 15] >= qFieldTarget:
             df[13][i] = (df.iloc[i, 8] - df.iloc[i, 9])#deltaPChoke , simple model, difference between p_wh and p_template
         df[14][i] = df.iloc[i, 9] / df.iloc[i, 8]#ratio p_temp to p_wh
-        if (df.iloc[i, 15]) < abandonmentRate:
-            df = df.iloc[0:i+1, :] #we are not interested in doing more calculations than necessary
+        if (df.iloc[i, 15]) <= abandonmentRate:
+            df = df.iloc[0:i, :] #we are not interested in doing more calculations than necessary
             return df
         i+=1
     return df #returns the dataframe with production lasting until Max simulation

@@ -24,7 +24,6 @@ def Nodal(qFieldTarget: float, PRi: float, abandonmentRate: float, TR:float, gas
     IGIP = initial gas in place [sm3],
     build_up = build_up period [years].
     """
-    ticker = 0
     years = 200 #maximum simulation time 200 years
     NWells = N_temp*NWellsPerTemplate
     df = pd.DataFrame(np.zeros((years, 16)))
@@ -62,9 +61,8 @@ def Nodal(qFieldTarget: float, PRi: float, abandonmentRate: float, TR:float, gas
         df[9][i] = DGFE.Linep1(C_FL, df.iloc[i, 10], df.iloc[i, 12]) #Ptemplate
         df[13][i] = round(df.iloc[i, 8] - df.iloc[i, 9])#deltaPChoke , simple model, difference between p_wh and p_template
         df[14][i] = df.iloc[i, 9] / df.iloc[i, 8]#ratio p_temp to p_wh
-        if ((df.iloc[i, 0]) <= abandonmentRate and ticker == 0): 
-            df = df.iloc[0:i+1, :] #we are not interested in doing more calculations than necessary
-            ticker = 1
+        if ((df.iloc[i, 0]) <= abandonmentRate): 
+            df = df.iloc[0:i, :] #we are not interested in doing more calculations than necessary
             years = i
             break
         i+=1

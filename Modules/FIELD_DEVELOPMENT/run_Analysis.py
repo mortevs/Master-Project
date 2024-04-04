@@ -411,12 +411,10 @@ class NPV_dry_gas(NPVAnalysis):
         self._maxPlat = int(df["Max"][0])
         self._maxNrTemp = int(df["Max"][1])
         self._maxWellspTemp = int(df["Max"][2])
-        self._maxROA = int(df["MAX"][3])
         
         self._platSteps = int(df["Steps"][0])
         self._tempStep = int(df["Steps"][1])
         self._wellspTempStep = int(df["Steps"][2])
-        self._ROASteps = int(df["Steps"][3])
 
 
     def get_grid_plateau_variables(self):
@@ -425,12 +423,17 @@ class NPV_dry_gas(NPVAnalysis):
         return self._minNrTemp, self._maxNrTemp, self._tempStep
     def get_grid_well_variables(self):
         return self._minWellspTemp, self._maxWellspTemp, self._wellspTempStep
+    def get_ROA_variables(self):
+        return self._minROA
 
-    def grid_production_profiles(self, rates):
+    def grid_production_profiles(self, rates, minROA):
         pp_list = []
-        stepping_field_variables = self.getParameters()[self._opt]
+        #stepping_field_variables = [20000000, 276, 5000000, 92, 16, 1000,1,3,3,365,40288.1959,0.155,283126.8662,275064.3927,30,270000000000,3]
+        stepping_field_variables = self.getParameters()[self._opt].copy()
         for i in range(len(rates)):
             stepping_field_variables[0] = rates[i]
+            stepping_field_variables[2] = minROA
+
             
             if self.getMethod()[self._opt] == 'IPR':
                 from Modules.FIELD_DEVELOPMENT.IPR.IPRAnalysis import IPRAnalysis
