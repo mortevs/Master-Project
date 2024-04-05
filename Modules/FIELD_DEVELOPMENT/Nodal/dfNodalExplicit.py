@@ -35,12 +35,11 @@ def Nodal(qFieldTarget: float, PRi: float, abandonmentRate: float, TR:float, gas
         buildup_rate = qFieldTarget/build_up
         build_up_list = [buildup_rate*i for i in range(build_up)]
         from Modules.RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA.dry_gas_R_analysis import ResAnalysis
-        produced_volumes = [0]   
+        gas_offtake = [0]   
         for i in range(1, len(build_up_list)):
-            produced_volumes.append((build_up_list[i-1]+build_up_list[i])/2 * upTime) #Trapezoidal rule
+            gas_offtake.append((build_up_list[i-1]+build_up_list[i])/2 * upTime) #Trapezoidal rule
         
-        build_up_Analysis = ResAnalysis(produced_volumes, [PRi, TR, gasMolecularWeight, IGIP]) #dataframe
-        buildUp_df = pd.DataFrame(np.zeros((max_sim_time, 16)))
+        build_up_Analysis = ResAnalysis(gas_offtake, [PRi, TR, gasMolecularWeight, IGIP]) #dataframe
         buildUp_df[0][0:build_up] = build_up_list
         buildUp_df[1][0:build_up] = build_up_Analysis['produced gas [sm3]'].copy()
         buildUp_df[2][0:build_up] = build_up_Analysis['cumulative produced gas [sm3]'].copy()
