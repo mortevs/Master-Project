@@ -129,4 +129,5 @@ def Nodal(qFieldTarget: float, PRi: float, abandonmentRate: float, TR:float, gas
             df = df.iloc[0:i, :] #we are not interested in doing more calculations than necessary
             return df
         i+=1
+    st.error("Max simulation time (300 years) encountered")
     return df #returns the dataframe with production lasting until Max simulation

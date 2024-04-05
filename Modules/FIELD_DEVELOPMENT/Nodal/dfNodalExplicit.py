@@ -5,6 +5,7 @@ import Equations.DryGasFlowEquations as DGFE
 from Equations.MBgastank_PR import MBgastank_PR
 from Equations.RF import RF
 from scipy.optimize import fsolve,root
+import streamlit as st
 def Nodal(qFieldTarget: float, PRi: float, abandonmentRate: float, TR:float, gasMolecularWeight: float, C_R: float, n:float, N_temp: float, NWellsPerTemplate: float, upTime: int, C_t: float, S:float, C_FL:float, C_PL:float, P_sep: float, IGIP: float, build_up: int) -> pd.DataFrame: 
     """
     qFieldTarget =  plateau rate, [sm3/day],
@@ -105,6 +106,7 @@ def Nodal(qFieldTarget: float, PRi: float, abandonmentRate: float, TR:float, gas
             df = df.iloc[0:i, :] #we are not interested in doing more calculations than necessary
             return df
         i+=1
+    st.error("Max simulation time = 300 years encountered")
     return df #returns the dataframe with production lasting until Max simulation
 
 
