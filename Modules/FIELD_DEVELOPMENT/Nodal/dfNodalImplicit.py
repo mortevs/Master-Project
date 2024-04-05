@@ -5,7 +5,7 @@ import Equations.DryGasFlowEquations as DGFE
 from Equations.pWfMinEstimation import pWfMinEstimation
 from Equations.MBgastank_PR import MBgastank_PR
 from Equations.RF import RF
-from scipy.optimize import root, NonlinearConstraint
+from scipy.optimize import root
 import streamlit as st
 def Nodal(qFieldTarget: float, PRi: float, abandonmentRate: float, TR:float, gasMolecularWeight: float, C_R: float, n:float, N_temp: float, NWellsPerTemplate: float, upTime: int, C_t: float, S:float, C_FL:float, C_PL:float, P_sep: float, IGIP: float, build_up: int) -> pd.DataFrame: 
     """
@@ -27,16 +27,14 @@ def Nodal(qFieldTarget: float, PRi: float, abandonmentRate: float, TR:float, gas
     build_up = build_up period [years].
     """
     NWells = N_temp*NWellsPerTemplate
-    max_sim_time = 200
+    max_sim_time = 300 
     build_up = int(build_up)
     
     #build-up to plateau:
     def production_build_up(qFieldTarget = qFieldTarget, PRi = PRi, TR = TR, gasMolecularWeight = gasMolecularWeight, C_R = C_R, n = n, N_temp = N_temp, NWellsPerTemplate = NWellsPerTemplate, upTime = upTime, C_t = C_t, S = S, C_FL = C_FL, C_PL = C_PL, P_sep = P_sep, IGIP = IGIP, build_up = build_up, max_sim_time = max_sim_time) -> pd.DataFrame: 
         buildUp_df = pd.DataFrame(np.zeros((max_sim_time, 16)))
         buildup_rate = qFieldTarget/build_up
-        build_up_list = []
-        for i in range(build_up):
-            build_up_list.append(i*buildup_rate)
+        build_up_list = [buildup_rate*i for i in range(build_up)]
         from Modules.RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA.dry_gas_R_analysis import ResAnalysis
         produced_volumes = [0]   
         for i in range(1, len(build_up_list)):
@@ -60,24 +58,26 @@ def Nodal(qFieldTarget: float, PRi: float, abandonmentRate: float, TR:float, gas
             buildUp_df[12][i] = buildUp_df.iloc[i, 0] / N_temp #Qtemp
             buildUp_df[9][i] = DGFE.Linep1(C_FL, buildUp_df.iloc[i, 10], buildUp_df.iloc[i, 12]) #Ptemplate
             buildUp_df[13][i] = (buildUp_df.iloc[i, 8] - buildUp_df.iloc[i, 9])#deltaPChoke , simple model, difference between p_wh and p_template
-            buildUp_df[14][i] = round(buildUp_df.iloc[i, 9] / buildUp_df.iloc[i, 8])#ratio p_temp to p_wh
-            def f(x): #calculate potential production rate for choke 0, we then can determine how much we have to choke to reach desired rates
+            buildUp_df[14][i] = (buildUp_df.iloc[i, 9] / buildUp_df.iloc[i, 8])#ratio p_temp to p_wh
+            
+            def f(x): #potential production rate (if fully open choke)
                 return DGFE.Tubingp2(C_t, S, DGFE.IPRpwf(C_R, n, buildUp_df.iloc[i, 5], x / NWells), x / NWells) - DGFE.Linep1(C_FL, DGFE.Linep1(C_PL, P_sep, x), x / N_temp)
-            a = root(f, buildUp_df.iloc[i, 0])
-            buildUp_df[15][i] = a.x #production potential
+            try:
+                sol = root(f, buildUp_df.iloc[i, 0])
+            except ValueError:
+                sol = 0
+            buildUp_df[15][i] = sol.x #production potential
             i+=1
-        st.write
         return buildUp_df
     
     df = production_build_up()
     df[0][build_up:max_sim_time] = qFieldTarget
-    df[11][0:max_sim_time] = P_sep
     Zi = ZfacStanding(PRi, TR, gasMolecularWeight)
     i = build_up
     while (i<max_sim_time):
         def g(x, df):
             df[1][i] = (df.iloc[i-1, 0] + df.iloc[i, 0])/2 * upTime #yearly gas offtake calculated with trapezoidal rule
-            df[2][i] = df.iloc[i-1, 2] + df.iloc[i, 1]
+            df[2][i] = df.iloc[i-1, 2] + df.iloc[i, 1] #cumulative gas offtake
             df[3][i] = RF(df.iloc[i, 2], IGIP)
             return MBgastank_PR(PRi, Zi, ZfacStanding(x, TR, gasMolecularWeight), df.iloc[i, 3])-x
         
@@ -92,16 +92,6 @@ def Nodal(qFieldTarget: float, PRi: float, abandonmentRate: float, TR:float, gas
         else:
             guess = df.iloc[i-1, 15] #initial guess based on the previous initial guess
         solv2 = root(f, guess)
-        # import matplotlib.pyplot as plt
-        # xxx = np.arange(0, qFieldTarget*10, qFieldTarget/40)
-        # yyy= f(xxx)
-        # fig, ax = plt.subplots()
-        # ax.plot(xxx, yyy)
-        # ax.set_xlabel('x')
-        # ax.set_ylabel('f(x)')
-        # ax.set_title('Plot of f(x)')
-        # ax.grid(True)
-        # st.pyplot(fig)
         if solv2.success == True:
             df[15][i] = solv2.x
         else:
@@ -112,7 +102,7 @@ def Nodal(qFieldTarget: float, PRi: float, abandonmentRate: float, TR:float, gas
                 if solv2.success == True:
                     df[15][i] = solv2.x
                     break    
-                elif scale == 10 and solv2.success == False:
+                elif scale == 32 and solv2.success == False:
                     st.error("The problem could not be solved using Nodal Implicit. Try solving it with the Explicit method, or using the IPR method")
         
         
@@ -122,6 +112,7 @@ def Nodal(qFieldTarget: float, PRi: float, abandonmentRate: float, TR:float, gas
             df[0][i] = df.iloc[i, 15] #Can no longer produce the target rate. Instead we must produce what we can, with choke fully open 
             df[13][i] = 0 #set choke to 0
 
+        #then update all the other calculations to the rate determined
         df[1][i] = (df.iloc[i-1, 0] + df.iloc[i, 0])/2 * upTime #yearly gas offtake calculated with trapezoidal rule
         df[2][i] = df.iloc[i-1, 2] + df.iloc[i, 1]
         df[3][i] = RF(df.iloc[i, 2], IGIP)
