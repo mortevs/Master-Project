@@ -236,17 +236,19 @@ class FIELD_DEVELOPMENT:
             st.write(" ")
             st.write(" ")
             st.write("-------------------------")
-            st.markdown("**Field-variable optimization**")
+            st.markdown("**Field-variable optimization**")            
             col9, co10 = st.columns(2)
             with col9:
-                edited_grid = GUI.display_table_grid_search(f_variables=None) #not used per now, but may come in handy to adjust grid table to field table pdate by user
+                edited_grid = GUI.display_table_grid_search() 
                 optimize_NPV = st.button(label = "Optimize NPV with grid search", use_container_width=True)
              
             if optimize_NPV:
                 dry_gas_NPV.update_grid_variables(edited_grid)
                 minP, maxP, pStep = dry_gas_NPV.get_grid_plateau_variables()
                 minT, maxT, tStep = dry_gas_NPV.get_grid_temp_variables()
+                T = [minT, maxT, tStep]
                 minW, maxW, wStep = dry_gas_NPV.get_grid_well_variables()
+                W = [minW, maxW, wStep]
                 minROA = dry_gas_NPV.get_ROA_variables()
                 rates = []
                 for i in range(pStep):
@@ -258,7 +260,6 @@ class FIELD_DEVELOPMENT:
                 NPV_grid_list = []
                 NPV_dict = {}
                 for i in range(pStep):
-                    start_t = time.time()
                     for j in range(len(prodProfiles_to_NPV[i])):
                         new_NPV = dry_gas_NPV.run_grid_NPV(edited_df = self.__edited_df, production_profile = prodProfiles_to_NPV[i][:j], rate = rates[i])
                         NPV_grid_list.append(new_NPV)
@@ -287,6 +288,44 @@ class FIELD_DEVELOPMENT:
                 with col11:
                     st.markdown("**Achieved with the following variables:**")
                     st.dataframe(df.style.pipe(make_pretty), hide_index=True, use_container_width=True)
+                
+                #for i in range(3):
+            col14, col15 = st.columns(2)
+            with col14:
+                optimize_wells = st.button(label = "Optimize Templates and wells", use_container_width=True)
+            if optimize_wells:
+                dry_gas_NPV.grid_production_profiles2()
+            #variables=Analysis.getParameters()[opt]
+            st.write(" ")
+            st.write(" ")
+            st.write(" ")
+            
+            
+            
+            col16, col17 = st.columns(2)
+            col18, col19 = st.columns(2)
+            col20, col21 = st.columns(2)
+            with col16:
+                st.markdown("**Uncertainty in variables for Monte Carlo Analysis**")
+                edited_MC_table = GUI.display_table_Monte_Carlo()
+            with col17:
+                st.markdown("**Monte Carlo Analysis parameters**")
+                self._Nr_random_num, self._Nr_bins = GUI.display_table_Monte_Carlo_param()
+            with col18:
+                MC = st.button(label = "Run Monte Carlo-Analysis", use_container_width=True)
+                if MC:
+                    from Modules.FIELD_DEVELOPMENT.Monte_Carlo import Monte_Carlo
+                    MC = Monte_Carlo(parent = self)
+                    fig1, fig2, tab, std = MC.getResults()
+                    with col20:
+                        st.pyplot(fig1, use_container_width=True)
+                        st.dataframe(tab, hide_index=True, use_container_width=True)
+                        st.write("std:", round(std,1))
+                    with col21:                      
+                        st.pyplot(fig2, use_container_width=True)
+                    
+
+        
             
 
                                 
@@ -346,20 +385,20 @@ class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA:
         with col1:
             col2, col3, col4, col5= st.columns(4)
             with col2:   
-                run = st.button('Run Analysis', 'Run RP')
+                run = st.button('Run Analysis', 'Run RP', use_container_width=True)
             with col4:   
-                SODIR_button = st.button('Get Sodir-data', 'get SODIR data into table')
+                clear = st.button('Clear output', 'clear RESPRES', use_container_width=True)
             with col5: 
-                clear = st.button('Clear output', 'clear RESPRES')
+                SODIR_button = st.button('Get Sodir-data', 'get SODIR data into table', use_container_width=True)
         
         if SODIR_button and field == 'No field chosen':
             alert3 = st.warning('Choose a field')
-            time.sleep(1.5)
+            time.sleep(3.5)
             alert3.empty()
 
         if run and field == 'No field chosen' and uploaded == None:
             alert3 = st.warning('Choose a field or upload data')
-            time.sleep(1.5)
+            time.sleep(3.5)
             alert3.empty()
 
         elif SODIR_button and field != 'No field chosen':

@@ -426,15 +426,21 @@ class NPV_dry_gas(NPVAnalysis):
     def get_ROA_variables(self):
         return self._minROA
 
+    def grid_production_profiles2(self, rates=40000000, minROA=1000000):
+        pp_list = []
+        temp_well_optimization = self.getParameters()[self._opt].copy()
+        temp_well_optimization[2] = minROA
+        temp_well_optimization[7] = 4
+        temp_well_optimization[8] = 4
+        st.write(temp_well_optimization)
+
+
     def grid_production_profiles(self, rates, minROA):
         pp_list = []
-        #stepping_field_variables = [20000000, 276, 5000000, 92, 16, 1000,1,3,3,365,40288.1959,0.155,283126.8662,275064.3927,30,270000000000,3]
         stepping_field_variables = self.getParameters()[self._opt].copy()
         for i in range(len(rates)):
             stepping_field_variables[0] = rates[i]
             stepping_field_variables[2] = minROA
-
-            
             if self.getMethod()[self._opt] == 'IPR':
                 from Modules.FIELD_DEVELOPMENT.IPR.IPRAnalysis import IPRAnalysis
                 new_df = IPRAnalysis(self.getPrecision()[self._opt], stepping_field_variables)

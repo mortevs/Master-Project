@@ -161,14 +161,14 @@ def display_table_NPV(list1, list2, edible=False, key = 'df_table_editor'):
     else:
         st.table(df_table)
 
-def display_table_grid_search(f_variables, key = 'df_table_editor'):
+def display_table_grid_search(f_variables=None, key = 'df_table_editor'):
     #plataeu = f_variables[0]
     #nr_temps =f_variables[8]
     #pertemp = f_variables[0]
     list1 = ['Plateau rate [Sm3/d]', 'Nr Templates', 'Nr Wells per Template', 'Rate of Abandonment [Sm3/d]']
-    list2 = [10000000,1,1, 1e6] 
-    list3 = [40000000,5,5, 1] 
-    list4 = [4,5,5,1] 
+    list2 = [10000000,2,2, 1e6] 
+    list3 = [40000000,5,5, None] 
+    list4 = [4,4,4,None] 
     df_table = pd.DataFrame({
         'Input': list1,
         'Min': list2,
@@ -178,6 +178,28 @@ def display_table_grid_search(f_variables, key = 'df_table_editor'):
     })
     edited_df = st.data_editor(df_table, hide_index=True, use_container_width=True)
     return edited_df
+
+def display_table_Monte_Carlo(Variables = None):    
+    list1 = ['Gas Price [USD/Sm3]', 'IGIP [Sm3]', 'OPEX [1E6 USD]']
+    list2 = [0.05,250000000000, 100] 
+    list3 = [1,300000000000, 300] 
+    df_table = pd.DataFrame({
+        'Input': list1,
+        'Min': list2,
+        'Max': list3,
+    })
+    edited_df = st.data_editor(df_table, hide_index=True, use_container_width=True)
+    return edited_df
+
+def display_table_Monte_Carlo_param():    
+    list1 = ['Nr of Random Numbers', 'Nr Bins']
+    list2 = [1000000,50] 
+    df_table = pd.DataFrame({
+        'Parameter': list1,
+        'Value': list2,
+    })
+    edited_df = st.data_editor(df_table, hide_index=True, use_container_width=True)
+    return edited_df['Value']
 
 # class edible_df():
 #     def __init__(self, list2):
