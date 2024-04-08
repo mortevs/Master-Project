@@ -50,10 +50,10 @@ class main_page_GUI:
                             The Sodir data feature can be used for NCS field investigation. The feature offers a service that lets you compare production volumes
                             from different fields and plot the reservoir area (polygon) with well locations.""")
             
-            on_more_about = st.toggle("Show me more information about the specialization project", value=False, label_visibility="visible")
+            on_more_about = st.toggle("Show me more information about the Master project", value=False, label_visibility="visible")
             if on_more_about:
                 st.write("""Integrated petroleum production systems are typically modeled and simulated using Excel spread-
-                        sheets, or specialized software. As part of my specialization project the following application was made in an attempt to 
+                        sheets, or specialized software. As part of my specialization and master project the following application was made in an attempt to 
                         make a platform for computational routines for the Simulation and Modeling of Integrated Petroleum Production Systems.The
                         web-application has been built in Python, utilizing the Streamlit library. The application is free for everyone to use.
                         See the report for more information. 
@@ -63,6 +63,12 @@ class main_page_GUI:
             st.write(" ")
             st.write(" ")
             st.write('Master project by Morten Simensen, supervised by associate professor Milan Stanko')
+        st.write("")
+        st.write("")
+        st.write("")
+        st.write("")
+        st.write("")
+        st.write("BY USING THIS WEB SITE YOU UNDERSTAND AND AGREE THAT YOUR USE OF THIS WEB SITE AND ANY SERVICES OR CONTENT PROVIDED IS MADE AVAILABLE AND PROVIDED TO YOU AT YOUR OWN RISK. IT IS PROVIDED TO YOU AS IS AND SMIPPS EXPRESSLY DISCLAIM ALL WARRANTIES OF ANY KIND.")
 
         #elif opt == 'FIELD DEVELOPMENT':
             #self.field_development = FIELD_DEVELOPMENT(parent=GUI)
@@ -308,6 +314,8 @@ class FIELD_DEVELOPMENT:
             with col16:
                 st.markdown("**Uncertainty in variables for Monte Carlo Analysis**")
                 edited_MC_table = GUI.display_table_Monte_Carlo()
+                from Modules.FIELD_DEVELOPMENT.run_Analysis import getNPVforMonteCarlo
+                getNPVforMonteCarlo(edited_MC_table)
             with col17:
                 st.markdown("**Monte Carlo Analysis parameters**")
                 self._Nr_random_num, self._Nr_bins = GUI.display_table_Monte_Carlo_param()
@@ -316,13 +324,13 @@ class FIELD_DEVELOPMENT:
                 if MC:
                     from Modules.FIELD_DEVELOPMENT.Monte_Carlo import Monte_Carlo
                     MC = Monte_Carlo(parent = self)
-                    fig1, fig2, tab, std = MC.getResults()
+                    pdf_fig, cdf_fig, tab, std = MC.getResults()
                     with col20:
-                        st.pyplot(fig1, use_container_width=True)
+                        st.plotly_chart(pdf_fig, use_container_width=True)
                         st.dataframe(tab, hide_index=True, use_container_width=True)
                         st.write("std:", round(std,1))
                     with col21:                      
-                        st.pyplot(fig2, use_container_width=True)
+                        st.plotly_chart(cdf_fig, use_container_width=True)
                     
 
         

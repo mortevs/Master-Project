@@ -1,4 +1,4 @@
-import matplotlib.pyplot as plt
+import plotly.graph_objects as go
 import numpy as np
 import pandas as pd
 
@@ -20,31 +20,24 @@ class Monte_Carlo():
         pdf = counts/parent._Nr_random_num
         bin_for_plotting = (bins[0:-1]+bins[1:])/2
 
-        self._fig = plt.figure()
-        plt.xlabel('NPV [1E06 USD]')
-        plt.ylabel('frequency')
-        plt.title('pdf')
-        plt.plot(bin_for_plotting,pdf,'r',label = 'pdf')
-        plt.legend()
-        plt.grid()
-        plt.show()
-
+        self._fig_pdf = go.Figure()
+        self._fig_pdf.add_trace(go.Scatter(x=bin_for_plotting, y=pdf, mode='lines', name='pdf'))
+        self._fig_pdf.update_layout(title='PDF', xaxis_title='NPV [1E06 USD]', yaxis_title='frequency', showlegend=True)
+        
+        # Calculate CDF
         cdf = np.cumsum(pdf)
-        invcdf = 1- cdf
+        invcdf = 1 - cdf
         bins_cdfplot = bins[1:]
 
-        self._fig2 = plt.figure()
-        plt.xlabel('NPV [1E06 USD]')
-        plt.ylabel('Complementary cumulative probability distribution')
-        plt.title('ccpf')
-        plt.plot(bins_cdfplot,invcdf,label = 'ccdf')
-        plt.legend()
-        plt.grid()
-        
+        # Create CDF plot
+        self._fig_cdf = go.Figure()
+        self._fig_cdf.add_trace(go.Scatter(x=bins_cdfplot, y=invcdf, mode='lines', name='ccdf'))
+        self._fig_cdf.update_layout(title='CCPF', xaxis_title='NPV [1E06 USD]', yaxis_title='Complementary cumulative probability distribution', showlegend=True)
 
+        
         self._table = pd.DataFrame({'Variable':['P90 [1E06 USD]','P50 [1E06 USD]','P10 [1E06 USD]'],
         'Value':[np.percentile(NPV_v,10),np.percentile(NPV_v,50),np.percentile(NPV_v,90)]})
         self._std = np.std(NPV_v)
-        
+
     def getResults(self):
-        return self._fig, self._fig2, self._table, self._std
+        return self._fig_pdf, self._fig_cdf, self._table, self._std

@@ -454,7 +454,8 @@ class NPV_dry_gas(NPVAnalysis):
             pp_list.append((new_df['Field rates [sm3/d]'].to_list()))
         return pp_list
     
-
+def getNPVforMonteCarlo(table):
+    pass
 
         
 
