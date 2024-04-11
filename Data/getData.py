@@ -168,9 +168,9 @@ def deleteAndLoadNewDataFromNPD():
         if all(status == 200 for status in response_list):
             delete_files()
             ZiptoDF()
-            ZiptoDF(zipname = 'wlbPoint.zip', zipFileUrl = 'https://factpages.npd.no/downloads/csv/wlbPoint.zip')
+            ZiptoDF(zipname = 'wlbPoint.zip', zipFileUrl = 'https://factpages.sodir.no/downloads/csv/wlbPoint.zip')
         else:
-            raise Exception("Not all NPD resources are available. Visit NPD for further information.")
+            raise Exception("Not all Sodir resources are available. Visit Sodir for further information.")
     except requests.exceptions.RequestException as e:
         my = st.warning(f"Request error: {e}")
         time.sleep(5)

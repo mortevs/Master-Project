@@ -120,7 +120,7 @@ class DryGasAnalysis():
         self.append_field(field)
         self.append_parameters(self.__parameters)
 
-        if self.__method == 'IPR':
+        if self._method == 'IPR':
             from Modules.FIELD_DEVELOPMENT.IPR.IPRAnalysis import IPRAnalysis
             df = IPRAnalysis(self._precision, self.__parameters)
         else:
@@ -141,6 +141,8 @@ class DryGasAnalysis():
                     prec = self.getPrecision()
 
                     st.header('Production Profile ' + str(i + 1), divider='red')
+                    if method[i] == "IPR":
+                        st.write("Reservoir pressure assumed constant during build-up period")
                     tab1, tab2 = st.tabs(["Plot", "Variables"])
                     if field[i] != 'No field chosen':
                         with tab2:        
