@@ -5,7 +5,7 @@ def multi_plot_PR(dfs, addAll = True, addProduced = False):
 
     for df in dfs:
         if addProduced:
-            columns_to_plot += ['Field rates [sm3/d]', 'gasSM3perday']
+            columns_to_plot += ['Field Rates [Sm3/d]', 'gasSM3perday']
             all_label = 'Estimated vs Actual produced rates'
         else:
             columns_to_plot += df.columns.to_list()
@@ -53,19 +53,49 @@ def multi_plot_PR(dfs, addAll = True, addProduced = False):
     # Update remaining layout properties
     fig.update_layout(
         height=600,
-        width=1000
     
     )
-    st.plotly_chart(fig)
+    st.plotly_chart(fig, use_container_width=True)
 
-def multi_plot(dfs, addAll = True, addProduced = False):
+def multi_plot(dfs, addAll=True, addProduced=False):
     fig = go.Figure()
     columns_to_plot = []
+    axis_titles = {
+        'Field Rates [Sm3/d]': ('Year', 'Sm3/d'),
+        'Yearly Gas Offtake [Sm3]': ('Year', 'Cubic meter'),
+        'Cumulative Gas Offtake [Sm3]': ('Year', 'Cubic meter'),
+        'Recovery Factor': ('Year', 'Factor'),
+        'Z-factor': ('zz', 'zz'),
+        'Reservoir Pressure [bara]': ('Year', 'Bara'),
+        'Rates per Well [Sm3/d]': ('Year', 'Cubic meter'),
+        'Bottomhole Pressure [bara]': ('Year', 'Bara'),
+        'Wellhead Pressure [bara]': ('Year', 'Bara'),
+        'Template Pressure [bara]': ('Year', 'Bara'),
+        'Pressure Pipeline Entry Module [bara]': ('Year', 'Bara'),
+        'Seperator Pressure [bara]': ('Year', 'Bara'),
+        'Rates per Template [Sm3/d]': ('Year', 'Cubic meter'),
+        'Choke Pressure [bara]': ('Year', 'Bara'),
+        'Ratio PTemp to PWellHead': ('Year', 'Ratio'),
+        'Production Potential Rates [Sm3/d]': ('Year', 'Cubic meter'),
+        'QFieldTarget [Sm3/d]': ('Year', 'Cubic meter'),
+        'QWellTarget [Sm3/d]': ('Year', 'Cubic meter'),
+        'Minimum Bottomhole Pressure [bara]': ('Year', 'Bara'),
+        'Potential Rates per Well [Sm3/d]': ('Year', 'Cubic meter'),
+        'Potential Field Rates [Sm3/d]': ('Year', 'Cubic meter'),
+        'Well Production Rates [Sm3/d]': ('Year', 'Cubic meter'),
+        'GasSm3perDay': ('Year', 'Cubic meter'),
+        'NGLSm3perDay': ('Year', 'Cubic meter'),
+        'OilSm3perDay': ('Year', 'Cubic meter'),
+        'CondensateSm3perDay': ('Year', 'Cubic meter'), 
+        'OilEquivalentsSm3perDay': ('Year', 'Cubic meter'),  
+        'WaterSm3perDay': ('Year', 'Cubic meter'),        
+
+    }
 
     for df in dfs:
         if addProduced:
-            columns_to_plot += ['Field rates [sm3/d]', 'gasSM3perday']
-            all_label = 'Estimated vs Actual produced rates'
+            columns_to_plot += ['Field Rates [Sm3/d]', 'GasSm3perDay']
+            all_label = 'Estimated vs Actual Produced Rates'
         else:
             columns_to_plot += df.columns.to_list()
             all_label = 'All'
@@ -73,25 +103,26 @@ def multi_plot(dfs, addAll = True, addProduced = False):
         for column in columns_to_plot:
             fig.add_trace(
                 go.Scatter(
-                    x = df.index,
-                    y = df[column],
-                    name = column,
-                    visible = 'legendonly' if not addAll and column != df.columns[0] else True  # Change visibility here
+                    x=df.index,
+                    y=df[column],
+                    name=column,
+                    visible='legendonly' if not addAll and column != df.columns[0] else True  # Change visibility here
                 )
             )
 
-    button_all = dict(label = all_label,
-                    method = 'update',
-                    args = [{'visible': [True]*len(columns_to_plot),
-                            'title': all_label,
-                            'showlegend':True}])
+    button_all = dict(label=all_label,
+                      method='update',
+                      args=[{'visible': [True] * len(columns_to_plot),
+                             'title': all_label,
+                             'showlegend': True}])
 
     def create_layout_button(column):
-        return dict(label = column,
-                    method = 'update',
-                    args = [{'visible': [column == col for col in columns_to_plot],
-                            'title': column,
-                            'showlegend': True}])
+        return dict(label=column,
+                    method='update',
+                    args=[{'visible': [column == col for col in columns_to_plot],
+                           'title': column,
+                           'showlegend': True},
+                          {'xaxis': {'title': axis_titles[column][0]}, 'yaxis': {'title': axis_titles[column][1]}}])
 
     all_buttons = ([button_all] * addAll) + [create_layout_button(column) for column in columns_to_plot]
 
@@ -100,19 +131,16 @@ def multi_plot(dfs, addAll = True, addProduced = False):
 
     fig.update_layout(
         updatemenus=[go.layout.Updatemenu(
-            active = 0 if addAll else columns_to_plot.index(columns_to_plot[0]),  # Change active button here
-            buttons = all_buttons
-            )
+            active=0 if addAll else columns_to_plot.index(columns_to_plot[0]),  # Change active button here
+            buttons=all_buttons
+        )
         ],
         showlegend=addAll,  # Change showlegend here
         xaxis_title="Year",  # X-axis title
-        yaxis_title="Cubic meter"  # Y-axis title
+        yaxis_title="Cubic meter",  # Y-axis title
+        height=600,
     )
 
-    # Update remaining layout properties
-    fig.update_layout(
-        height=600,    
-    )
     st.plotly_chart(fig, use_container_width=True)
 
 def display_FD_variables_table(list1, list2, edible=False, key = 'df_table_editor'):

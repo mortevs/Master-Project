@@ -11,8 +11,8 @@ def IPRAnalysis(precision: str, parameters: list = default_FD_data()):
         st.write(precision)
         
     df = IPROnly(*parameters)
-    df.columns=('QFieldTarget [sm3/d]', 'qWellTarget[sm3/d]', 'Reservoir pressure [bara]', 'Z-factor', ' Minimum bottomhole pressure [bara]', 'Potential rates per well [sm3/d]', 'Potential field rates [sm3/d]', 'Field rates [sm3/d]', 'Well production rates [sm3/d]', 'yearly gas offtake [sm3]', 'Cumulative gas offtake [sm3]', 'Recovery Factor', 'Bottomhole pressure [bara]')
-    df = swapColumns(df, 'QFieldTarget [sm3/d]', 'Field rates [sm3/d]')
+    df.columns=('QFieldTarget [Sm3/d]', 'QWellTarget [Sm3/d]', 'Reservoir Pressure [bara]', 'Z-factor', 'Minimum Bottomhole Pressure [bara]', 'Potential Rates per Well [Sm3/d]', 'Potential Field Rates [Sm3/d]', 'Field Rates [Sm3/d]', 'Well Production Rates [Sm3/d]', 'Yearly Gas Offtake [Sm3]', 'Cumulative Gas Offtake [Sm3]', 'Recovery Factor', 'Bottomhole Pressure [bara]')
+    df = swapColumns(df, 'QFieldTarget [Sm3/d]', 'Field Rates [Sm3/d]')
     return df
 
 def swapColumns(df, col1, col2):

@@ -11,7 +11,7 @@ def NodalAnalysis(precision: str, Parameters: list = default_FD_data()):
         st.write(precision)
 
     df = Nodal(*Parameters)
-    df.columns=('Field rates [sm3/d]', 'yearly gas of take [sm3]', 'cumulative gas of take [sm3]', 'Recovery Factor', 'Z-factor', 'Reservoir pressure [bara]', 'Rates per well [sm3/d]', 'Bottomhole pressure [bara]', 'Wellhead pressure [bara]', 'Template pressure [bara]', 'Pressure pipeline entry module [bara]', 'Seperator pressure [Bara]', 'Rates per template [sm3/d]', 'choke pressure [bara]', 'ratio PTemp to PWellHead', 'Production Potential rates [Sm3/d]' )
+    df.columns=('Field Rates [Sm3/d]', 'Yearly Gas Offtake [Sm3]', 'Cumulative Gas Offtake [Sm3]', 'Recovery Factor', 'Z-factor', 'Reservoir Pressure [bara]', 'Rates per Well [Sm3/d]', 'Bottomhole Pressure [bara]', 'Wellhead Pressure [bara]', 'Template Pressure [bara]', 'Pressure Pipeline Entry Module [bara]', 'Seperator Pressure [bara]', 'Rates per Template [Sm3/d]', 'Choke Pressure [bara]', 'Ratio PTemp to PWellHead', 'Production Potential Rates [Sm3/d]' )
     return df
     
 
