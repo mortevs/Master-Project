@@ -41,9 +41,9 @@ def Nodal(qFieldTarget: float, PRi: float, abandonmentRate: float, TR:float, gas
         
         build_up_Analysis = ResAnalysis(gas_offtake, [PRi, TR, gasMolecularWeight, IGIP]) #dataframe
         buildUp_df[0][0:build_up] = build_up_list
-        buildUp_df[1][0:build_up] = build_up_Analysis['produced gas [sm3]'].copy()
-        buildUp_df[2][0:build_up] = build_up_Analysis['cumulative produced gas [sm3]'].copy()
-        buildUp_df[5][0:build_up] = build_up_Analysis['PR'].copy()
+        buildUp_df[1][0:build_up] = build_up_Analysis['Produced Gas [Sm3]'].copy()
+        buildUp_df[2][0:build_up] = build_up_Analysis['Cumulative Produced Gas [Sm3]'].copy()
+        buildUp_df[5][0:build_up] = build_up_Analysis['Estimated Reservoir Pressure'].copy()
         buildUp_df[11][0:max_sim_time] = P_sep
         i = 0
         while (i<build_up):

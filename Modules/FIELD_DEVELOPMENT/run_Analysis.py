@@ -195,7 +195,7 @@ class DryGasAnalysis():
         return session_state
 
     def get_production_profile(self, opt) -> list:
-        Fr = self.getResult()[opt]['Field rates [sm3/d]'].to_list()
+        Fr = self.getResult()[opt]['Field Rates [Sm3/d]'].to_list()
         return Fr
        
     def append_method(self, item) -> str:

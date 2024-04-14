@@ -43,12 +43,12 @@ def addActualProdYtoDF(field: str, df: DataFrame,  adjustLength = True, upTime =
         while len(df) != len(w):
             w.append(0)
     gas = [i*10**9/upTime for i in gas] #prfPrdGasNetBillSm3
-    df = df.assign(GasSm3perDay=gas)
     NGL = [i*10**6/upTime for i in NGL] #prfPrdOilNetMillSm3
     oil = [i*10**6/upTime for i in oil] #prfPrdCondensateNetMillSm3
     cond = [i*10**6/upTime for i in cond] #prfPrdOeNetMillSm3
     Oe = [i*10**6/upTime for i in Oe] #prfPrdOeNetMillSm3
     w = [i*10**6/upTime for i in w] #prfPrdProducedWaterInFieldMillSm3
+    df = df.assign(GasSm3perDay=gas)
     df = df.assign(NGLSm3perDay=NGL)
     df = df.assign(OilSm3perDay=oil)
     df = df.assign(CondensateSm3perDay=cond)
@@ -65,12 +65,12 @@ def yearly_produced_DF(field: str, df: DataFrame) ->DataFrame:
     cond = [i*10**6 for i in cond] #prfPrdOeNetMillSm3
     Oe = [i*10**6 for i in Oe] #prfPrdOeNetMillSm3
     w = [i*10**6 for i in w] #prfPrdProducedWaterInFieldMillSm3
-    df = df.assign(gasSM3Yearly=gas)
-    df = df.assign(NGLSM3Yearly=NGL)
-    df = df.assign(oilSM3Yearly=oil)
-    df = df.assign(condensateSM3Yearly=cond)
-    df = df.assign(OilEquivalentsSM3Yearly=Oe)
-    df = df.assign(WaterSM3Yearly=w)
+    df = df.assign(GasSm3Yearly=gas)
+    df = df.assign(NGLSm3Yearly=NGL)
+    df = df.assign(OilSm3Yearly=oil)
+    df = df.assign(CondensateSm3Yearly=cond)
+    df = df.assign(OilEquivalentsSm3Yearly=Oe)
+    df = df.assign(WaterSm3Yearly=w)
     return df
 
 def monthly_produced_DF(field: str, df: DataFrame) ->DataFrame:
@@ -82,13 +82,12 @@ def monthly_produced_DF(field: str, df: DataFrame) ->DataFrame:
     cond = [i*10**6 for i in cond] #prfPrdOeNetMillSm3
     Oe = [i*10**6 for i in Oe] #prfPrdOeNetMillSm3
     w = [i*10**6 for i in w] #prfPrdProducedWaterInFieldMillSm3
-    df = df.assign(gasSM3Monthly=gas)
-    df = df.assign(gasSM3Monthly=gas)
-    df = df.assign(NGLSM3Monthly=NGL)
-    df = df.assign(oilSM3Monthly=oil)
-    df = df.assign(condensateSM3Monthly=cond)
-    df = df.assign(OilEquivalentsSM3Monthly=Oe)
-    df = df.assign(WaterSM3Monthly=w)
+    df = df.assign(GasSm3Monthly=gas)
+    df = df.assign(NGLSm3Monthly=NGL)
+    df = df.assign(OilSm3Monthly=oil)
+    df = df.assign(CondensateSm3Monthly=cond)
+    df = df.assign(OilEquivalentsSm3Monthly=Oe)
+    df = df.assign(WaterSm3Monthly=w)
     return df
 
 def addProducedYears(field: str, df: DataFrame, adjustLength=True) -> DataFrame:

@@ -88,7 +88,24 @@ def multi_plot(dfs, addAll=True, addProduced=False):
         'OilSm3perDay': ('Year', 'Cubic meter'),
         'CondensateSm3perDay': ('Year', 'Cubic meter'), 
         'OilEquivalentsSm3perDay': ('Year', 'Cubic meter'),  
-        'WaterSm3perDay': ('Year', 'Cubic meter'),        
+        'WaterSm3perDay': ('Year', 'Cubic meter'),
+        'GasSm3Yearly': ('Year', 'Cubic meter'),
+        'NGLSm3Yearly': ('Year', 'Cubic meter'),
+        'OilSm3Yearly': ('Year', 'Cubic meter'),
+        'CondensateSm3Yearly': ('Year', 'Cubic meter'),
+        'OilEquivalentsSm3Yearly': ('Year', 'Cubic meter'),
+        'WaterSm3Yearly': ('Year', 'Cubic meter'),
+        
+        'GasSm3Monthly': ('Month:Year', 'Cubic meter'),
+        'NGLSm3Monthly': ('Month:Year', 'Cubic meter'),
+        'OilSm3Monthly': ('Month:Year', 'Cubic meter'),
+        'CondensateSm3Monthly': ('Month:Year', 'Cubic meter'),
+        'OilEquivalentsSm3Monthly': ('Month:Year', 'Cubic meter'),
+        'WaterSm3Monthly': ('Month:Year', 'Cubic meter'),
+
+
+
+             
 
     }
 

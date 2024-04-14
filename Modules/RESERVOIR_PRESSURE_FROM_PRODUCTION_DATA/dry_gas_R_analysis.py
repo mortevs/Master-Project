@@ -7,7 +7,7 @@ from Equations.RF import RF
 
 def ResAnalysis(produced:list, parameters:list, Trapezoidal = False):
     df = build_analysis(produced, *parameters, Trapezoidal)
-    df.columns=('PR', 'produced gas [sm3]', 'cumulative produced gas [sm3]')
+    df.columns=('Estimated Reservoir Pressure', 'Produced Gas [Sm3]', 'Cumulative Produced Gas [Sm3]')
     return df
 
 def build_analysis(produced:list, PRi: float, TR:float, gasMolecularWeight: float, IGIP, Trapezoidal) -> float:

@@ -41,6 +41,8 @@ class ReservoirPressureAnalysis(RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA):
         gas = [i*10**9 for i in gas] #prfPrdGasNetBillSm3
         import Data.dataProcessing as dP
         df = ResAnalysis(gas, self.__parameters)
+        import pandas as pd
+        df = df.drop("Produced Gas [Sm3]", axis = 1)
         import Data.dataProcessing as dP
         df = dP.yearly_produced_DF(self.__field, df)
         df = dP.addProducedYears(self.__field, df)
@@ -68,8 +70,7 @@ class ReservoirPressureAnalysis(RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA):
             alert10 = st.warning("You have not uploaded a CSV file")
             ti.sleep(3)
             alert10.empty()
-
-    
+ 
     def runM(self):
         self.append_field(self.__field)
         self.append_time_frame(self.__time_frame)
@@ -79,6 +80,7 @@ class ReservoirPressureAnalysis(RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA):
         import Data.dataProcessing as dP
         from Modules.RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA.dry_gas_R_analysis import ResAnalysis
         df = ResAnalysis(gas, self.__parameters)
+        df = df.drop("Produced Gas [Sm3]", axis = 1)
         import Data.dataProcessing as dP
         df = dP.monthly_produced_DF(self.__field, df )
         df = dP.addProducedMonths(self.__field, df)

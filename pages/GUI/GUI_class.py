@@ -332,24 +332,6 @@ class FIELD_DEVELOPMENT:
                     with col21:                      
                         st.plotly_chart(cdf_fig, use_container_width=True)
                     
-
-        
-            
-
-                                
-
-                
-    
-
-                
-
-               
-
-
-                
-
-
-
   
 class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA:
     def __init__(self):
@@ -391,12 +373,12 @@ class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA:
         RES_Analysis.updateFromDropDown(fieldName= field, time = selected_time)
         RES_Analysis.update_from_upload(uploaded)
         with col1:
-            col2, col3, col4, col5= st.columns(4)
+            col2, col3, col4= st.columns(3)
             with col2:   
                 run = st.button('Run Analysis', 'Run RP', use_container_width=True)
-            with col4:   
+            with col3:   
                 clear = st.button('Clear output', 'clear RESPRES', use_container_width=True)
-            with col5: 
+            with col4: 
                 SODIR_button = st.button('Get Sodir-data', 'get SODIR data into table', use_container_width=True)
         
         if SODIR_button and field == 'No field chosen':
