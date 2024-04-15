@@ -89,7 +89,11 @@ class FIELD_DEVELOPMENT:
         </style>""", unsafe_allow_html=True)
         from Modules.FIELD_DEVELOPMENT.run_Analysis import DryGasAnalysis
         Analysis = DryGasAnalysis(session_id='DryGasAnalysis')
-        on_pp_information = st.toggle("Show me information on how to estimate dry gas production profiles", value=False, label_visibility="visible")
+        colA, colB = st.columns(2)
+        with colA:
+            on_pp_information = st.toggle("Show me information on how to estimate dry gas production profiles", value=False, label_visibility="visible")
+        with colB:
+            default_message = st.warning("Default values below. Change to desired values")
         if on_pp_information:
             st.write("""The following feature allows for modeling of the production profile for a dry gas field. 
                      The table below on the right side contains default values for 17 variables, for which the production profile estimation
@@ -331,6 +335,7 @@ class FIELD_DEVELOPMENT:
                         st.write("std:", round(std,1))
                     with col21:                      
                         st.plotly_chart(cdf_fig, use_container_width=True)
+
                     
   
 class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA:
@@ -380,7 +385,7 @@ class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA:
                 clear = st.button('Clear output', 'clear RESPRES', use_container_width=True)
             with col4: 
                 SODIR_button = st.button('Get Sodir-data', 'get SODIR data into table', use_container_width=True)
-        
+            default_message2 = st.warning("Default values below. Change to desired values")
         if SODIR_button and field == 'No field chosen':
             alert3 = st.warning('Choose a field')
             time.sleep(3.5)

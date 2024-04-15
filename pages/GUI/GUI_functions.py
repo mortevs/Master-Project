@@ -130,15 +130,18 @@ def multi_plot(dfs, addAll=True, addProduced=False):
             columns_to_plot += df.columns.to_list()
             all_label = 'All'
 
-        for column in columns_to_plot:
-            fig.add_trace(
-                go.Scatter(
-                    x=df.index,
-                    y=df[column],
-                    name=column,
-                    visible='legendonly' if not addAll and column != df.columns[0] else True  # Change visibility here
+        try:
+            for column in columns_to_plot:
+                fig.add_trace(
+                    go.Scatter(
+                        x=df.index,
+                        y=df[column],
+                        name=column,
+                        visible='legendonly' if not addAll and column != df.columns[0] else True  # Change visibility here
+                    )
                 )
-            )
+        except KeyError as e:
+            st.error("Cant compare monthly with yearly time frame. ")
 
     button_all = dict(label=all_label,
                       method='update',
