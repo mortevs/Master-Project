@@ -148,6 +148,7 @@ class DryGasAnalysis():
                         with tab2:        
                             st.write(method[i], prec[i], field[i])
                         with tab1:
+                            st.write("Converted actual produced rates from yearly volumes to Sm3/d with input uptime = ", int(self.__parameters[9]))
                             GUI.multi_plot([res[i]], addProduced=True)
                     else:
                         with tab2:

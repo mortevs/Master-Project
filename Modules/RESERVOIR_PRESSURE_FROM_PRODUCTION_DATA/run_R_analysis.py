@@ -22,10 +22,10 @@ class ReservoirPressureAnalysis(RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA):
         self.__production_data = productionData
     
     def updateParameterListfromTable(self, list2):
-        list1 = ['Initial Reservoir Pressure [bara]', 'Reservoir Temperature [degree C]', 'Gas Molecular Weight [g/mol]', 'Initial Gas in Place [sm3]']
+        list1 = ['Initial Reservoir Pressure [bara]', 'Reservoir Temperature [degree C]', 'Gas Molecular Weight [g/mol]', 'Initial Gas in Place [Sm3]']
         self.__parameters = (display.display_table_RESPRES(list1=list1, list2=list2, edible=True))
 
-    def get__PR_NPD_data(self):
+    def get_Sodir_data_Res_Pres(self):
         PRi = get.initial_reservoir_pressure(self.__field)
         T_R = get.Temp(self.__field)        
         gasMolecularWeight = get.gas_molecular_weight(self.__field)
@@ -58,18 +58,20 @@ class ReservoirPressureAnalysis(RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA):
         if uploaded.type == "text/csv":
             try:
                 data = pd.read_csv(uploaded, sep=";", skip_blank_lines=True)
-                data = data.dropna(how='all')
-                gas = data.iloc[:,0].to_list()
+                self.uploaded_data = data.dropna(how='all')
+                gas = data.iloc[:,1].to_list()
+                gas = [el*1e9 for el in gas]
                 df = ResAnalysis(gas, self.__parameters)
-                df.index = df.iloc[:,1].to_list()
+                df.index = data.iloc[:,0].to_list()
                 return df
             except:
-                (st.warning("an error occured with uploaded file, try a new file"))
+                (st.warning("An error occured with the uploaded file"))
         else:
             import time as ti
-            alert10 = st.warning("You have not uploaded a CSV file")
-            ti.sleep(3)
+            alert10 = st.warning("The format of the uploaded file must be CSV")
+            ti.sleep(5)
             alert10.empty()
+
  
     def runM(self):
         self.append_field(self.__field)
@@ -87,36 +89,34 @@ class ReservoirPressureAnalysis(RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA):
         return df
     
 
-    def plot(self, comp=False):
+    def plot(self):
         import streamlit as st
         from pandas import DataFrame
         res = self.getResult()
         field = self.getField()
-        if comp == False:
-            for i in reversed(range(len(res))):
-                if isinstance(res[i], DataFrame):
-                    header_ = 'Est Res-pressure ' + str(i+1)
-                    st.header(header_, divider='red')
+        for i in reversed(range(len(res))):
+            if isinstance(res[i], DataFrame):
+                header_ = 'Est Res-pressure ' + str(i+1)
+                st.header(header_, divider='red')
+                tab1, tab2 = st.tabs(["Plot", "Data"])
+                with tab2:
+                    st.write("$P_R$ = " + str(self.getParameters()[i][0]) + " bara")
+                    st.write("T = " + str(self.getParameters()[i][1]) + " $^{\circ}$C")
+                    st.write("Gas Molecular Wieght = " + str(self.getParameters()[i][2]) + " g/mol")
+                    st.write("IGIP = " + str((self.getParameters()[i][3]/1e9)) + " 1E09 $Sm^3$")
                     if field[i] != "No field chosen":
-                        st.write(field[i][0]+field[i][1:].lower())
-                        st.write("$P_R$ = " + str(self.getParameters()[i][0]) + " Bar")
-                        st.write("T = " + str(self.getParameters()[i][1]) + " $^{\circ}$C")
-                        st.write("Gas Molecular Wieght = " + str(self.getParameters()[i][2]) + " g/mol")
-                        st.write("IGIP = " + str((self.getParameters()[i][3]/1e9)) + " billion $sm^3$")
-
+                        st.write('Production data from Sodir ', field[i][0]+field[i][1:].lower(), ' used for analysis')
                     else:
-                        st.write('Uploaded data')
-                        st.write("$P_R$ = " + str(self.getParameters()[i][0]) + " Bar")
-                        st.write("T = " + str(self.getParameters()[i][1]) + " $^{\circ}$C")
-                        st.write("Gas Molecular Wieght = " + str(self.getParameters()[i][2]) + " g/mol")
-                        st.write("IGIP = " + str((self.getParameters()[i][3]/1e9)) + " billion $sm^3$")
+                        st.write('Uploaded production data used for analysis')
+                        try:
+                            st.dataframe(self.uploaded_data, use_container_width=True, hide_index=True)
+                        except AttributeError:
+                            pass                                
+
+                with tab1:
+                    st.write("The model assumes gas filled reservoir and does not account for injection volumes or reservoir geometry.")
                     display.multi_plot_PR([res[i]], addAll= False)
-        else:
-            dfs = []
-            for df in self.__state.result:
-                reset_ind_df = df.reset_index(drop = True)
-                dfs.append(reset_ind_df)
-            display.multi_plot(dfs, addAll=False)
+
 
     def clear_output(self):
         from Data.Storage.Cache import SessionState

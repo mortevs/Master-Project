@@ -2,6 +2,24 @@ import pandas as pd, plotly.graph_objects as go, streamlit as st
 def multi_plot_PR(dfs, addAll = True, addProduced = False):
     fig = go.Figure()
     columns_to_plot = []
+    axis_titles = {
+        'Estimated Reservoir Pressure [bara]': ('Year', 'Bara'),
+        'Cumulative Produced Gas [Sm3]': ('Year', 'Sm3'),
+        'GasSm3Yearly': ('Year', 'Sm3'),
+        'NGLSm3Yearly': ('Year', 'Sm3'),
+        'OilSm3Yearly': ('Year', 'Sm3'),
+        'CondensateSm3Yearly': ('Year', 'Sm3'),
+        'OilEquivalentsSm3Yearly': ('Year', 'Sm3'),
+        'WaterSm3Yearly': ('Year', 'Sm3'),
+        'GasSm3Monthly': ('Month:Year', 'Sm3'),
+        'NGLSm3Monthly': ('Month:Year', 'Sm3'),
+        'OilSm3Monthly': ('Month:Year', 'Sm3'),
+        'CondensateSm3Monthly': ('Month:Year', 'Sm3'),
+        'OilEquivalentsSm3Monthly': ('Month:Year', 'Sm3'),
+        'WaterSm3Monthly': ('Month:Year', 'Sm3'),
+        'Produced Gas [Sm3]': ('Date', 'Sm3'),
+
+    }
 
     for df in dfs:
         if addProduced:
@@ -28,11 +46,12 @@ def multi_plot_PR(dfs, addAll = True, addProduced = False):
                             'showlegend':True}])
 
     def create_layout_button(column):
-        return dict(label = column,
-                    method = 'update',
-                    args = [{'visible': [column == col for col in columns_to_plot],
-                            'title': column,
-                            'showlegend': True}])
+        return dict(label=column,
+                    method='update',
+                    args=[{'visible': [column == col for col in columns_to_plot],
+                           'title': column,
+                           'showlegend': True},
+                          {'xaxis': {'title': axis_titles[column][0]}, 'yaxis': {'title': axis_titles[column][1]}}])
 
     all_buttons = ([button_all] * addAll) + [create_layout_button(column) for column in columns_to_plot]
 
@@ -62,51 +81,45 @@ def multi_plot(dfs, addAll=True, addProduced=False):
     columns_to_plot = []
     axis_titles = {
         'Field Rates [Sm3/d]': ('Year', 'Sm3/d'),
-        'Yearly Gas Offtake [Sm3]': ('Year', 'Cubic meter'),
-        'Cumulative Gas Offtake [Sm3]': ('Year', 'Cubic meter'),
-        'Recovery Factor': ('Year', 'Factor'),
-        'Z-factor': ('zz', 'zz'),
+        'Yearly Gas Offtake [Sm3]': ('Year', 'Sm3'),
+        'Cumulative Gas Offtake [Sm3]': ('Year', 'Sm3'),
+        'Recovery Factor': ('Year', 'Recovery Factor'),
+        'Z-factor': ('Year', 'Z-factor'),
         'Reservoir Pressure [bara]': ('Year', 'Bara'),
-        'Rates per Well [Sm3/d]': ('Year', 'Cubic meter'),
+        'Rates per Well [Sm3/d]': ('Year', '[Sm3/d]'),
         'Bottomhole Pressure [bara]': ('Year', 'Bara'),
         'Wellhead Pressure [bara]': ('Year', 'Bara'),
         'Template Pressure [bara]': ('Year', 'Bara'),
         'Pressure Pipeline Entry Module [bara]': ('Year', 'Bara'),
         'Seperator Pressure [bara]': ('Year', 'Bara'),
-        'Rates per Template [Sm3/d]': ('Year', 'Cubic meter'),
+        'Rates per Template [Sm3/d]': ('Year', 'Sm3/d'),
         'Choke Pressure [bara]': ('Year', 'Bara'),
         'Ratio PTemp to PWellHead': ('Year', 'Ratio'),
-        'Production Potential Rates [Sm3/d]': ('Year', 'Cubic meter'),
-        'QFieldTarget [Sm3/d]': ('Year', 'Cubic meter'),
-        'QWellTarget [Sm3/d]': ('Year', 'Cubic meter'),
+        'Production Potential Rates [Sm3/d]': ('Year', 'Sm3/d'),
+        'QFieldTarget [Sm3/d]': ('Year', 'Sm3/d'),
+        'QWellTarget [Sm3/d]': ('Year', 'Sm3/d'),
         'Minimum Bottomhole Pressure [bara]': ('Year', 'Bara'),
-        'Potential Rates per Well [Sm3/d]': ('Year', 'Cubic meter'),
-        'Potential Field Rates [Sm3/d]': ('Year', 'Cubic meter'),
-        'Well Production Rates [Sm3/d]': ('Year', 'Cubic meter'),
-        'GasSm3perDay': ('Year', 'Cubic meter'),
-        'NGLSm3perDay': ('Year', 'Cubic meter'),
-        'OilSm3perDay': ('Year', 'Cubic meter'),
-        'CondensateSm3perDay': ('Year', 'Cubic meter'), 
-        'OilEquivalentsSm3perDay': ('Year', 'Cubic meter'),  
-        'WaterSm3perDay': ('Year', 'Cubic meter'),
-        'GasSm3Yearly': ('Year', 'Cubic meter'),
-        'NGLSm3Yearly': ('Year', 'Cubic meter'),
-        'OilSm3Yearly': ('Year', 'Cubic meter'),
-        'CondensateSm3Yearly': ('Year', 'Cubic meter'),
-        'OilEquivalentsSm3Yearly': ('Year', 'Cubic meter'),
-        'WaterSm3Yearly': ('Year', 'Cubic meter'),
-        
-        'GasSm3Monthly': ('Month:Year', 'Cubic meter'),
-        'NGLSm3Monthly': ('Month:Year', 'Cubic meter'),
-        'OilSm3Monthly': ('Month:Year', 'Cubic meter'),
-        'CondensateSm3Monthly': ('Month:Year', 'Cubic meter'),
-        'OilEquivalentsSm3Monthly': ('Month:Year', 'Cubic meter'),
-        'WaterSm3Monthly': ('Month:Year', 'Cubic meter'),
-
-
-
-             
-
+        'Potential Rates per Well [Sm3/d]': ('Year', 'Sm3/d'),
+        'Potential Field Rates [Sm3/d]': ('Year', 'Sm3/d'),
+        'Well Production Rates [Sm3/d]': ('Year', 'Sm3/d'),
+        'GasSm3perDay': ('Year', 'Sm3/d'),
+        'NGLSm3perDay': ('Year', 'Sm3/d'),
+        'OilSm3perDay': ('Year', 'Sm3/d'),
+        'CondensateSm3perDay': ('Year', 'Sm3/d'), 
+        'OilEquivalentsSm3perDay': ('Year', 'Sm3/d'),  
+        'WaterSm3perDay': ('Year', 'Sm3/d'),
+        'GasSm3Yearly': ('Year', 'Sm3'),
+        'NGLSm3Yearly': ('Year', 'Sm3'),
+        'OilSm3Yearly': ('Year', 'Sm3'),
+        'CondensateSm3Yearly': ('Year', 'Sm3'),
+        'OilEquivalentsSm3Yearly': ('Year', 'Sm3'),
+        'WaterSm3Yearly': ('Year', 'Sm3'),
+        'GasSm3Monthly': ('Month:Year', 'Sm3'),
+        'NGLSm3Monthly': ('Month:Year', 'Sm3'),
+        'OilSm3Monthly': ('Month:Year', 'Sm3'),
+        'CondensateSm3Monthly': ('Month:Year', 'Sm3'),
+        'OilEquivalentsSm3Monthly': ('Month:Year', 'Sm3'),
+        'WaterSm3Monthly': ('Month:Year', 'Sm3'),
     }
 
     for df in dfs:
@@ -154,7 +167,7 @@ def multi_plot(dfs, addAll=True, addProduced=False):
         ],
         showlegend=addAll,  # Change showlegend here
         xaxis_title="Year",  # X-axis title
-        yaxis_title="Cubic meter",  # Y-axis title
+        yaxis_title="Sm3/d",  # Y-axis title
         height=600,
     )
 

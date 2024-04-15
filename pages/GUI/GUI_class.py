@@ -344,10 +344,10 @@ class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA:
         on_information = st.toggle("Show me information on how to use the reservoir pressure from production data feature", value=False, label_visibility="visible")
         if on_information:
             st.write(""" The user has some options for running the model. As per now only one equation is available, but the user can choose to fetch
-                     monthly or yearly rates from NPD using the dropdownmenu below on the left side""")
+                     monthly or yearly production rates from Sodir using the dropdownmenu below on the left side""")
 
-            st.write(""" Choose production data from an NCS-field from the dropdown menu below, or upload data. Use the following format when uploading: 
-                     column 0 - gas produced in sm3, column 1 - date (year/ year-month). use ; as seperator""")
+            st.write(""" Choose production data from an NCS-field from the dropdown menu below, or upload data in csv format with 
+                     column 0 - date (year/ year-month), column 2 - gas produced in 1E06 Sm3""")
             
             st.write("""Click <Run Analysis> to estimate the reservoir pressure for a field chosen, or for the uploaded data.
                       The numbers in the table below on the right side will be used for the estimation. The user can change these numbers before
@@ -359,7 +359,7 @@ class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA:
                      
             st.write("""Click <Clear output> to remove all the plots and start over again""")
 
-        uploaded = st.file_uploader(label = "Upload a CSV file")
+        uploaded = st.file_uploader(label = "Upload production data as CSV file, or choose field and time frame from drop-down menus below")
         col0, col1 = st.columns(2)
         with col0:
             eq = GUI.dropdown(label = 'What equation do you want to use?', options = ['Material balance with Z-factor calculation'], labelVisibility="visible")
@@ -401,7 +401,7 @@ class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA:
             elif self.place_holder ==2:
                 PRi = 276 #reservoir pressure bara #default value
                 gasMolecularWeight = 16 #[g/mol] default value
-                PRi, T, gasMolecularWeight, IGIP = RES_Analysis.get__PR_NPD_data()
+                PRi, T, gasMolecularWeight, IGIP = RES_Analysis.get_Sodir_data_Res_Pres()
                 updated_list = [PRi, T, gasMolecularWeight, IGIP]
                 RES_Analysis.updateParameterListfromTable(list2 = updated_list)
                 alert4 = st.warning('Found estimates for IGIP and Temperature. Running Analysis with the data above')
