@@ -454,7 +454,7 @@ class NPV_dry_gas(NPVAnalysis):
                 new_df = NodalAnalysis(self.getPrecision()[self._opt], stepping_field_variables)
             else:
                 st.write("this is not supposed to happen, method and precision is:", self._method, self._precision)
-            pp_list.append((new_df['Field rates [sm3/d]'].to_list()))
+            pp_list.append((new_df['Field Rates [Sm3/d]'].to_list()))
         return pp_list
     
 def getNPVforMonteCarlo(table):

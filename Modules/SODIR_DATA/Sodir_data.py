@@ -52,14 +52,17 @@ class Sodir_prod(SODIR_feature):
                 if isinstance(res[i], DataFrame):
                     field = self.getField()
                     st.title('Produced volumes: ' + field[i])
-                    display.multi_plot([res[i]], addAll= False)
+                    display.multi_plot_SODIR([res[i]])
         else:
             st.title('Comparison of Produced volumes between fields')
             dfs = []
             for df in self.__state.result:
                 reset_ind_df = df.reset_index(drop = True)
                 dfs.append(reset_ind_df)
-            display.multi_plot(dfs, addAll=False)
+            fields = []
+            for field in self.__state.field:
+                fields.append(field)
+            display.multi_plot_SODIR_compare(dfs, fields)
 
     def clear_output(self):
         from Data.Storage.Cache import SessionState

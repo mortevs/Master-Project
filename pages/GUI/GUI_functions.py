@@ -141,7 +141,7 @@ def multi_plot(dfs, addAll=True, addProduced=False):
                     )
                 )
         except KeyError as e:
-            st.error("Cant compare monthly with yearly time frame. ")
+            st.error("An error occured while plotting")
 
     button_all = dict(label=all_label,
                       method='update',
@@ -175,6 +175,136 @@ def multi_plot(dfs, addAll=True, addProduced=False):
     )
 
     st.plotly_chart(fig, use_container_width=True)
+
+
+def multi_plot_SODIR(dfs):        
+    fig = go.Figure()
+    columns_to_plot = []
+    axis_titles = {
+        'GasSm3Yearly': ('Year', 'Sm3'),
+        'NGLSm3Yearly': ('Year', 'Sm3'),
+        'OilSm3Yearly': ('Year', 'Sm3'),
+        'CondensateSm3Yearly': ('Year', 'Sm3'),
+        'OilEquivalentsSm3Yearly': ('Year', 'Sm3'),
+        'WaterSm3Yearly': ('Year', 'Sm3'),
+        'GasSm3Monthly': ('Month:Year', 'Sm3'),
+        'NGLSm3Monthly': ('Month:Year', 'Sm3'),
+        'OilSm3Monthly': ('Month:Year', 'Sm3'),
+        'CondensateSm3Monthly': ('Month:Year', 'Sm3'),
+        'OilEquivalentsSm3Monthly': ('Month:Year', 'Sm3'),
+        'WaterSm3Monthly': ('Month:Year', 'Sm3'),
+    }
+    for df in dfs:
+        columns_to_plot += df.columns.to_list()
+        try:
+            for column in columns_to_plot:
+                fig.add_trace(
+                    go.Scatter(
+                        x=df.index,
+                        y=df[column],
+                        visible='legendonly' if column != df.columns[0] else True,
+                        showlegend=False
+                    )
+                )
+        except KeyError:
+            st.error("Can not compare yearly and monthly time frame. ")
+    
+    def create_layout_button(column):
+        return dict(label=column,
+                    method='update',
+                    args=[{'visible': [column == col for col in columns_to_plot],
+                           'title': column,
+                           'showlegend': False},
+                          {'xaxis': {'title': axis_titles[column][0]}, 'yaxis': {'title': axis_titles[column][1]}}])
+
+    unique_columns = columns_to_plot[:6]
+    all_buttons = [create_layout_button(column) for column in unique_columns]
+
+    fig.update_layout(
+        updatemenus=[go.layout.Updatemenu(
+            active=0,  # Change active button here
+            buttons=all_buttons
+        )
+        ],
+        xaxis_title="Date",  # X-axis title
+        yaxis_title="Sm3",  # Y-axis title
+        height=600,
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
+
+import plotly.graph_objects as go
+import streamlit as st
+
+import plotly.graph_objects as go
+import streamlit as st
+
+def multi_plot_SODIR_compare(dfs, fields):        
+    fig = go.Figure()
+    columns_to_plot = []
+    axis_titles = {
+        'GasSm3Yearly': ('Year', 'Sm3'),
+        'NGLSm3Yearly': ('Year', 'Sm3'),
+        'OilSm3Yearly': ('Year', 'Sm3'),
+        'CondensateSm3Yearly': ('Year', 'Sm3'),
+        'OilEquivalentsSm3Yearly': ('Year', 'Sm3'),
+        'WaterSm3Yearly': ('Year', 'Sm3'),
+        'GasSm3Monthly': ('Month:Year', 'Sm3'),
+        'NGLSm3Monthly': ('Month:Year', 'Sm3'),
+        'OilSm3Monthly': ('Month:Year', 'Sm3'),
+        'CondensateSm3Monthly': ('Month:Year', 'Sm3'),
+        'OilEquivalentsSm3Monthly': ('Month:Year', 'Sm3'),
+        'WaterSm3Monthly': ('Month:Year', 'Sm3'),
+    }
+    for i in range(len(dfs)):
+        df = dfs[i]
+        columns_to_plot += df.columns.to_list()
+        try:
+            for column in df.columns:
+                fig.add_trace(
+                    go.Scatter(
+                        x=df.index,
+                        y=df[column],
+                        name = f"{fields[i]} - {column}",
+                        visible='legendonly' if column != df.columns[0] else True,
+                        showlegend=True
+                    )
+                )
+        except KeyError:
+            st.error("Cannot compare yearly and monthly time frames.")
+    
+    def create_layout_button(column):
+        return dict(label=column,
+                    method='update',
+                    args=[{'visible': [column in trace.name for trace in fig.data],
+                           'title': column,
+                           'showlegend': True},
+                          {'xaxis': {'title': axis_titles[column][0]}, 'yaxis': {'title': axis_titles[column][1]}}])
+
+    unique_columns = (columns_to_plot[:6])
+    all_buttons = [create_layout_button(column) for column in unique_columns]
+
+    fig.update_layout(
+        updatemenus=[go.layout.Updatemenu(
+            active=0,  # Change active button here
+            buttons=all_buttons
+        )
+        ],
+        xaxis_title="Date",  # X-axis title
+        yaxis_title="Sm3",  # Y-axis title
+        height=600,
+        showlegend=True  # Ensure legend visibility
+    )
+    
+    # Modify legend entries for the initially active option
+    active_column = list(unique_columns)[0]
+    for trace in fig.data:
+        if active_column not in trace.name:
+            trace.showlegend = False
+
+    st.plotly_chart(fig, use_container_width=True)
+
+
 
 def display_FD_variables_table(list1, list2, edible=False, key = 'df_table_editor'):
     df_table = pd.DataFrame({

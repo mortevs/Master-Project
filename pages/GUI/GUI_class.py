@@ -518,7 +518,7 @@ class SODIR_feature:
         if poly_button and field == 'No field chosen':
             import time
             alert4 = st.warning('Choose a field first')
-            time.sleep(1.5)
+            time.sleep(3)
             alert4.empty()
         elif poly_button and field != 'No field chosen':
             from Modules.SODIR_DATA.Sodir_data import makePolyPlot
