@@ -149,12 +149,12 @@ class DryGasAnalysis():
                             st.write(method[i], prec[i], field[i])
                         with tab1:
                             st.write("Converted actual produced rates from yearly volumes to Sm3/d with input uptime = ", int(self.__parameters[9]))
-                            GUI.multi_plot([res[i]], addProduced=True)
+                            GUI.multi_plot([res[i]], addProduced=True, num=i+1)
                     else:
                         with tab2:
                             st.write(method[i], prec[i])
                         with tab1:
-                            GUI.multi_plot([res[i]], addAll=False)
+                            GUI.multi_plot([res[i]], addAll=False, num=i+1)
                 with tab2:
                     from pages.GUI.GUI_functions import display_FD_variables_table2
                     display_FD_variables_table2(list2=self.getParameters()[i])
@@ -164,7 +164,7 @@ class DryGasAnalysis():
                 reset_ind_df = df.reset_index(drop = True)
                 dfs.append(reset_ind_df)
             st.header('Compared models', divider='red')
-            GUI.multi_plot(dfs, addAll=False)
+            GUI.multi_plot(dfs, addAll=False, comp = True)
     
     def getParameters(self) -> pd.DataFrame:
         session_state = self.__state.get(self.__session_id)

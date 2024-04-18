@@ -1,7 +1,6 @@
 import pandas as pd, plotly.graph_objects as go, streamlit as st
 def multi_plot_PR(dfs, addAll = True, addProduced = False):
     fig = go.Figure()
-    columns_to_plot = []
     axis_titles = {
         'Estimated Reservoir Pressure [bara]': ('Year', 'Bara'),
         'Cumulative Produced Gas [Sm3]': ('Year', 'Sm3'),
@@ -18,15 +17,27 @@ def multi_plot_PR(dfs, addAll = True, addProduced = False):
         'OilEquivalentsSm3Monthly': ('Month:Year', 'Sm3'),
         'WaterSm3Monthly': ('Month:Year', 'Sm3'),
         'Produced Gas [Sm3]': ('Date', 'Sm3'),
+        'Watercut': ('Date', '%'),
+
 
     }
 
+    columns_to_plot = []
+    columns_set = set() 
+
     for df in dfs:
         if addProduced:
-            columns_to_plot += ['Field Rates [Sm3/d]', 'gasSM3perday']
-            all_label = 'Estimated vs Actual produced rates'
+            columns_to_add = ['Field Rates [Sm3/d]', 'GasSm3perDay']
+            for column in columns_to_add:
+                if column not in columns_set:
+                    columns_to_plot.append(column)
+                    columns_set.add(column)
+            all_label = 'Estimated vs Actual Produced Rates'
         else:
-            columns_to_plot += df.columns.to_list()
+            for column in df.columns:
+                if column not in columns_set:
+                    columns_to_plot.append(column)
+                    columns_set.add(column)
             all_label = 'All'
 
         for column in columns_to_plot:
@@ -35,6 +46,7 @@ def multi_plot_PR(dfs, addAll = True, addProduced = False):
                     x = df.index,
                     y = df[column],
                     name = column,
+                    mode = 'lines',
                     visible = 'legendonly' if not addAll and column != df.columns[0] else True  # Change visibility here
                 )
             )
@@ -65,7 +77,7 @@ def multi_plot_PR(dfs, addAll = True, addProduced = False):
             )
         ],
         showlegend=addAll,  # Change showlegend here
-        xaxis_title="Date",  # X-axis title
+        xaxis_title="Time",  # X-axis title
         yaxis_title="Pressure [bara]"  # Y-axis title
     )
 
@@ -76,9 +88,8 @@ def multi_plot_PR(dfs, addAll = True, addProduced = False):
     )
     st.plotly_chart(fig, use_container_width=True)
 
-def multi_plot(dfs, addAll=True, addProduced=False):
+def multi_plot(dfs, addAll=True, addProduced=False, num=None, comp = False):
     fig = go.Figure()
-    columns_to_plot = []
     axis_titles = {
         'Field Rates [Sm3/d]': ('Year', 'Sm3/d'),
         'Yearly Gas Offtake [Sm3]': ('Year', 'Sm3'),
@@ -122,26 +133,41 @@ def multi_plot(dfs, addAll=True, addProduced=False):
         'WaterSm3Monthly': ('Month:Year', 'Sm3'),
     }
 
-    for df in dfs:
+    columns_to_plot = []
+    columns_set = set() 
+
+    for i in range(len(dfs)):
+        df = dfs[i]
+        if comp == True:
+            num = i+1
         if addProduced:
-            columns_to_plot += ['Field Rates [Sm3/d]', 'GasSm3perDay']
+            columns_to_add = ['Field Rates [Sm3/d]', 'GasSm3perDay']
+            for column in columns_to_add:
+                if column not in columns_set:
+                    columns_to_plot.append(column)
+                    columns_set.add(column)
             all_label = 'Estimated vs Actual Produced Rates'
         else:
-            columns_to_plot += df.columns.to_list()
+            for column in df.columns:
+                if column not in columns_set:
+                    columns_to_plot.append(column)
+                    columns_set.add(column)
             all_label = 'All'
-
         try:
             for column in columns_to_plot:
                 fig.add_trace(
                     go.Scatter(
                         x=df.index,
                         y=df[column],
-                        name=column,
+                        #name=column,
+                        mode = 'lines',
+                        name = f"Production Profile {num} - {column}",
+                        showlegend=True,
                         visible='legendonly' if not addAll and column != df.columns[0] else True  # Change visibility here
                     )
                 )
         except KeyError as e:
-            st.error("An error occured while plotting")
+            st.warning("Due to name differences, not all columns can be compared in the same plot")
 
     button_all = dict(label=all_label,
                       method='update',
@@ -168,18 +194,22 @@ def multi_plot(dfs, addAll=True, addProduced=False):
             buttons=all_buttons
         )
         ],
-        showlegend=addAll,  # Change showlegend here
+        showlegend=True,  # Change showlegend here
         xaxis_title="Year",  # X-axis title
         yaxis_title="Sm3/d",  # Y-axis title
         height=600,
+        
     )
-
+    # Modify legend entries for the initially active option
+    active_column = list(columns_to_plot)[0]
+    for trace in fig.data:
+        if active_column not in trace.name:
+            trace.showlegend = False
     st.plotly_chart(fig, use_container_width=True)
 
 
 def multi_plot_SODIR(dfs):        
     fig = go.Figure()
-    columns_to_plot = []
     axis_titles = {
         'GasSm3Yearly': ('Year', 'Sm3'),
         'NGLSm3Yearly': ('Year', 'Sm3'),
@@ -193,9 +223,17 @@ def multi_plot_SODIR(dfs):
         'CondensateSm3Monthly': ('Month:Year', 'Sm3'),
         'OilEquivalentsSm3Monthly': ('Month:Year', 'Sm3'),
         'WaterSm3Monthly': ('Month:Year', 'Sm3'),
+        'Watercut': ('Time', '%'),
+
     }
+    columns_to_plot = []
+    columns_set = set()
+
     for df in dfs:
-        columns_to_plot += df.columns.to_list()
+        for column in df.columns:
+            if column not in columns_set:
+                columns_to_plot.append(column)
+                columns_set.add(column)
         try:
             for column in columns_to_plot:
                 fig.add_trace(
@@ -203,7 +241,8 @@ def multi_plot_SODIR(dfs):
                         x=df.index,
                         y=df[column],
                         visible='legendonly' if column != df.columns[0] else True,
-                        showlegend=False
+                        showlegend=False,
+                        mode = 'lines'
                     )
                 )
         except KeyError:
@@ -217,7 +256,7 @@ def multi_plot_SODIR(dfs):
                            'showlegend': False},
                           {'xaxis': {'title': axis_titles[column][0]}, 'yaxis': {'title': axis_titles[column][1]}}])
 
-    unique_columns = columns_to_plot[:6]
+    unique_columns = columns_to_plot[:7]
     all_buttons = [create_layout_button(column) for column in unique_columns]
 
     fig.update_layout(
@@ -226,20 +265,16 @@ def multi_plot_SODIR(dfs):
             buttons=all_buttons
         )
         ],
-        xaxis_title="Date",  # X-axis title
+        xaxis_title="Time",  # X-axis title
         yaxis_title="Sm3",  # Y-axis title
         height=600,
     )
 
     st.plotly_chart(fig, use_container_width=True)
 
-import plotly.graph_objects as go
-import streamlit as st
 
-import plotly.graph_objects as go
-import streamlit as st
 
-def multi_plot_SODIR_compare(dfs, fields):        
+def multi_plot_SODIR_compare(dfs, fields, res, comp_align):        
     fig = go.Figure()
     columns_to_plot = []
     axis_titles = {
@@ -255,23 +290,64 @@ def multi_plot_SODIR_compare(dfs, fields):
         'CondensateSm3Monthly': ('Month:Year', 'Sm3'),
         'OilEquivalentsSm3Monthly': ('Month:Year', 'Sm3'),
         'WaterSm3Monthly': ('Month:Year', 'Sm3'),
+        'Watercut': ('Time', '%'),
+
     }
-    for i in range(len(dfs)):
-        df = dfs[i]
-        columns_to_plot += df.columns.to_list()
-        try:
+    columns_to_plot = []
+    columns_set = set()
+    if comp_align == "Compare by dates":
+        for i in range(len(res)):
+            df = res[i]
             for column in df.columns:
-                fig.add_trace(
-                    go.Scatter(
-                        x=df.index,
-                        y=df[column],
-                        name = f"{fields[i]} - {column}",
-                        visible='legendonly' if column != df.columns[0] else True,
-                        showlegend=True
+                if column not in columns_set:
+                    columns_to_plot.append(column)
+                    columns_set.add(column)
+            try:
+                for column in df.columns:
+                    fig.add_trace(
+                        go.Scatter(
+                            x=pd.to_datetime(df.index, format='%m:%Y'), #format='mixed'
+                            y=df[column],
+                            mode = 'lines',
+                            name = f"{fields[i]} - {column}",
+                            visible='legendonly' if column != df.columns[0] else True,
+                            showlegend=True,
+                        )
                     )
-                )
-        except KeyError:
-            st.error("Cannot compare yearly and monthly time frames.")
+            except Exception as e:
+                try:
+                    for column in df.columns:
+                        fig.add_trace(
+                            go.Scatter(
+                                x=pd.to_datetime(df.index, format='%Y'), #format='mixed'
+                                y=df[column],
+                                mode = 'lines',
+                                name = f"{fields[i]} - {column}",
+                                visible='legendonly' if column != df.columns[0] else True,
+                                showlegend=True,
+                            )
+                        )
+                except KeyError:
+                    st.error("Cannot compare yearly and monthly time frames.")
+    else:
+        for i in range(len(dfs)):
+            df = dfs[i]
+            columns_to_plot += df.columns.to_list()
+            try:
+                for column in df.columns:
+                    fig.add_trace(
+                        go.Scatter(
+                            x=df.index,
+                            y=df[column],
+                            name = f"{fields[i]} - {column}",
+                            visible='legendonly' if column != df.columns[0] else True,
+                            showlegend=True,
+                            mode = 'lines'
+                        )
+                    )
+            except KeyError:
+                st.error("Cannot compare yearly and monthly time frames.")
+
     
     def create_layout_button(column):
         return dict(label=column,
@@ -281,8 +357,7 @@ def multi_plot_SODIR_compare(dfs, fields):
                            'showlegend': True},
                           {'xaxis': {'title': axis_titles[column][0]}, 'yaxis': {'title': axis_titles[column][1]}}])
 
-    unique_columns = (columns_to_plot[:6])
-    all_buttons = [create_layout_button(column) for column in unique_columns]
+    all_buttons = [create_layout_button(column) for column in columns_to_plot]
 
     fig.update_layout(
         updatemenus=[go.layout.Updatemenu(
@@ -290,14 +365,14 @@ def multi_plot_SODIR_compare(dfs, fields):
             buttons=all_buttons
         )
         ],
-        xaxis_title="Date",  # X-axis title
+        xaxis_title="Time",  # X-axis title
         yaxis_title="Sm3",  # Y-axis title
         height=600,
         showlegend=True  # Ensure legend visibility
     )
     
     # Modify legend entries for the initially active option
-    active_column = list(unique_columns)[0]
+    active_column = list(columns_to_plot)[0]
     for trace in fig.data:
         if active_column not in trace.name:
             trace.showlegend = False

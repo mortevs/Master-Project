@@ -16,16 +16,20 @@ class Sodir_prod(SODIR_feature):
         self.__state = SessionState.get(id=session_id, result=[], field=[], time_frame = [])
         self.parent  = parent
 
-    def updateFromDropDown(self, fieldName, time):
-         self.__field, self.__time_frame = fieldName, time
-    
+    def updateFromDropDown(self, fieldName, time, checkbox):
+         self.__field, self.__time_frame, self._aligned = fieldName, time, checkbox
+
+
     def get_current_time_frame(self):
         return self.__time_frame
     def get_current_field(self):
         return self.__field
     def get_current_result(self):
         return self.__result
+    def get_current_alignment(self):
+        return self._aligned
 
+    
     def runY(self):
         self.append_field(self.__field)
         self.append_time_frame(self.__time_frame)  
@@ -47,14 +51,17 @@ class Sodir_prod(SODIR_feature):
         import streamlit as st
         from pandas import DataFrame
         res = self.getResult()
+        lst = self.get_time_frame()
         if comp == False:
             for i in reversed(range(len(res))):
                 if isinstance(res[i], DataFrame):
                     field = self.getField()
                     st.title('Produced volumes: ' + field[i])
                     display.multi_plot_SODIR([res[i]])
+        elif len(set(lst)) != 1:
+            st.error("To compare different fields the timeframes must be the same. Can not compare yearly rates with monthly rates. If you would like to compare, clear output and plot production profiles with the same time frame.")
+            
         else:
-            st.title('Comparison of Produced volumes between fields')
             dfs = []
             for df in self.__state.result:
                 reset_ind_df = df.reset_index(drop = True)
@@ -62,7 +69,8 @@ class Sodir_prod(SODIR_feature):
             fields = []
             for field in self.__state.field:
                 fields.append(field)
-            display.multi_plot_SODIR_compare(dfs, fields)
+            aligned_checkbox = self.get_current_alignment()
+            display.multi_plot_SODIR_compare(dfs, fields, res, aligned_checkbox)
 
     def clear_output(self):
         from Data.Storage.Cache import SessionState
@@ -97,7 +105,7 @@ class Sodir_prod(SODIR_feature):
     
     def append_field(self, item) -> str:
         SessionState.append(id = self.__session_id, key = 'field', value = item)
-    
+
     def append_polyPlot(self, item) -> str:
         SessionState.append(id = self.__session_id, key = 'polyPlot', value = item)
         

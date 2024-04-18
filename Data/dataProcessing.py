@@ -71,10 +71,11 @@ def yearly_produced_DF(field: str, df: DataFrame) ->DataFrame:
     df = df.assign(CondensateSm3Yearly=cond)
     df = df.assign(OilEquivalentsSm3Yearly=Oe)
     df = df.assign(WaterSm3Yearly=w)
+    df = df.assign(Watercut=(100*df["WaterSm3Yearly"]/(df["WaterSm3Yearly"] + df['OilSm3Yearly'] + df['CondensateSm3Yearly'] + df['NGLSm3Yearly'])))
+
     return df
 
 def monthly_produced_DF(field: str, df: DataFrame) ->DataFrame:
-    import streamlit as st
     gas, NGL, oil, cond, Oe, w = get.CSVProductionMonthly(field)
     gas = [i*10**9 for i in gas] #prfPrdGasNetBillSm3
     NGL = [i*10**6 for i in NGL] #prfPrdOilNetMillSm3
@@ -88,6 +89,7 @@ def monthly_produced_DF(field: str, df: DataFrame) ->DataFrame:
     df = df.assign(CondensateSm3Monthly=cond)
     df = df.assign(OilEquivalentsSm3Monthly=Oe)
     df = df.assign(WaterSm3Monthly=w)
+    df = df.assign(Watercut=(100*df["WaterSm3Monthly"]/(df["WaterSm3Monthly"] + df['OilSm3Monthly'] + df['CondensateSm3Monthly'] + df['NGLSm3Monthly'])))
     return df
 
 def addProducedYears(field: str, df: DataFrame, adjustLength=True) -> DataFrame:

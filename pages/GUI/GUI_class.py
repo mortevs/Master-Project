@@ -21,7 +21,7 @@ class main_page_GUI:
             deleteAndLoadNewDataFromNPD()
             timestamp = time.ctime()
             alert00 = st.warning('Data downloaded from sodir ' + timestamp)
-            time.sleep(5)
+            time.sleep(3)
             alert00.empty() 
     #opt = display.dropdown(label = 'What do you want to use the application for?',options = ['NO OPTION CHOSEN', 'FIELD DEVELOPMENT', 'RESERVOIR PRESSURE FROM PRODUCTION DATA', 'NPD DATA'], labelVisibility='visible')   
     #if opt == "NO OPTION CHOSEN":
@@ -168,7 +168,7 @@ class FIELD_DEVELOPMENT:
         elif run and field_name != 'No field chosen':
             result = Analysis.run_field(field)
             Analysis.append_result(result)
-        
+
         if plot_comp and len(Analysis.getResult()) == 0:
             st.error("""No profiles to compare. Press Run Analysis (with the desired field charateristics in the table above to the right). Then change the field charateristics, 
                      and press Run Analysis once again. THEN press compare fields to compare the two (or more) production 
@@ -176,7 +176,6 @@ class FIELD_DEVELOPMENT:
         elif plot_comp == True:
             Analysis.plot(comp = True)
         Analysis.plot()
-        
         production_profiles = Analysis.getResult()
         i = len(production_profiles)
         opts = []
@@ -472,19 +471,20 @@ class SODIR_feature:
             field = GUI.dropdown(label = 'Choose a field', options = fieldnames, labelVisibility="visible")
         with col5:
             time = GUI.dropdown(label = 'Time frame of interest', options = ['Yearly', 'Monthly'], labelVisibility="visible")
-
-        sodir_obj.updateFromDropDown(fieldName = field, time = time)
+        colA, colB, colC = st.columns(3)
+        with colC:
+            align = GUI.dropdown(label = 'Compare fields alignment', options = ['Compare from production startup', 'Compare by dates'], labelVisibility="visible")
+        sodir_obj.updateFromDropDown(fieldName = field, time = time, checkbox = align)
         col6, col7 = st.columns(2)
         with col6:
-            run = st.button('Plot production profile', 'Show produced volumes', use_container_width=True)
+            run = st.button('Plot Production Profile', 'Show produced volumes', use_container_width=True)
         with col7:
-            comp = st.button('Compare fields', 'Compare', use_container_width=True)
+            comp = st.button('Compare Fields', 'Compare', use_container_width=True)
         col8, col9 = st.columns(2)
         with col8:
-            poly_button = st.button('Plot reservoir area', 'polygon plotter', use_container_width=True)
+            poly_button = st.button('Plot Reservoir Area', 'polygon plotter', use_container_width=True)
         with col9:
-            clear =  st.button('Clear output', 'clear FD', use_container_width=True)
-        
+            clear =  st.button('Clear Output', 'clear sodir', use_container_width=True)
         if run and field == 'No field chosen':
             import time as t
             alert3 = st.warning('Choose a field first')
@@ -506,14 +506,13 @@ class SODIR_feature:
             st.error("""No fields to compare. Choose a field and press Plot production profile. Choose another field and then press
                      Plot production profile again. Then press compare fields.""")
         elif comp:
+            st.title('Comparison of Produced Volumes')
             sodir_obj.plot(comp = True)
         sodir_obj.plot()
-        #self.parent = parent
 
         st.write(' ')
         st.write(' ')
         st.write(' ')
-        self.__ReservoirPlotFig = None
 
         if poly_button and field == 'No field chosen':
             import time
@@ -534,27 +533,27 @@ class SODIR_feature:
         else:
             plotPolyPlot(polyFig[-1])
 
-        show_more_prod = st.toggle(label = "Show me more information about the producing wells on this field")    
+        show_more_prod = st.toggle(label = ("Show me more information about the producing wells on "+ field))    
         if show_more_prod:
             if field == "No field chosen":
                 st.error("No field chosen")
             else:
                 st.dataframe(get.producing_wlb(field).style.pipe(make_pretty), hide_index=True, use_container_width=True)
 
-        show_more_inj = st.toggle(label = "Show me more information about the injection wells on this field") 
+        show_more_inj = st.toggle(label = ("Show me more information about the injection wells on  "+ field))   
         if show_more_inj:
             if field == "No field chosen":
                 st.error("No field chosen")
             else:
                 st.dataframe(get.injecting_wlb(field).style.pipe(make_pretty), hide_index=True, use_container_width=True)
         
-        show_more_closed = st.toggle(label = "Show me more information about the closed wells on this field") 
+        show_more_closed = st.toggle(label = ("Show me more information about the closed wells on  "+ field))   
         if show_more_closed:
             if field == "No field chosen":
                 st.error("No field chosen")
             else:
                 st.dataframe(get.closed_wlb(field).style.pipe(make_pretty), hide_index=True, use_container_width=True)
-        show_more_PA = st.toggle(label = "Show me more information about the P&A wells on this field") 
+        show_more_PA = st.toggle(label = ("Show me more information about the P&A wells on  "+ field))   
         if show_more_PA:
             if field == "No field chosen":
                 st.error("No field chosen")
