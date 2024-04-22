@@ -87,3 +87,4 @@ def default_template_distribution(def_well_list, N_temp, NWellsPerTemp, prod_sto
         if temp_count == N_temp:
             break
     return def_temp_list
+

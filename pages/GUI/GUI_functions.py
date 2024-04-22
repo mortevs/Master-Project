@@ -87,7 +87,6 @@ def multi_plot_PR(dfs, addAll = True, addProduced = False):
     
     )
     st.plotly_chart(fig, use_container_width=True)
-
 def multi_plot(dfs, addAll=True, addProduced=False, num=None, comp = False):
     fig = go.Figure()
     axis_titles = {
@@ -206,8 +205,6 @@ def multi_plot(dfs, addAll=True, addProduced=False, num=None, comp = False):
         if active_column not in trace.name:
             trace.showlegend = False
     st.plotly_chart(fig, use_container_width=True)
-
-
 def multi_plot_SODIR(dfs):        
     fig = go.Figure()
     axis_titles = {
@@ -232,8 +229,8 @@ def multi_plot_SODIR(dfs):
     for df in dfs:
         for column in df.columns:
             if column not in columns_set:
-                columns_to_plot.append(column)
                 columns_set.add(column)
+                columns_to_plot.append(column)
         try:
             for column in columns_to_plot:
                 fig.add_trace(
@@ -271,9 +268,6 @@ def multi_plot_SODIR(dfs):
     )
 
     st.plotly_chart(fig, use_container_width=True)
-
-
-
 def multi_plot_SODIR_compare(dfs, fields, res, comp_align):        
     fig = go.Figure()
     columns_to_plot = []
@@ -330,9 +324,12 @@ def multi_plot_SODIR_compare(dfs, fields, res, comp_align):
                 except KeyError:
                     st.error("Cannot compare yearly and monthly time frames.")
     else:
-        for i in range(len(dfs)):
-            df = dfs[i]
-            columns_to_plot += df.columns.to_list()
+        for i in range(len(res)):
+            df = res[i]
+            for column in df.columns:
+                if column not in columns_set:
+                    columns_to_plot.append(column)
+                    columns_set.add(column)
             try:
                 for column in df.columns:
                     fig.add_trace(
@@ -378,9 +375,6 @@ def multi_plot_SODIR_compare(dfs, fields, res, comp_align):
             trace.showlegend = False
 
     st.plotly_chart(fig, use_container_width=True)
-
-
-
 def display_FD_variables_table(list1, list2, edible=False, key = 'df_table_editor'):
     df_table = pd.DataFrame({
         'Input': list1,
@@ -404,7 +398,6 @@ def display_FD_variables_table2(list2):
     df_table['Value'] = df_table['Value'].astype(str)
     pd.set_option("display.max_rows", 2)
     st.dataframe(df_table.style.pipe(make_pretty), hide_index=True, use_container_width=True, height=633)
-
 def display_table_RESPRES(list1, list2, edible = False, clear_table = False) ->list:
     # Create a DataFrame from the two lists
     df_table = pd.DataFrame({
@@ -428,13 +421,12 @@ def display_table_NPV(list1, list2, edible=False, key = 'df_table_editor'):
         st.table(df_table)
 
 def display_table_grid_search(f_variables=None, key = 'df_table_editor'):
-    #plataeu = f_variables[0]
-    #nr_temps =f_variables[8]
-    #pertemp = f_variables[0]
-    list1 = ['Plateau rate [Sm3/d]', 'Nr Templates', 'Nr Wells per Template', 'Rate of Abandonment [Sm3/d]']
-    list2 = [10000000,2,2, 1e6] 
-    list3 = [40000000,5,5, None] 
-    list4 = [4,4,4,None] 
+    nr_temps =f_variables[7]
+    wpertemp = f_variables[8]
+    list1 = ['Plateau rate [Sm3/d]', 'Nr Wells', 'Rate of Abandonment [Sm3/d]']
+    list2 = [10000000,wpertemp, 1e6] 
+    list3 = [40000000,wpertemp*nr_temps*2, None] 
+    list4 = [4,None,None] 
     df_table = pd.DataFrame({
         'Input': list1,
         'Min': list2,
@@ -446,9 +438,9 @@ def display_table_grid_search(f_variables=None, key = 'df_table_editor'):
     return edited_df
 
 def display_table_Monte_Carlo(Variables = None):    
-    list1 = ['Gas Price [USD/Sm3]', 'IGIP [Sm3]', 'OPEX [1E6 USD]']
+    list1 = ['Gas Price [USD/Sm3]', 'IGIP [Sm3]', 'LNG Plant [USD/Sm3/d]']
     list2 = [0.05,250000000000, 100] 
-    list3 = [1,300000000000, 300] 
+    list3 = [1,300000000000, 220] 
     df_table = pd.DataFrame({
         'Input': list1,
         'Min': list2,
@@ -463,6 +455,7 @@ def display_table_Monte_Carlo_param():
     df_table = pd.DataFrame({
         'Parameter': list1,
         'Value': list2,
+
     })
     edited_df = st.data_editor(df_table, hide_index=True, use_container_width=True)
     return edited_df['Value']

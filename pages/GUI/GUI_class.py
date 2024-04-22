@@ -157,7 +157,8 @@ class FIELD_DEVELOPMENT:
                 Analysis.updateField(field)
         with col1:  
             Analysis.updateFromDropdown(method = self._method, precision=self._precision)
-            Analysis.updateParameterListfromTable()
+            params = Analysis.updateParameterListfromTable()
+            Analysis.validate_parameters(params)
         if clear:
             Analysis.clear_output()
         field_name = Analysis.get_current_field()
@@ -248,49 +249,57 @@ class FIELD_DEVELOPMENT:
             st.markdown("**Field-variable optimization**")            
             col9, co10 = st.columns(2)
             with col9:
-                edited_grid = GUI.display_table_grid_search() 
+                edited_grid = GUI.display_table_grid_search(Analysis.getParameters()[opt]) 
+                dry_gas_NPV.validate_grid_variables(edited_grid, Analysis.getParameters()[opt])
                 optimize_NPV = st.button(label = "Optimize NPV with grid search", use_container_width=True)
              
             if optimize_NPV:
                 dry_gas_NPV.update_grid_variables(edited_grid)
                 minP, maxP, pStep = dry_gas_NPV.get_grid_plateau_variables()
-                minT, maxT, tStep = dry_gas_NPV.get_grid_temp_variables()
-                T = [minT, maxT, tStep]
-                minW, maxW, wStep = dry_gas_NPV.get_grid_well_variables()
-                W = [minW, maxW, wStep]
+                minW, maxW = dry_gas_NPV.get_grid_well_variables()
                 minROA = dry_gas_NPV.get_ROA_variables()
                 rates = []
                 for i in range(pStep):
                     rates.append(minP + (maxP-minP)/(pStep-1)*i)
-
-
-                prodProfiles_to_NPV = dry_gas_NPV.grid_production_profiles(rates, minROA)
                 
+                W = [minW]
+                while W[-1]<maxW:
+                    W.append(W[-1]+Analysis.getParameters()[opt][8])
+
+                prodProfiles_to_NPV = dry_gas_NPV.grid_production_profiles(rates, minROA, W)
                 NPV_grid_list = []
                 NPV_dict = {}
-                for i in range(pStep):
-                    for j in range(len(prodProfiles_to_NPV[i])):
-                        new_NPV = dry_gas_NPV.run_grid_NPV(edited_df = self.__edited_df, production_profile = prodProfiles_to_NPV[i][:j], rate = rates[i])
+
+                for i in range(len(prodProfiles_to_NPV)):
+                    for k in range(len(prodProfiles_to_NPV[i][0])):
+                        new_NPV, ROA = dry_gas_NPV.run_grid_NPV(edited_df = self.__edited_df, production_profile = prodProfiles_to_NPV[i][0][:k], rate = prodProfiles_to_NPV[i][2], wells=prodProfiles_to_NPV[i][1])
                         NPV_grid_list.append(new_NPV)
-                        NPV_dict[new_NPV] = [i, j]
+                        NPV_dict[new_NPV] = [prodProfiles_to_NPV[i][2], prodProfiles_to_NPV[i][1], ROA]
 
-                
-
+                #st.write(NPV_dict)
                 # for i in range(tStep)
                 
                     # stop_t = time.time()
                     # error_message = "Approximately" + str((stop_t-start_t)*(len(grid_profiles))) + "seconds left"
                     # st.write(error_message)
-                        
                 optimized_NPV = max((NPV_grid_list))
-                optimized_rate = rates[NPV_dict[optimized_NPV][0]]
-                optimized_ROA = math.ceil((prodProfiles_to_NPV[NPV_dict[optimized_NPV][0]][NPV_dict[optimized_NPV][1]])/1000)*1000
-                opt_NPV_str = f"<div style='font-size:{font_size};'>Optimized NPV of project: <span style='color:red;'>{optimized_NPV}</span> 1E6 USD</div>"
+                optimized_rate = NPV_dict[optimized_NPV][0]
+                optimized_Nr_Wells = NPV_dict[optimized_NPV][1]
+
+                w_string = f"Wells and templates are distributed by a default distribution algoithm. The distribution algorithm distrubtes wells and templates cost with consideration to number of wells, Max Wells Drilled p/year, and number of Wells per template. "
+                st.warning(w_string)
+
+
+
+                #optimized_ROA = math.ceil((prodProfiles_to_NPV[NPV_dict[optimized_NPV][0]][NPV_dict[optimized_NPV][2]])/1000)*1000
+                optimized_ROA = math.ceil(NPV_dict[optimized_NPV][2]/1000)*1000
+                
+                opt_NPV_str = f"<div style='font-size:{font_size};'>Optimized NPV: <span style='color:red;'>{optimized_NPV}</span> 1E6 USD</div>"
                 st.markdown(opt_NPV_str, unsafe_allow_html=True)
                 
                 optimized_data = {
-                    "Input": ["Plateau rate [Sm3/d]", "Rate of Abandonment [Sm3/d]"],
-                    "Value": [int(optimized_rate), int(optimized_ROA)]
+                    "Input": ["Plateau rate [Sm3/d]", "Rate of Abandonment [Sm3/d]",  "Number of Wells [-]"],
+                    "Value": [int(optimized_rate), int(optimized_ROA), int(optimized_Nr_Wells)]
                 }
                 df = pd.DataFrame(optimized_data)
                 col11, col12, col13 = st.columns(3)
@@ -298,18 +307,16 @@ class FIELD_DEVELOPMENT:
                     st.markdown("**Achieved with the following variables:**")
                     st.dataframe(df.style.pipe(make_pretty), hide_index=True, use_container_width=True)
                 
-                #for i in range(3):
-            col14, col15 = st.columns(2)
-            with col14:
-                optimize_wells = st.button(label = "Optimize Templates and wells", use_container_width=True)
-            if optimize_wells:
-                dry_gas_NPV.grid_production_profiles2()
+            #     #for i in range(3):
+            # col14, col15 = st.columns(2)
+            # with col14:
+            #     optimize_wells = st.button(label = "Optimize Templates and wells", use_container_width=True)
+            # if optimize_wells:
+            #     dry_gas_NPV.grid_production_profiles2()
             #variables=Analysis.getParameters()[opt]
             st.write(" ")
             st.write(" ")
             st.write(" ")
-            
-            
             
             col16, col17 = st.columns(2)
             col18, col19 = st.columns(2)

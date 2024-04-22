@@ -32,71 +32,70 @@ class DryGasAnalysis():
 
     def updateParameterListfromTable(self):
         list1 = ['Target Rate [Sm3/d]', 'Initial Reservoir Pressure [bara]', 'Rate of Abandonment [Sm3/d]', 'Reservoir Temperature [degree C]', 'Gas Molecular Weight [g/mol]', 'Inflow backpressure coefficient', 'Inflow backpressure exponent', 'Number of Templates', 'Number of Wells per Template', 'Uptime [days]', 'Tubing Flow Coefficient', 'Tubing Elevation Coefficient', 'Flowline Coefficient from Template-PLEM', 'Pipeline coefficient from PLEM-Shore', 'Seperator Pressure [bara]', 'Initial Gas in Place [sm3]', 'Build-up period [years]']
-        self.__parameters = (GUI.display_FD_variables_table(list1=list1, list2=default_FD_data(), edible=True))
-        def validate_parameters(list1 = self.__parameters):
-            if list1[0] <= 0:
-                st.error("Target Rate [sm3/d] must be greater than 0")
-                st.stop()            
-            if list1[1] <= 0:
-                st.error("Initial Reservoir Pressure [bare] must be greater than 0")
-                st.stop()
-            if list1[2] <= 0:
-                st.error('Rate of Abandonment [sm3/d] must be greater than 0')
-                st.stop()
-            if list1[3] < -273.15:
-                st.error("'Reservoir Temperature can not be lower than -273.15 degree C'")
-                st.stop()
-            if list1[4] <= 0:
-                st.error('Gas Molecular Weight [g/mol] must greater than 0')
-                st.stop()  
-            if list1[7] <= 0:
-                st.error('Number of Templates must be greater than 0')
-                st.stop()  
-            if list1[8] <= 0:
-                st.error('Number of Wells per Template must be greater than 0')
-                st.stop()  
-            if list1[9] <= 0:
-                st.error('Uptime [days] must be greater than 0')
-                st.stop()
-            if list1[9] > 365:
-                st.error('Uptime [days] must be less than or equal 365 days')
-                st.stop()  
-            if list1[14] <= 0:
-                st.error('Seperator Pressure [Bara] must be greater than 0')
-                st.stop() 
-            if list1[15] <= 0:
-                st.error('Initial Gas in Place [sm3] must be greater than 0]')
-                st.stop()  
-            if list1[16] <= 0:
-                st.error('Build-up period [years] must be greater than 0')
-                st.stop()
-            if isinstance(list1[16], float):
-                if list1[16].is_integer():
-                    pass
-                else:
-                    st.error('Build-up period [years] must be a whole number')
-                    st.stop()
-            if isinstance(list1[7], float):
-                if list1[7].is_integer():
-                    pass
-                else:
-                    st.error('Number of Templates must be a whole number')
-                    st.stop()
-            if isinstance(list1[8], float):
-                if list1[8].is_integer():
-                    pass
-                else:
-                    st.error('Number of Wells per Template must be a whole number')
-                    st.stop()  
-            if isinstance(list1[9], float):
-                if list1[9].is_integer():
-                    pass
-                else:
-                    st.error('Uptime [days] must be a whole number')
-                    st.stop()
-        validate_parameters()
+        self.__parameters = (GUI.display_FD_variables_table(list1=list1, list2=default_FD_data(), edible=True))        
         return self.__parameters
 
+    def validate_parameters(self, list1):
+        if list1[0] <= 0:
+            st.error("Target Rate [sm3/d] must be greater than 0")
+            st.stop()            
+        if list1[1] <= 0:
+            st.error("Initial Reservoir Pressure [bare] must be greater than 0")
+            st.stop()
+        if list1[2] <= 0:
+            st.error('Rate of Abandonment [sm3/d] must be greater than 0')
+            st.stop()
+        if list1[3] < -273.15:
+            st.error("'Reservoir Temperature can not be lower than -273.15 degree C'")
+            st.stop()
+        if list1[4] <= 0:
+            st.error('Gas Molecular Weight [g/mol] must greater than 0')
+            st.stop()  
+        if list1[7] <= 0:
+            st.error('Number of Templates must be greater than 0')
+            st.stop()  
+        if list1[8] <= 0:
+            st.error('Number of Wells per Template must be greater than 0')
+            st.stop()  
+        if list1[9] <= 0:
+            st.error('Uptime [days] must be greater than 0')
+            st.stop()
+        if list1[9] > 365:
+            st.error('Uptime [days] must be less than or equal 365 days')
+            st.stop()  
+        if list1[14] <= 0:
+            st.error('Seperator Pressure [Bara] must be greater than 0')
+            st.stop() 
+        if list1[15] <= 0:
+            st.error('Initial Gas in Place [sm3] must be greater than 0]')
+            st.stop()  
+        if list1[16] <= 0:
+            st.error('Build-up period [years] must be greater than 0')
+            st.stop()
+        if isinstance(list1[16], float):
+            if list1[16].is_integer():
+                pass
+            else:
+                st.error('Build-up period [years] must be a whole number')
+                st.stop()
+        if isinstance(list1[7], float):
+            if list1[7].is_integer():
+                pass
+            else:
+                st.error('Number of Templates must be a whole number')
+                st.stop()
+        if isinstance(list1[8], float):
+            if list1[8].is_integer():
+                pass
+            else:
+                st.error('Number of Wells per Template must be a whole number')
+                st.stop()  
+        if isinstance(list1[9], float):
+            if list1[9].is_integer():
+                pass
+            else:
+                st.error('Uptime [days] must be a whole number')
+                st.stop()
     def run(self):
         self.append_method(self._method)
         self.append_precision(self._precision)
@@ -305,7 +304,7 @@ class NPV_dry_gas(NPVAnalysis):
 
         self._LNG_plant_per_Sm3 = self.__CAPEX[3]
         self._LNG_cost_per_vessel = self.__CAPEX[4]
-        import math #HERE IS THE PROBLEM. I DONT THINK SELF._PLATEAU_RATE IS UPDATING DURING GRID
+        import math 
         number_of_LNG_vessels = (math.ceil(self._plateau_rate*self._uptime/((86000000*22)))) #rough estimation
         self._LNG_plant = self._plateau_rate * self._LNG_plant_per_Sm3 / 1e6
         self._LNG_vessels = self._LNG_cost_per_vessel*number_of_LNG_vessels
@@ -372,23 +371,28 @@ class NPV_dry_gas(NPVAnalysis):
         self.__final_NPV = self.__df_table2['NPV [1E6 USD]'].to_list()[-1]
         return round(self.__final_NPV, 1)
     
-    def optimize_Rate_of_Abandonment(self):
-        pass
-
-
     
-    def run_grid_NPV(self, edited_df, production_profile, rate):
+    def run_grid_NPV(self, edited_df, production_profile, rate, wells):
         yearly_gas_offtake = [0 for i in range (self._CAPEX_period_prior-1)] + [element * self._uptime for element in production_profile]
         end_prod = len(yearly_gas_offtake)
         revenue = [offtake/(1000000) * self._Gas_Price for offtake in yearly_gas_offtake]
-        
         years = []         
         for i in range(end_prod):
-            years.append(i)            
+            years.append(i)
 
+        from Data.DefaultData import default_template_distribution, default_well_distribution
         
-        DRILLEX = [element * self._Well_Cost for element in edited_df['Nr Wells']]   #DRILLEX [1E6 USD]
-        TEMPLATES = [element * self._temp_cost for element in edited_df['Nr Templates']]
+        well_list  = default_well_distribution(wells/self._N_Wells_per_Temp, self._N_Wells_per_Temp, end_prod, self._Max_Well_per_year_nr)
+        templ_list = default_template_distribution(well_list, wells/self._N_Wells_per_Temp, self._N_Wells_per_Temp, end_prod)
+
+        #self._def_well_list  = default_well_distribution(self._N_temp, self._N_Wells_per_Temp, self._end_prod, self._Max_Well_per_year_nr)
+        #self._templ_list = default_template_distribution(self._def_well_list, self._N_temp, self._N_Wells_per_Temp, self._end_prod)
+
+
+        DRILLEX = [element * self._Well_Cost for element in well_list]   #DRILLEX [1E6 USD]
+        TEMPLATES = [element * self._temp_cost for element in templ_list]
+        #DRILLEX = [element * self._Well_Cost for element in edited_df['Nr Wells']]   #DRILLEX [1E6 USD]
+        #TEMPLATES = [element * self._temp_cost for element in edited_df['Nr Templates']]
 
         
         LNG_p = edited_df['LNG Plant [1E6 USD]'].to_list()
@@ -403,64 +407,130 @@ class NPV_dry_gas(NPVAnalysis):
         CASH_FLOW = [sum(x) for x in zip(revenue, np.negative(TOTAL_CAPEX), np.negative(edited_df['OPEX [1E6 USD]']))] #'Cash Flow [1E6 USD]'
         DISCOUNTED_CASH_FLOW =  [cf/(1+self._discount_rate/100)** year for cf, year in zip(CASH_FLOW, years)] #'Discounted Cash Flow [1E6 USD]'        
         FINAL_NPV = sum(DISCOUNTED_CASH_FLOW) #[1E6 USD]
-        return round(FINAL_NPV, 1)
+        return round(FINAL_NPV, 1), yearly_gas_offtake[-1]/self._uptime
     
+
     def update_grid_variables(self, df):
         self._minPlat = int(df["Min"][0])
-        self._minNrTemp = int(df["Min"][1])
-        self._minWellspTemp = int(df["Min"][2])
-        self._minROA = int(df["Min"][3])
+        self._minWells = int(df["Min"][1])
+        self._minROA = int(df["Min"][2])
 
         self._maxPlat = int(df["Max"][0])
-        self._maxNrTemp = int(df["Max"][1])
-        self._maxWellspTemp = int(df["Max"][2])
+        self._maxWells = int(df["Max"][1])
         
         self._platSteps = int(df["Steps"][0])
-        self._tempStep = int(df["Steps"][1])
-        self._wellspTempStep = int(df["Steps"][2])
+        #self._WellSteps = int(df["Steps"][1])
+
+    def validate_grid_variables(self, df, params):
+        minPlat = float(df["Min"][0])
+        minWells = float(df["Min"][1])
+        minROA = float(df["Min"][2])
+        maxPlat = float(df["Max"][0])
+        maxWells = float(df["Max"][1])
+        platSteps = float(df["Steps"][0])
+        WellSteps = float(df["Steps"][1])
+
+        if minPlat<=0:
+            st.error("Minimum plateau rate must be greater than 0")
+            st.stop()
+        if minWells<=0:
+            st.error("Minimum Nr Wells must be greater than 0")
+            st.stop()
+        if minWells%params[8]!=0:
+            errormesg = f"Min Nr Wells must be {int(params[8])}, {int(params[8]*2)}, {int(params[8]*3)}, etc due to assumption that all templates and wells are equal. (Number of Wells per Template = {int(params[8])}, specified in the table at the top)"
+            st.error(errormesg)
+            st.stop()
+
+        if platSteps<2:
+            st.error("Minimum plateau rate steps must be greater than 2")
+            st.stop()
+
+
+        if isinstance(minWells, float):
+            if minWells.is_integer():
+                pass
+            else:
+                st.error('Min Nr Wells must be a whole number')
+                st.stop()
+
+        if isinstance((maxWells), float):
+            if maxWells.is_integer():
+                pass
+            else:
+                st.error('Max Nr Wells must be a whole number')
+                st.stop()
+
+
+        # if isinstance(WellSteps, float):
+        #     if WellSteps.is_integer():
+        #         pass
+        #     else:
+        #         st.error('Nr Wells step must be a whole number')
+        #         st.stop()
+
+        if isinstance(platSteps, float):
+            if platSteps.is_integer():
+                pass
+            else:
+                st.error('Plateau rate steps must be a whole number')
+                st.stop()
+
+        if minROA<=0:
+            st.error("Minimum rate of abandonment must be greater than 0")
+            st.stop()
+        
+        if platSteps>10:
+            st.warning("Number of steps is high. Be patient when running grid search")
+        return True
 
 
     def get_grid_plateau_variables(self):
         return self._minPlat, self._maxPlat, self._platSteps
-    def get_grid_temp_variables(self):
-        return self._minNrTemp, self._maxNrTemp, self._tempStep
     def get_grid_well_variables(self):
-        return self._minWellspTemp, self._maxWellspTemp, self._wellspTempStep
+        return self._minWells, self._maxWells
     def get_ROA_variables(self):
         return self._minROA
 
-    def grid_production_profiles2(self, rates=40000000, minROA=1000000):
-        pp_list = []
-        temp_well_optimization = self.getParameters()[self._opt].copy()
-        temp_well_optimization[2] = minROA
-        temp_well_optimization[7] = 4
-        temp_well_optimization[8] = 4
-        st.write(temp_well_optimization)
+    # def grid_production_profiles2(self, rates=40000000, minROA=1000000):
+    #     temp_well_optimization = self.getParameters()[self._opt].copy()
+    #     temp_well_optimization[2] = minROA
+    #     temp_well_optimization[7] = 4
+    #     temp_well_optimization[8] = 4
+    #     st.write(temp_well_optimization)
 
 
-    def grid_production_profiles(self, rates, minROA):
+
+    def grid_production_profiles(self, rates, minROA, W):
         pp_list = []
         stepping_field_variables = self.getParameters()[self._opt].copy()
-        for i in range(len(rates)):
-            stepping_field_variables[0] = rates[i]
-            stepping_field_variables[2] = minROA
-            if self.getMethod()[self._opt] == 'IPR':
-                from Modules.FIELD_DEVELOPMENT.IPR.IPRAnalysis import IPRAnalysis
-                new_df = IPRAnalysis(self.getPrecision()[self._opt], stepping_field_variables)
-                #pp_list.append(df[])
+        nWpT = stepping_field_variables.copy()[8]
+        
+        stepping_field_variables[2] = minROA           
+        for rate in rates:
+            stepping_field_variables[0] = rate
+            for wells in W:
+                stepping_field_variables[7] = wells/nWpT
+                if self.getMethod()[self._opt] == 'IPR':
+                    from Modules.FIELD_DEVELOPMENT.IPR.IPRAnalysis import IPRAnalysis
+                    new_df = IPRAnalysis(self.getPrecision()[self._opt], stepping_field_variables)
+                    pp_list.append([(new_df['Field Rates [Sm3/d]'].to_list()), wells, rate])
+                    #pp_list.append(df[])
 
-            elif self.getMethod()[self._opt] == "NODAL":
-                from Modules.FIELD_DEVELOPMENT.Nodal.NodalAnalysis import NodalAnalysis
-                new_df = NodalAnalysis(self.getPrecision()[self._opt], stepping_field_variables)
-            else:
-                st.write("this is not supposed to happen, method and precision is:", self._method, self._precision)
-            pp_list.append((new_df['Field Rates [Sm3/d]'].to_list()))
+                elif self.getMethod()[self._opt] == "NODAL":
+                    from Modules.FIELD_DEVELOPMENT.Nodal.NodalAnalysis import NodalAnalysis
+                    new_df = NodalAnalysis(self.getPrecision()[self._opt], stepping_field_variables)
+                    pp_list.append([(new_df['Field Rates [Sm3/d]'].to_list()), wells, rate])
+
+                else:
+                    st.error("Error, method and precision is:", self._method, self._precision)     
         return pp_list
     
+
+
 def getNPVforMonteCarlo(table):
     pass
 
-        
+
 
 
 
