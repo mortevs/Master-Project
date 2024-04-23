@@ -521,8 +521,18 @@ class NPV_dry_gas(NPVAnalysis):
     
 
 
-def getNPVforMonteCarlo(table):
-    pass
+    def getNPVforMonteCarlo(self, df):
+        self._minGasPrice = df["Min"][0]
+        self._maxGasPrice =df["Max"][0]
+        self._minIGIP =df["Min"][1]
+        self._maxIGIP =df["Max"][1]
+        self._minLNGPlant =df["Min"][2]
+        self._maxLNGPlant = df["Max"][2]
+        
+
+        
+
+        
 
 
 

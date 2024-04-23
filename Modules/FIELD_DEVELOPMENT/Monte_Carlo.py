@@ -9,10 +9,10 @@ def NPV(Gas_price, IGIP, CAPEX):
     return NPV
 
 class Monte_Carlo():
-    def __init__(self, parent, NPVgaspricemin = -2422, NPVgaspricemax=4810, NPV_IGIPmin=513, NPV_IGIPmax=1653, NPV_CAPEXmin=-853, NPV_CAPEXmax=3204):
+    def __init__(self, parent, NPVgaspricemin = -2422, NPVgaspricemax=4810, NPV_IGIPmin=513, NPV_IGIPmax=1653, LNGPlantMin=-853, LNGPlantMax=3204):
         NPV_gas_v = np.random.uniform(NPVgaspricemin,NPVgaspricemax, parent._Nr_random_num)
         NPV_IGIP_v = np.random.uniform(NPV_IGIPmin ,NPV_IGIPmax, parent._Nr_random_num)
-        NPV_CAPEX_v = np.random.uniform(NPV_CAPEXmin ,NPV_CAPEXmax, parent._Nr_random_num)
+        NPV_CAPEX_v = np.random.uniform(LNGPlantMin ,LNGPlantMax, parent._Nr_random_num)
         NPV_v = NPV(NPV_gas_v,NPV_IGIP_v,NPV_CAPEX_v)
         nr_bins = parent._Nr_bins
         bins = np.linspace(NPV_v.min(),NPV_v.max(),nr_bins)

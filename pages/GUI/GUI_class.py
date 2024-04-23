@@ -329,8 +329,7 @@ class FIELD_DEVELOPMENT:
             with col16:
                 st.markdown("**Uncertainty in variables for Monte Carlo Analysis**")
                 edited_MC_table = GUI.display_table_Monte_Carlo()
-                from Modules.FIELD_DEVELOPMENT.run_Analysis import getNPVforMonteCarlo
-                getNPVforMonteCarlo(edited_MC_table)
+                NPVsMC = dry_gas_NPV.getNPVforMonteCarlo(edited_MC_table)
             with col17:
                 st.markdown("**Monte Carlo Analysis parameters**")
                 self._Nr_random_num, self._Nr_bins = GUI.display_table_Monte_Carlo_param()
@@ -338,7 +337,7 @@ class FIELD_DEVELOPMENT:
                 MC = st.button(label = "Run Monte Carlo-Analysis", use_container_width=True)
                 if MC:
                     from Modules.FIELD_DEVELOPMENT.Monte_Carlo import Monte_Carlo
-                    MC = Monte_Carlo(parent = self)
+                    MC = Monte_Carlo(parent = self, NPVgaspricemin = -2422, NPVgaspricemax=4810, NPV_IGIPmin=513, NPV_IGIPmax=1653, LNGPlantMin=-853, LNGPlantMax=3204)
                     pdf_fig, cdf_fig, tab, std = MC.getResults()
                     with col20:
                         st.plotly_chart(pdf_fig, use_container_width=True)
@@ -346,6 +345,9 @@ class FIELD_DEVELOPMENT:
                         st.write("std:", round(std,1))
                     with col21:                      
                         st.plotly_chart(cdf_fig, use_container_width=True)
+            st.warning("""The Monte Carlo Analysis is based on the data above in addition to the provided uncertainity in variables. Produciton profiles are estimated with input variables in top 
+                       right table. NPV is calculated with NPV tables. The editable table is used for ,
+                       """)
 
                     
   
