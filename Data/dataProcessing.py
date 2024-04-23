@@ -71,7 +71,7 @@ def yearly_produced_DF(field: str, df: DataFrame) ->DataFrame:
     df = df.assign(CondensateSm3Yearly=cond)
     df = df.assign(OilEquivalentsSm3Yearly=Oe)
     df = df.assign(WaterSm3Yearly=w)
-    df = df.assign(Watercut=(100*df["WaterSm3Yearly"]/(df["WaterSm3Yearly"] + df['OilSm3Yearly'] + df['CondensateSm3Yearly'] + df['NGLSm3Yearly'])))
+    df = df.assign(Watercut=lambda x: 100 * x["WaterSm3Yearly"] / (x["WaterSm3Yearly"] + x['OilSm3Yearly'] + x['CondensateSm3Yearly'] + x['NGLSm3Yearly']).replace({0: np.nan}))
 
     return df
 

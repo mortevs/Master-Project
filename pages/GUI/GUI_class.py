@@ -235,7 +235,7 @@ class FIELD_DEVELOPMENT:
             self.__ned_df = dry_gas_NPV.update_dry_gas_NPV_calc_sheet(self.__edited_df)
         
             final_NPV_value = str(dry_gas_NPV.get_final_NPV())
-            font_size = "64px"  
+            font_size = "44px"  
             NPV_str = f"<div style='font-size:{font_size};'>NPV of project: <span style='color:red;'>{final_NPV_value}</span> 1E6 USD</div>"
             st.markdown(NPV_str, unsafe_allow_html=True)
             with col1:
@@ -267,34 +267,36 @@ class FIELD_DEVELOPMENT:
                     W.append(W[-1]+Analysis.getParameters()[opt][8])
 
                 prodProfiles_to_NPV = dry_gas_NPV.grid_production_profiles(rates, minROA, W)
-                NPV_grid_list = []
+
                 NPV_dict = {}
-
                 for i in range(len(prodProfiles_to_NPV)):
-                    for k in range(len(prodProfiles_to_NPV[i][0])):
-                        new_NPV, ROA = dry_gas_NPV.run_grid_NPV(edited_df = self.__edited_df, production_profile = prodProfiles_to_NPV[i][0][:k], rate = prodProfiles_to_NPV[i][2], wells=prodProfiles_to_NPV[i][1])
-                        NPV_grid_list.append(new_NPV)
-                        NPV_dict[new_NPV] = [prodProfiles_to_NPV[i][2], prodProfiles_to_NPV[i][1], ROA]
+                    part_ = dry_gas_NPV.run_grid_NPV(edited_df = self.__edited_df, prod_profiles = prodProfiles_to_NPV, i = i)
+                    NPV_dict.update(part_)
+                optimized_NPV = max(NPV_dict)
+                optimized_Nr_Wells = NPV_dict[optimized_NPV][0]
+                optimized_rate = NPV_dict[optimized_NPV][1]
+                optimized_ROA = math.floor(NPV_dict[optimized_NPV][2])
 
-                #st.write(NPV_dict)
-                # for i in range(tStep)
-                
-                    # stop_t = time.time()
-                    # error_message = "Approximately" + str((stop_t-start_t)*(len(grid_profiles))) + "seconds left"
-                    # st.write(error_message)
-                optimized_NPV = max((NPV_grid_list))
-                optimized_rate = NPV_dict[optimized_NPV][0]
-                optimized_Nr_Wells = NPV_dict[optimized_NPV][1]
-
-                w_string = f"Wells and templates are distributed by a default distribution algoithm. The distribution algorithm distrubtes wells and templates cost with consideration to number of wells, Max Wells Drilled p/year, and number of Wells per template. "
+                w_string = f"""All templates and wells are assumed equal. Therefore number of wells in grid seach follows 
+                stepsize of "Number of Wells per Template" = {Analysis.getParameters()[opt][8]}. (In other words
+                only "full templates" are considered). The editable table above was used as basis in the grid search analysis. 
+                The Pipeline & umbilical and OPEX columns in the table remain unchanged throughout the grid search.
+                  The LNG plant and LNG vessel columns change with rate, but the cost proportions 
+                  remain the same as they are in the table (by default 50 % of the cost the first 
+                  year, and 50 % of the cost the second year, however this can be changed). 
+                Note that Wells and templates are distributed by a default distribution algorithm. 
+                The distribution algorithm distrubtes wells and templates with consideration to number of wells, 
+                Max Wells Drilled p/year and number of Wells per template. Template cost and well cost is then
+                  estimated with well cost and template cost variables in the CAPEX table above. Changes to the Nr Wells and Nr Templates 
+                  column in the editable table above are not considered by the grid search optimization, well ands templates needs to be 
+                  default distributed (as we are optimizing on number of wells, a cost distibution must be assumed). 
+                  """
                 st.warning(w_string)
 
 
-
                 #optimized_ROA = math.ceil((prodProfiles_to_NPV[NPV_dict[optimized_NPV][0]][NPV_dict[optimized_NPV][2]])/1000)*1000
-                optimized_ROA = math.ceil(NPV_dict[optimized_NPV][2]/1000)*1000
                 
-                opt_NPV_str = f"<div style='font-size:{font_size};'>Optimized NPV: <span style='color:red;'>{optimized_NPV}</span> 1E6 USD</div>"
+                opt_NPV_str = f"<div style='font-size:{font_size};'>Optimized NPV: <span style='color:red;'>{round(optimized_NPV,1)}</span> 1E6 USD</div>"
                 st.markdown(opt_NPV_str, unsafe_allow_html=True)
                 
                 optimized_data = {
@@ -317,7 +319,10 @@ class FIELD_DEVELOPMENT:
             st.write(" ")
             st.write(" ")
             st.write(" ")
-            
+            st.title("Monte Carlo Analysis")
+            st.write(" ")
+            st.write(" ")
+            st.write(" ")
             col16, col17 = st.columns(2)
             col18, col19 = st.columns(2)
             col20, col21 = st.columns(2)

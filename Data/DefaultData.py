@@ -37,7 +37,7 @@ def default_data_NPV() -> list:
 
 def default_data_NPV_CAPEX() -> list:
     well_cost = 100 #MUSD
-    p_u = 250 #MUSD, Pipeline and umbilicals
+    p_u = 500 #MUSD, Pipeline and umbilicals
     Mani = 20 #MUSD , Cost Per Subsea Manifold  
     LNG_unit_cost = 160 #usd/ Sm^3/d
     LNG_carrier_cost= 200 #1E6 USD

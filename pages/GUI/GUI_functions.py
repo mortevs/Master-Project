@@ -83,7 +83,7 @@ def multi_plot_PR(dfs, addAll = True, addProduced = False):
 
     # Update remaining layout properties
     fig.update_layout(
-        height=600,
+        height=450,
     
     )
     st.plotly_chart(fig, use_container_width=True)
@@ -196,7 +196,7 @@ def multi_plot(dfs, addAll=True, addProduced=False, num=None, comp = False):
         showlegend=True,  # Change showlegend here
         xaxis_title="Year",  # X-axis title
         yaxis_title="Sm3/d",  # Y-axis title
-        height=600,
+        height=450,
         
     )
     # Modify legend entries for the initially active option
@@ -264,7 +264,7 @@ def multi_plot_SODIR(dfs):
         ],
         xaxis_title="Time",  # X-axis title
         yaxis_title="Sm3",  # Y-axis title
-        height=600,
+        height=450,
     )
 
     st.plotly_chart(fig, use_container_width=True)
@@ -364,7 +364,7 @@ def multi_plot_SODIR_compare(dfs, fields, res, comp_align):
         ],
         xaxis_title="Time",  # X-axis title
         yaxis_title="Sm3",  # Y-axis title
-        height=600,
+        height=450,
         showlegend=True  # Ensure legend visibility
     )
     

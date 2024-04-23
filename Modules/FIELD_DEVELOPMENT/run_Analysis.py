@@ -296,7 +296,7 @@ class NPV_dry_gas(NPVAnalysis):
         
         self._Well_Cost = self.__CAPEX[0]
         self._p_u = self.__CAPEX[1]
-        self._p_u_list = [self._p_u, self._p_u]
+        self._p_u_list = [self._p_u/2, self._p_u/2]
         for i in range(2, self._end_prod):
             self._p_u_list.append(0)
         
@@ -372,42 +372,39 @@ class NPV_dry_gas(NPVAnalysis):
         return round(self.__final_NPV, 1)
     
     
-    def run_grid_NPV(self, edited_df, production_profile, rate, wells):
+    def run_grid_NPV(self, edited_df, prod_profiles, i):
+        production_profile = prod_profiles[i][0].copy()
+        wells=prod_profiles[i][1]
+        rate = prod_profiles[i][2]
         yearly_gas_offtake = [0 for i in range (self._CAPEX_period_prior-1)] + [element * self._uptime for element in production_profile]
         end_prod = len(yearly_gas_offtake)
         revenue = [offtake/(1000000) * self._Gas_Price for offtake in yearly_gas_offtake]
         years = []         
-        for i in range(end_prod):
-            years.append(i)
+        for j in range(end_prod):
+            years.append(j)
 
         from Data.DefaultData import default_template_distribution, default_well_distribution
         
         well_list  = default_well_distribution(wells/self._N_Wells_per_Temp, self._N_Wells_per_Temp, end_prod, self._Max_Well_per_year_nr)
         templ_list = default_template_distribution(well_list, wells/self._N_Wells_per_Temp, self._N_Wells_per_Temp, end_prod)
 
-        #self._def_well_list  = default_well_distribution(self._N_temp, self._N_Wells_per_Temp, self._end_prod, self._Max_Well_per_year_nr)
-        #self._templ_list = default_template_distribution(self._def_well_list, self._N_temp, self._N_Wells_per_Temp, self._end_prod)
-
-
         DRILLEX = [element * self._Well_Cost for element in well_list]   #DRILLEX [1E6 USD]
         TEMPLATES = [element * self._temp_cost for element in templ_list]
-        #DRILLEX = [element * self._Well_Cost for element in edited_df['Nr Wells']]   #DRILLEX [1E6 USD]
-        #TEMPLATES = [element * self._temp_cost for element in edited_df['Nr Templates']]
-
         
         LNG_p = edited_df['LNG Plant [1E6 USD]'].to_list()
         LNG_v = edited_df['LNG Vessels [1E6 USD]'].to_list()
-        
-        
         LNG_p = np.array([element / sum(LNG_p) if sum(LNG_p) != 0 else 0 for element in LNG_p]) * rate * self._LNG_plant_per_Sm3 / 1e6
         LNG_v = np.array([element / sum(LNG_v) if sum(LNG_v) != 0 else 0 for element in LNG_v]) * (math.ceil(rate*self._uptime/((86000000*22))))*self._LNG_cost_per_vessel
 
 
         TOTAL_CAPEX = [sum(x) for x in zip(DRILLEX, edited_df['Pipeline & Umbilicals [1E6 USD]'], TEMPLATES, LNG_p, LNG_v)] #'TOTAL CAPEX [1E6 USD]'
         CASH_FLOW = [sum(x) for x in zip(revenue, np.negative(TOTAL_CAPEX), np.negative(edited_df['OPEX [1E6 USD]']))] #'Cash Flow [1E6 USD]'
-        DISCOUNTED_CASH_FLOW =  [cf/(1+self._discount_rate/100)** year for cf, year in zip(CASH_FLOW, years)] #'Discounted Cash Flow [1E6 USD]'        
-        FINAL_NPV = sum(DISCOUNTED_CASH_FLOW) #[1E6 USD]
-        return round(FINAL_NPV, 1), yearly_gas_offtake[-1]/self._uptime
+        DISCOUNTED_CASH_FLOW =  [cf/(1+self._discount_rate/100)**year for cf, year in zip(CASH_FLOW, years)] #'Discounted Cash Flow [1E6 USD]'        
+        my_dict = {}
+        for k in range(len(DISCOUNTED_CASH_FLOW)):
+            NPV = float(sum(DISCOUNTED_CASH_FLOW[:k+1]))
+            my_dict[NPV] = (wells, rate, (yearly_gas_offtake[k]/self._uptime))
+        return my_dict
     
 
     def update_grid_variables(self, df):
@@ -479,10 +476,9 @@ class NPV_dry_gas(NPVAnalysis):
             st.error("Minimum rate of abandonment must be greater than 0")
             st.stop()
         
-        if platSteps>10:
+        if platSteps>20:
             st.warning("Number of steps is high. Be patient when running grid search")
         return True
-
 
     def get_grid_plateau_variables(self):
         return self._minPlat, self._maxPlat, self._platSteps
@@ -497,8 +493,6 @@ class NPV_dry_gas(NPVAnalysis):
     #     temp_well_optimization[7] = 4
     #     temp_well_optimization[8] = 4
     #     st.write(temp_well_optimization)
-
-
 
     def grid_production_profiles(self, rates, minROA, W):
         pp_list = []
