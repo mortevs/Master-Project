@@ -16,8 +16,8 @@ class Sodir_prod(SODIR_feature):
         self.__state = SessionState.get(id=session_id, result=[], field=[], time_frame = [])
         self.parent  = parent
 
-    def updateFromDropDown(self, fieldName, time, checkbox):
-         self.__field, self.__time_frame, self._aligned = fieldName, time, checkbox
+    def updateFromDropDown(self, fieldName, time, align):
+         self.__field, self.__time_frame, self._aligned = fieldName, time, align
 
 
     def get_current_time_frame(self):
@@ -69,8 +69,8 @@ class Sodir_prod(SODIR_feature):
             fields = []
             for field in self.__state.field:
                 fields.append(field)
-            aligned_checkbox = self.get_current_alignment()
-            display.multi_plot_SODIR_compare(dfs, fields, res, aligned_checkbox)
+            #aligned_checkbox = self.get_current_alignment()
+            display.multi_plot_SODIR_compare(dfs, fields, res, self._aligned)
 
     def clear_output(self):
         from Data.Storage.Cache import SessionState

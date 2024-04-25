@@ -488,7 +488,7 @@ class SODIR_feature:
         colA, colB, colC = st.columns(3)
         with colC:
             align = GUI.dropdown(label = 'Compare fields alignment', options = ['Compare from production startup', 'Compare by dates'], labelVisibility="visible")
-        sodir_obj.updateFromDropDown(fieldName = field, time = time, checkbox = align)
+        sodir_obj.updateFromDropDown(fieldName = field, time = time, align = align)
         col6, col7 = st.columns(2)
         with col6:
             run = st.button('Plot Production Profile', 'Show produced volumes', use_container_width=True)

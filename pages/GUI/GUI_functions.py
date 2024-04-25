@@ -324,8 +324,8 @@ def multi_plot_SODIR_compare(dfs, fields, res, comp_align):
                 except KeyError:
                     st.error("Cannot compare yearly and monthly time frames.")
     else:
-        for i in range(len(res)):
-            df = res[i]
+        for i in range(len(dfs)):
+            df = dfs[i]
             for column in df.columns:
                 if column not in columns_set:
                     columns_to_plot.append(column)
