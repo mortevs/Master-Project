@@ -396,12 +396,23 @@ def multi_plot_SODIR_compare(dfs, fields, res, comp_align, time_frame):
 
     
     def create_layout_button(column):
-        return dict(label=column,
-                    method='update',
-                    args=[{'visible': [column in trace.name for trace in fig.data],
-                           'title': column,
-                           'showlegend': True},
-                          {'xaxis': {'title': axis_titles[column][0]}, 'yaxis': {'title': axis_titles[column][1]}}])
+        # Define the function to create a button
+        return dict(
+            label=column,
+            method='update',
+            args=[
+                {
+                    # Check each trace name and determine visibility based on the column name
+                    'visible': [trace.name.split(' - ')[1] == column for trace in fig.data],
+                    'title': column,
+                    'showlegend': True
+                },
+                {
+                    'xaxis': {'title': axis_titles[column][0]},
+                    'yaxis': {'title': axis_titles[column][1]}
+                }
+            ]
+        )
 
     all_buttons = [create_layout_button(column) for column in columns_to_plot]
 
@@ -409,19 +420,18 @@ def multi_plot_SODIR_compare(dfs, fields, res, comp_align, time_frame):
         updatemenus=[go.layout.Updatemenu(
             active=0,  # Change active button here
             buttons=all_buttons)],
-        xaxis_title="Date",  # X-axis title
-        yaxis_title="Sm3",  # Y-axis title
+        xaxis_title="Date",  
+        yaxis_title="Sm3", 
         height=450,
-        showlegend=True  # Ensure legend visibility
+        showlegend=True  
     )
-    
-    # Modify legend entries for the initially active option
     active_column = list(columns_to_plot)[0]
     for trace in fig.data:
-        if active_column not in trace.name:
+        if trace.name.split(' - ')[1] != active_column:
             trace.showlegend = False
 
     st.plotly_chart(fig, use_container_width=True)
+
 def display_FD_variables_table(list1, list2, edible=False, key = 'df_table_editor'):
     df_table = pd.DataFrame({
         'Input': list1,
