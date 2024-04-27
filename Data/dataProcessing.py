@@ -55,9 +55,17 @@ def addActualProdYtoDF(field: str, df: DataFrame,  adjustLength = True, upTime =
     df = df.assign(OilEquivalentsSm3perDay=Oe)
     df = df.assign(WaterSm3perDay=w)
     return df
+def add_cumulative_columns(df, columns_to_ignore=[]):
+    columns = list(df.columns)
+    for name in columns_to_ignore:
+        columns.remove(name)
 
+    for column_name in columns:
+        cumulative_column = df[column_name].cumsum()        
+        new_column_name = f"{column_name}Cumulative"        
+        df[new_column_name] = cumulative_column
+    return df
 def yearly_produced_DF(field: str, df: DataFrame) ->DataFrame:
-    import streamlit as st
     gas, NGL, oil, cond, Oe, w = get.CSVProductionYearly(field)
     gas = [i*10**9 for i in gas] #prfPrdGasNetBillSm3
     NGL = [i*10**6 for i in NGL] #prfPrdOilNetMillSm3

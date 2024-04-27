@@ -1,25 +1,31 @@
 import pandas as pd, plotly.graph_objects as go, streamlit as st
-def multi_plot_PR(dfs, addAll = True, addProduced = False):
+from datetime import datetime
+def multi_plot_PR(dfs, addAll = True, addProduced = False, time_frame = "Yearly"):
+    if time_frame == "Monthly":
+        date_format = '%m:%Y'
+        period = "M"
+    else:
+        date_format = '%Y'
+        period = "Y"
+
     fig = go.Figure()
     axis_titles = {
-        'Estimated Reservoir Pressure [bara]': ('Year', 'Bara'),
-        'Cumulative Produced Gas [Sm3]': ('Year', 'Sm3'),
-        'GasSm3Yearly': ('Year', 'Sm3'),
-        'NGLSm3Yearly': ('Year', 'Sm3'),
-        'OilSm3Yearly': ('Year', 'Sm3'),
-        'CondensateSm3Yearly': ('Year', 'Sm3'),
-        'OilEquivalentsSm3Yearly': ('Year', 'Sm3'),
-        'WaterSm3Yearly': ('Year', 'Sm3'),
-        'GasSm3Monthly': ('Month:Year', 'Sm3'),
-        'NGLSm3Monthly': ('Month:Year', 'Sm3'),
-        'OilSm3Monthly': ('Month:Year', 'Sm3'),
-        'CondensateSm3Monthly': ('Month:Year', 'Sm3'),
-        'OilEquivalentsSm3Monthly': ('Month:Year', 'Sm3'),
-        'WaterSm3Monthly': ('Month:Year', 'Sm3'),
+        'Estimated Reservoir Pressure [bara]': ('Date', 'Bara'),
+        'Cumulative Produced Gas [Sm3]': ('Date', 'Sm3'),
+        'GasSm3Yearly': ('Date', 'Sm3'),
+        'NGLSm3Yearly': ('Date', 'Sm3'),
+        'OilSm3Yearly': ('Date', 'Sm3'),
+        'CondensateSm3Yearly': ('Date', 'Sm3'),
+        'OilEquivalentsSm3Yearly': ('Date', 'Sm3'),
+        'WaterSm3Yearly': ('Date', 'Sm3'),
+        'GasSm3Monthly': ('Date', 'Sm3'),
+        'NGLSm3Monthly': ('Date', 'Sm3'),
+        'OilSm3Monthly': ('Date', 'Sm3'),
+        'CondensateSm3Monthly': ('Date', 'Sm3'),
+        'OilEquivalentsSm3Monthly': ('Date', 'Sm3'),
+        'WaterSm3Monthly': ('Date', 'Sm3'),
         'Produced Gas [Sm3]': ('Date', 'Sm3'),
         'Watercut': ('Date', '%'),
-
-
     }
 
     columns_to_plot = []
@@ -39,17 +45,32 @@ def multi_plot_PR(dfs, addAll = True, addProduced = False):
                     columns_to_plot.append(column)
                     columns_set.add(column)
             all_label = 'All'
-
-        for column in columns_to_plot:
-            fig.add_trace(
-                go.Scatter(
-                    x = df.index,
-                    y = df[column],
-                    name = column,
-                    mode = 'lines',
-                    visible = 'legendonly' if not addAll and column != df.columns[0] else True  # Change visibility here
+        try:
+            for column in columns_to_plot:
+                fig.add_trace(
+                    go.Scatter(
+                        x = pd.to_datetime(df.index, format=date_format).to_period(period).to_timestamp(period),
+                        y = df[column],
+                        name = column,
+                        mode = 'lines',
+                        visible = 'legendonly' if not addAll and column != df.columns[0] else True  # Change visibility here
+                    )
                 )
-            )
+        except Exception as e:
+            try:
+                for column in columns_to_plot:
+                    fig.add_trace(
+                        go.Scatter(
+                            x = df.index,
+                            y = df[column],
+                            name = column,
+                            mode = 'lines',
+                            visible = 'legendonly' if not addAll and column != df.columns[0] else True  # Change visibility here
+                        )
+                    )
+            except Exception:
+                st.error("The data format on the uploaded data should be ")
+                
 
     button_all = dict(label = all_label,
                     method = 'update',
@@ -77,7 +98,7 @@ def multi_plot_PR(dfs, addAll = True, addProduced = False):
             )
         ],
         showlegend=addAll,  # Change showlegend here
-        xaxis_title="Time",  # X-axis title
+        xaxis_title="Date",  # X-axis title
         yaxis_title="Pressure [bara]"  # Y-axis title
     )
 
@@ -118,18 +139,18 @@ def multi_plot(dfs, addAll=True, addProduced=False, num=None, comp = False):
         'CondensateSm3perDay': ('Year', 'Sm3/d'), 
         'OilEquivalentsSm3perDay': ('Year', 'Sm3/d'),  
         'WaterSm3perDay': ('Year', 'Sm3/d'),
-        'GasSm3Yearly': ('Year', 'Sm3'),
-        'NGLSm3Yearly': ('Year', 'Sm3'),
-        'OilSm3Yearly': ('Year', 'Sm3'),
-        'CondensateSm3Yearly': ('Year', 'Sm3'),
-        'OilEquivalentsSm3Yearly': ('Year', 'Sm3'),
-        'WaterSm3Yearly': ('Year', 'Sm3'),
-        'GasSm3Monthly': ('Month:Year', 'Sm3'),
-        'NGLSm3Monthly': ('Month:Year', 'Sm3'),
-        'OilSm3Monthly': ('Month:Year', 'Sm3'),
-        'CondensateSm3Monthly': ('Month:Year', 'Sm3'),
-        'OilEquivalentsSm3Monthly': ('Month:Year', 'Sm3'),
-        'WaterSm3Monthly': ('Month:Year', 'Sm3'),
+        #'GasSm3Yearly': ('Year', 'Sm3'),
+        #'NGLSm3Yearly': ('Year', 'Sm3'),
+        #'OilSm3Yearly': ('Year', 'Sm3'),
+        #'CondensateSm3Yearly': ('Year', 'Sm3'),
+        #'OilEquivalentsSm3Yearly': ('Year', 'Sm3'),
+        #'WaterSm3Yearly': ('Year', 'Sm3'),
+        #'GasSm3Monthly': ('Month:Year', 'Sm3'),
+        #'NGLSm3Monthly': ('Month:Year', 'Sm3'),
+        #'OilSm3Monthly': ('Month:Year', 'Sm3'),
+        #'CondensateSm3Monthly': ('Month:Year', 'Sm3'),
+        #'OilEquivalentsSm3Monthly': ('Month:Year', 'Sm3'),
+        #'WaterSm3Monthly': ('Month:Year', 'Sm3'),
     }
 
     columns_to_plot = []
@@ -205,28 +226,52 @@ def multi_plot(dfs, addAll=True, addProduced=False, num=None, comp = False):
         if active_column not in trace.name:
             trace.showlegend = False
     st.plotly_chart(fig, use_container_width=True)
-def multi_plot_SODIR(dfs):        
+def multi_plot_SODIR(dfs, time_frame):
+    if time_frame == "Monthly":
+        date_format = '%m:%Y'
+        period = "M"
+    else:
+        date_format = '%Y'
+        period = "Y"
     fig = go.Figure()
     axis_titles = {
-        'GasSm3Yearly': ('Year', 'Sm3'),
-        'NGLSm3Yearly': ('Year', 'Sm3'),
-        'OilSm3Yearly': ('Year', 'Sm3'),
-        'CondensateSm3Yearly': ('Year', 'Sm3'),
-        'OilEquivalentsSm3Yearly': ('Year', 'Sm3'),
-        'WaterSm3Yearly': ('Year', 'Sm3'),
-        'GasSm3Monthly': ('Month:Year', 'Sm3'),
-        'NGLSm3Monthly': ('Month:Year', 'Sm3'),
-        'OilSm3Monthly': ('Month:Year', 'Sm3'),
-        'CondensateSm3Monthly': ('Month:Year', 'Sm3'),
-        'OilEquivalentsSm3Monthly': ('Month:Year', 'Sm3'),
-        'WaterSm3Monthly': ('Month:Year', 'Sm3'),
-        'Watercut': ('Time', '%'),
+        'GasSm3Yearly': ('Date', 'Sm3'),
+        'NGLSm3Yearly': ('Date', 'Sm3'),
+        'OilSm3Yearly': ('Date', 'Sm3'),
+        'CondensateSm3Yearly': ('Date', 'Sm3'),
+        'OilEquivalentsSm3Yearly': ('Date', 'Sm3'),
+        'WaterSm3Yearly': ('Date', 'Sm3'),
+        'GasSm3Monthly': ('Date', 'Sm3'),
+        'NGLSm3Monthly': ('Date', 'Sm3'),
+        'OilSm3Monthly': ('Date', 'Sm3'),
+        'CondensateSm3Monthly': ('Date', 'Sm3'),
+        'OilEquivalentsSm3Monthly': ('Date', 'Sm3'),
+        'WaterSm3Monthly': ('Date', 'Sm3'),
+        'Watercut': ('Date', '%'),        
+        'GasSm3YearlyCumulative': ('Date', 'Sm3'),
+        'NGLSm3YearlyCumulative': ('Date', 'Sm3'),
+        'OilSm3YearlyCumulative': ('Date', 'Sm3'),
+        'CondensateSm3YearlyCumulative': ('Date', 'Sm3'),
+        'OilEquivalentsSm3YearlyCumulative': ('Date', 'Sm3'),
+        'WaterSm3YearlyCumulative': ('Date', 'Sm3'),
+        'GasSm3MonthlyCumulative': ('Date', 'Sm3'),
+        'NGLSm3MonthlyCumulative': ('Date', 'Sm3'),
+        'OilSm3MonthlyCumulative': ('Date', 'Sm3'),
+        'CondensateSm3MonthlyCumulative': ('Date', 'Sm3'),
+        'OilEquivalentsSm3MonthlyCumulative': ('Date', 'Sm3'),
+        'WaterSm3MonthlyCumulative': ('Date', 'Sm3'),
 
     }
     columns_to_plot = []
     columns_set = set()
 
-    for df in dfs:
+    for i in range(len(dfs)):
+        df = dfs[i]
+        if time_frame == "Monthly":
+            date_format = '%m:%Y'
+        else:
+            date_format = '%Y'
+
         for column in df.columns:
             if column not in columns_set:
                 columns_set.add(column)
@@ -235,7 +280,7 @@ def multi_plot_SODIR(dfs):
             for column in columns_to_plot:
                 fig.add_trace(
                     go.Scatter(
-                        x=df.index,
+                        x = pd.to_datetime(df.index, format=date_format).to_period(period).to_timestamp(period),
                         y=df[column],
                         visible='legendonly' if column != df.columns[0] else True,
                         showlegend=False,
@@ -253,8 +298,7 @@ def multi_plot_SODIR(dfs):
                            'showlegend': False},
                           {'xaxis': {'title': axis_titles[column][0]}, 'yaxis': {'title': axis_titles[column][1]}}])
 
-    unique_columns = columns_to_plot[:7]
-    all_buttons = [create_layout_button(column) for column in unique_columns]
+    all_buttons = [create_layout_button(column) for column in columns_to_plot]
 
     fig.update_layout(
         updatemenus=[go.layout.Updatemenu(
@@ -262,30 +306,48 @@ def multi_plot_SODIR(dfs):
             buttons=all_buttons
         )
         ],
-        xaxis_title="Time",  # X-axis title
+        xaxis_title="Date",  # X-axis title
         yaxis_title="Sm3",  # Y-axis title
         height=450,
     )
 
     st.plotly_chart(fig, use_container_width=True)
-def multi_plot_SODIR_compare(dfs, fields, res, comp_align):        
+def multi_plot_SODIR_compare(dfs, fields, res, comp_align, time_frame):
+    if time_frame == "Monthly":
+        date_format = '%m:%Y'
+        period = "M"
+    else:
+        date_format = '%Y'
+        period = "Y"
+
     fig = go.Figure()
     columns_to_plot = []
     axis_titles = {
-        'GasSm3Yearly': ('Year', 'Sm3'),
-        'NGLSm3Yearly': ('Year', 'Sm3'),
-        'OilSm3Yearly': ('Year', 'Sm3'),
-        'CondensateSm3Yearly': ('Year', 'Sm3'),
-        'OilEquivalentsSm3Yearly': ('Year', 'Sm3'),
-        'WaterSm3Yearly': ('Year', 'Sm3'),
-        'GasSm3Monthly': ('Month:Year', 'Sm3'),
-        'NGLSm3Monthly': ('Month:Year', 'Sm3'),
-        'OilSm3Monthly': ('Month:Year', 'Sm3'),
-        'CondensateSm3Monthly': ('Month:Year', 'Sm3'),
-        'OilEquivalentsSm3Monthly': ('Month:Year', 'Sm3'),
-        'WaterSm3Monthly': ('Month:Year', 'Sm3'),
-        'Watercut': ('Time', '%'),
-
+        'GasSm3Yearly': ('Date', 'Sm3'),
+        'NGLSm3Yearly': ('Date', 'Sm3'),
+        'OilSm3Yearly': ('Date', 'Sm3'),
+        'CondensateSm3Yearly': ('Date', 'Sm3'),
+        'OilEquivalentsSm3Yearly': ('Date', 'Sm3'),
+        'WaterSm3Yearly': ('Date', 'Sm3'),
+        'GasSm3Monthly': ('Date', 'Sm3'),
+        'NGLSm3Monthly': ('Date', 'Sm3'),
+        'OilSm3Monthly': ('Date', 'Sm3'),
+        'CondensateSm3Monthly': ('Date', 'Sm3'),
+        'OilEquivalentsSm3Monthly': ('Date', 'Sm3'),
+        'WaterSm3Monthly': ('Date', 'Sm3'),
+        'Watercut': ('Date', '%'),
+        'GasSm3YearlyCumulative': ('Date', 'Sm3'),
+        'NGLSm3YearlyCumulative': ('Date', 'Sm3'),
+        'OilSm3YearlyCumulative': ('Date', 'Sm3'),
+        'CondensateSm3YearlyCumulative': ('Date', 'Sm3'),
+        'OilEquivalentsSm3YearlyCumulative': ('Date', 'Sm3'),
+        'WaterSm3YearlyCumulative': ('Date', 'Sm3'),
+        'GasSm3MonthlyCumulative': ('Date', 'Sm3'),
+        'NGLSm3MonthlyCumulative': ('Date', 'Sm3'),
+        'OilSm3MonthlyCumulative': ('Date', 'Sm3'),
+        'CondensateSm3MonthlyCumulative': ('Date', 'Sm3'),
+        'OilEquivalentsSm3MonthlyCumulative': ('Date', 'Sm3'),
+        'WaterSm3MonthlyCumulative': ('Date', 'Sm3'),
     }
     columns_to_plot = []
     columns_set = set()
@@ -300,7 +362,7 @@ def multi_plot_SODIR_compare(dfs, fields, res, comp_align):
                 for column in df.columns:
                     fig.add_trace(
                         go.Scatter(
-                            x=pd.to_datetime(df.index, format='%m:%Y'), #format='mixed'
+                            x = pd.to_datetime(df.index, format=date_format).to_period(period).to_timestamp(period),
                             y=df[column],
                             mode = 'lines',
                             name = f"{fields[i]} - {column}",
@@ -308,21 +370,8 @@ def multi_plot_SODIR_compare(dfs, fields, res, comp_align):
                             showlegend=True,
                         )
                     )
-            except Exception as e:
-                try:
-                    for column in df.columns:
-                        fig.add_trace(
-                            go.Scatter(
-                                x=pd.to_datetime(df.index, format='%Y'), #format='mixed'
-                                y=df[column],
-                                mode = 'lines',
-                                name = f"{fields[i]} - {column}",
-                                visible='legendonly' if column != df.columns[0] else True,
-                                showlegend=True,
-                            )
-                        )
-                except KeyError:
-                    st.error("Cannot compare yearly and monthly time frames.")
+            except KeyError:
+                st.error("Cannot compare fields")
     else:
         for i in range(len(dfs)):
             df = dfs[i]
@@ -359,10 +408,8 @@ def multi_plot_SODIR_compare(dfs, fields, res, comp_align):
     fig.update_layout(
         updatemenus=[go.layout.Updatemenu(
             active=0,  # Change active button here
-            buttons=all_buttons
-        )
-        ],
-        xaxis_title="Time",  # X-axis title
+            buttons=all_buttons)],
+        xaxis_title="Date",  # X-axis title
         yaxis_title="Sm3",  # Y-axis title
         height=450,
         showlegend=True  # Ensure legend visibility

@@ -86,6 +86,7 @@ class ReservoirPressureAnalysis(RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA):
         import Data.dataProcessing as dP
         df = dP.monthly_produced_DF(self.__field, df )
         df = dP.addProducedMonths(self.__field, df)
+    
         return df
     
 
@@ -94,9 +95,10 @@ class ReservoirPressureAnalysis(RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA):
         from pandas import DataFrame
         res = self.getResult()
         field = self.getField()
+        time_frame = self.get_time_frame()
         for i in reversed(range(len(res))):
             if isinstance(res[i], DataFrame):
-                header_ = 'Est Res-pressure ' + str(i+1)
+                header_ = 'Estimated Reservoir Pressure ' + str(i+1)
                 st.header(header_, divider='red')
                 tab1, tab2 = st.tabs(["Plot", "Data"])
                 with tab2:
@@ -115,7 +117,7 @@ class ReservoirPressureAnalysis(RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA):
 
                 with tab1:
                     st.write("The model assumes gas filled reservoir and does not account for injection volumes or reservoir geometry.")
-                    display.multi_plot_PR([res[i]], addAll= False)
+                    display.multi_plot_PR([res[i]], addAll= False, time_frame=time_frame[i])
 
 
     def clear_output(self):

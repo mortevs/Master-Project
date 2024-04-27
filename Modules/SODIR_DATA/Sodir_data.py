@@ -35,6 +35,7 @@ class Sodir_prod(SODIR_feature):
         self.append_time_frame(self.__time_frame)  
         import Data.dataProcessing as dP
         df = dP.yearly_produced_DF(self.__field, df = pd.DataFrame())
+        df = dP.add_cumulative_columns(df, columns_to_ignore = ["Watercut"])
         df = dP.addProducedYears(self.__field, df)
         return df
     
@@ -43,6 +44,7 @@ class Sodir_prod(SODIR_feature):
         self.append_time_frame(self.__time_frame)  
         import Data.dataProcessing as dP
         df = dP.monthly_produced_DF(self.__field, df = pd.DataFrame())
+        df = dP.add_cumulative_columns(df, columns_to_ignore = ["Watercut"])
         df = dP.addProducedMonths(self.__field, df)
         return df
 
@@ -57,7 +59,7 @@ class Sodir_prod(SODIR_feature):
                 if isinstance(res[i], DataFrame):
                     field = self.getField()
                     st.title('Produced volumes: ' + field[i])
-                    display.multi_plot_SODIR([res[i]])
+                    display.multi_plot_SODIR([res[i]], lst[i])
         elif len(set(lst)) != 1:
             st.error("To compare different fields the timeframes must be the same. Can not compare yearly rates with monthly rates. If you would like to compare, clear output and plot production profiles with the same time frame.")
             
@@ -70,7 +72,7 @@ class Sodir_prod(SODIR_feature):
             for field in self.__state.field:
                 fields.append(field)
             #aligned_checkbox = self.get_current_alignment()
-            display.multi_plot_SODIR_compare(dfs, fields, res, self._aligned)
+            display.multi_plot_SODIR_compare(dfs, fields, res, self._aligned, lst[0])
 
     def clear_output(self):
         from Data.Storage.Cache import SessionState

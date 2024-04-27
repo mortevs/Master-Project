@@ -491,12 +491,12 @@ class SODIR_feature:
         sodir_obj.updateFromDropDown(fieldName = field, time = time, align = align)
         col6, col7 = st.columns(2)
         with col6:
-            run = st.button('Plot Production Profile', 'Show produced volumes', use_container_width=True)
+            run = st.button('Show Produced Volumes', 'Show produced volumes', use_container_width=True)
         with col7:
             comp = st.button('Compare Fields', 'Compare', use_container_width=True)
         col8, col9 = st.columns(2)
         with col8:
-            poly_button = st.button('Plot Reservoir Area', 'polygon plotter', use_container_width=True)
+            poly_button = st.button('Show Reservoir Area', 'polygon plotter', use_container_width=True)
         with col9:
             clear =  st.button('Clear Output', 'clear sodir', use_container_width=True)
         if run and field == 'No field chosen':
