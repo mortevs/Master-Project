@@ -4,7 +4,6 @@ import time
 import Data.getData as get
 import os
 from Data.dataProcessing import get_field_list_inc_No_field_chosen
-from Data.DefaultData import defaultData_RP
 import math
 import pandas as pd
 try:
@@ -419,7 +418,8 @@ class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA:
         
         with col1:
             if self.place_holder == 1:
-                RES_Analysis.updateParameterListfromTable(list2 = manualData_RP())
+                from Data.DefaultData import defaultData_RP
+                RES_Analysis.updateParameterListfromTable(list2 = defaultData_RP())
 
             elif self.place_holder ==2:
                 PRi = 276 #reservoir pressure bara #default value
