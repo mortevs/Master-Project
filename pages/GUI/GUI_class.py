@@ -4,11 +4,14 @@ import time
 import Data.getData as get
 import os
 from Data.dataProcessing import get_field_list_inc_No_field_chosen
-from Data.DefaultData import manualData_RP
-import numpy as np
+from Data.DefaultData import defaultData_RP
 import math
 import pandas as pd
-fieldnames = get_field_list_inc_No_field_chosen()
+try:
+    fieldnames = get_field_list_inc_No_field_chosen()
+except Exception as e:
+    st.write(e)
+    st.warning("could not get list of fieldnames from SODIR")
 
 
 class main_page_GUI: 
@@ -345,8 +348,10 @@ class FIELD_DEVELOPMENT:
                         st.write("std:", round(std,1))
                     with col21:                      
                         st.plotly_chart(cdf_fig, use_container_width=True)
-            st.warning("""The Monte Carlo Analysis is based on the data above in addition to the provided uncertainity in variables. Produciton profiles are estimated with input variables in top 
-                       right table. NPV is calculated with NPV tables. The editable table is used for ,
+                    st.warning("""The Monte Carlo Analysis is based on the active production profile (chosen from the dropdown menu) and the editable NPV table.
+                                NOTE that the optimized variables are not automaticly used. If you would like to 
+                               use the optimized variables for the Monte Carlo Analyis, you would have to generate a new production profile with the optimized
+                               variables that were found. The active production profile used for Monte Carlo analysis will by default be set to the latest profile.
                        """)
 
                     

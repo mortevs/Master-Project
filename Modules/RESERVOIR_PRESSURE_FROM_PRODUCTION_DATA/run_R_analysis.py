@@ -104,7 +104,7 @@ class ReservoirPressureAnalysis(RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA):
                 with tab2:
                     st.write("$P_R$ = " + str(self.getParameters()[i][0]) + " bara")
                     st.write("T = " + str(self.getParameters()[i][1]) + " $^{\circ}$C")
-                    st.write("Gas Molecular Wieght = " + str(self.getParameters()[i][2]) + " g/mol")
+                    st.write("Gas Molecular Weight = " + str(self.getParameters()[i][2]) + " g/mol")
                     st.write("IGIP = " + str((self.getParameters()[i][3]/1e9)) + " 1E09 $Sm^3$")
                     if field[i] != "No field chosen":
                         st.write('Production data from Sodir ', field[i][0]+field[i][1:].lower(), ' used for analysis')

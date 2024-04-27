@@ -495,9 +495,8 @@ def display_table_grid_search(f_variables=None, key = 'df_table_editor'):
     return edited_df
 
 def display_table_Monte_Carlo(Variables = None):    
-    list1 = ['Gas Price [USD/Sm3]', 'IGIP [Sm3]', 'LNG Plant [USD/Sm3/d]']
-    list2 = [0.05,250000000000, 100] 
-    list3 = [1,300000000000, 220] 
+    from Data.DefaultData import default_MC
+    list1, list2, list3 = default_MC()
     df_table = pd.DataFrame({
         'Input': list1,
         'Min': list2,

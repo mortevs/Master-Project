@@ -19,7 +19,7 @@ def default_FD_data() -> list:
     list = [qFieldTarget, PRi, abandonmentRate, TR, gasMolecularWeight, C_R, n, N_temp, NWellsPerTemplate, upTime, C_t, S, C_FL, C_PL, P_sep, IGIP, buildup_period]
     return list
 
-def manualData_RP() -> list:
+def defaultData_RP() -> list:
     PRi = 276 #reservoir pressure bara
     IGIP = 270e9 #Initial gas in place   
     TR = 92 #reservoir temperature [C]
@@ -87,4 +87,10 @@ def default_template_distribution(def_well_list, N_temp, NWellsPerTemp, prod_sto
         if temp_count == N_temp:
             break
     return def_temp_list
+
+def default_MC():
+    list1 = ['Gas Price [USD/Sm3]', 'IGIP [Sm3]', 'LNG Plant [USD/Sm3/d]']    
+    list2 = [0.05,250000000000, 100] 
+    list3 = [0.5,300000000000, 220]
+    return list1, list2, list3 
 
