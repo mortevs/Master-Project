@@ -348,9 +348,18 @@ class FIELD_DEVELOPMENT:
                     with col21:                      
                         st.plotly_chart(cdf_fig, use_container_width=True)
                     st.warning("""The Monte Carlo Analysis is based on the active production profile (chosen from the dropdown menu) and the editable NPV table.
-                                NOTE that the optimized variables are not automaticly used. If you would like to 
+                                NOTE that optimized number of templates and plateau rate are not automaticly used. If you would like to 
                                use the optimized variables for the Monte Carlo Analyis, you would have to generate a new production profile with the optimized
-                               variables that were found. The active production profile used for Monte Carlo analysis will by default be set to the latest profile.
+                               variables that were found. The optimized rate of abandonment (assuming it occurs above the 
+                               minimum Rate of Abandonment) is considered by considering the highest NPV found until the rates
+                               reach abandonment rates. 
+
+                               Changes in IGIP has direct effect on the production profile.
+                               
+
+                               
+
+
                        """)
 
                     
