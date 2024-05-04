@@ -49,6 +49,16 @@ class Sodir_prod(SODIR_feature):
         return df
 
     
+    def plot_forecast(self, dfs):
+        dfs = []
+        for df in dfs:
+            reset_ind_df = df.reset_index(drop = True)
+            dfs.append(reset_ind_df)
+        fields = []
+        for field in self.__state.field:
+            fields.append(field)
+        display.multi_plot_SODIR_compare(dfs, fields, self._aligned)
+
     def plot(self, comp=False):
         import streamlit as st
         from pandas import DataFrame
@@ -71,7 +81,6 @@ class Sodir_prod(SODIR_feature):
             fields = []
             for field in self.__state.field:
                 fields.append(field)
-            #aligned_checkbox = self.get_current_alignment()
             display.multi_plot_SODIR_compare(dfs, fields, res, self._aligned, lst[0])
 
     def clear_output(self):
@@ -299,3 +308,6 @@ def makePolyPlot(field):
    
 def plotPolyPlot(fig):
     st.plotly_chart(fig, use_container_width=True)
+
+
+    

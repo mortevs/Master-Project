@@ -23,4 +23,3 @@ m = st.markdown("""
 from pages.GUI.GUI_class import SODIR_feature
 st.title('Sodir Data Investigation')
 NPD_DATA = SODIR_feature()
-NPD_DATA.Curve_fitting()

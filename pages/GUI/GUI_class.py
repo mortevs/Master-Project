@@ -616,27 +616,42 @@ class SODIR_feature:
                 st.error("No field chosen")
             else:
                 st.dataframe(get.PA_wlb(self.__field).style.pipe(make_pretty), hide_index=True, use_container_width=True)
-    def Curve_fitting(self):
-            col0, col1, col2 = st.columns(3)
-            with col1:
+
+        CF = self.Curve_fitting(sodir_obj)
+    class Curve_fitting():
+        def __init__(self, parent):
+            self.parent = parent
+            st.title("Forecasting")
+            col0, col1 = st.columns(2)
+            forecast_l = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,35,35,36,37,38,39,4,41,42,43,44,45,46,47,48,49,50,51,52,52,54,55,56,57,58,59,60]
+            with col0:    
+                FC_length = GUI.dropdown(label="Forecast length (time frame of interst - Years/Months)", options = forecast_l, index = 2, labelVisibility='visible')
                 CF_button = st.button('Forecast with Curve Fit Analysis', 'Curve fit', use_container_width=True)
             import Modules.SODIR_DATA.Curve_Fitting as CF
             import Data.dataProcessing as dP
             if CF_button:
-                if self.__field != "No field chosen":
-                    if self.__time == 'Yearly':
-                        df = dP.yearly_produced_DF(self.__field, df = pd.DataFrame())
-                        df = dP.add_cumulative_columns(df, columns_to_ignore = ["Watercut"])
-                        df = dP.addProducedYears(self.__field, df)
-                    elif self.__time == 'Monthly':
-                        df = dP.monthly_produced_DF(self.__field, df = pd.DataFrame())
-                        df = dP.add_cumulative_columns(df, columns_to_ignore = ["Watercut"])
-                        df = dP.addProducedMonths(self.__field, df)
-                    else:
-                        st.error("Time frame is not yearly or monthly")
-                        st.stop()
-                    Curve_fitted = CF.Curve_fitting(df)
+                self.__fields = parent.getField()
+                self.__time = parent.get_time_frame()
+                self.__dfs = parent.getResult()
+                if len(self.__dfs) == 0:
+                    st.warning("""You must choose a field first and then click 'Show Produced Volumes'. 
+                               Repeat for as many fields as desired. Then click
+                               'Forecast with Curve Fit Analysis'.""")
                 else:
-                    st.warning("You must choose a field first")
+                    st.write(self.__time)
+                    if len(set(self.__time)) != 1:
+                        st.error("""Forecasts will be made for all fields above. 
+                                    Several fields require that the fields have the same 
+                                    time frame. Clear Output. Then click Show Produced volumes 
+                                    for each field desired, and do not change Time frame of interest between the fields""")
+                    else:
+                        #Curve_fitted_dfs = CF.Curve_fitting(self.__dfs)
+                        Curve_fitted_dfs = (self.__dfs)
+                        parent.plot_forecast(self.__dfs, self.__fields, self.__time)
+                        
+
+
+
+
 
 
