@@ -20,7 +20,6 @@ m = st.markdown("""
         background-color: rgb(204, 49, 49);
     }
     </style>""", unsafe_allow_html=True)
-from pages.GUI.GUI_class import SODIR_feature
-st.title('Sodir Data Investigation')
-NPD_DATA = SODIR_feature()
-NPD_DATA.Curve_fitting()
+from pages.GUI.GUI_class import Monte_Carlo_standAlone
+st.title('Monte Carlo Analysis')
+MC = Monte_Carlo_standAlone()

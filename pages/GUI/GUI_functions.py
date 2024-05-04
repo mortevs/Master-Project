@@ -480,6 +480,7 @@ def display_table_NPV(list1, list2, edible=False, key = 'df_table_editor'):
 def display_table_grid_search(f_variables=None, key = 'df_table_editor'):
     nr_temps =f_variables[7]
     wpertemp = f_variables[8]
+    
     list1 = ['Plateau rate [Sm3/d]', 'Nr Wells', 'Rate of Abandonment [Sm3/d]']
     list2 = [10000000,wpertemp, 1e6] 
     list3 = [40000000,wpertemp*nr_temps*2, None] 
@@ -506,8 +507,8 @@ def display_table_Monte_Carlo(Variables = None):
     return edited_df
 
 def display_table_Monte_Carlo_param():    
-    list1 = ['Nr of Random Numbers', 'Nr Bins']
-    list2 = [1000000,50] 
+    from Data.DefaultData import default_MC_params
+    list1, list2 = default_MC_params()
     df_table = pd.DataFrame({
         'Parameter': list1,
         'Value': list2,
@@ -516,6 +517,35 @@ def display_table_Monte_Carlo_param():
     edited_df = st.data_editor(df_table, hide_index=True, use_container_width=True)
     return edited_df['Value']
 
+def display_table_Monte_Carlo_SA():    
+    from Data.DefaultData import default_MC_SA, probability_distributions
+    list1, list2, list3, list4 = default_MC_SA()
+    p_dists = probability_distributions()
+
+    
+    df_table = pd.DataFrame({
+        'Input': list1,
+        'Min': list2,
+        'ML': list3,
+        'Max': list4,
+        'Distribution' : [p_dists[0] for el in list1]
+    })
+    
+    edited_df = st.data_editor(
+        df_table, hide_index=True, use_container_width=True, 
+        column_config={"Distribution": st.column_config.SelectboxColumn(
+                label ="Probability distribution",
+                help="The probability distribution of the variable",
+                width="medium",
+                options=p_dists,
+                required=True)})
+
+    return edited_df
+
+
+def validate_MC_SA(edited_MC_table):
+    #needs implementation
+    pass
 # class edible_df():
 #     def __init__(self, list2):
 #         self.df = self.initialize_table(list2)

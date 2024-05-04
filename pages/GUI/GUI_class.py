@@ -355,15 +355,47 @@ class FIELD_DEVELOPMENT:
                                reach abandonment rates. 
 
                                Changes in IGIP has direct effect on the production profile.
-                               
-
-                               
-
 
                        """)
 
-                    
-  
+class Monte_Carlo_standAlone:
+    def __init__(self):
+        on_MCSA_information = st.toggle("Show me information on how to use Monte Carlo Analysis", value=False, label_visibility="visible")
+        if on_MCSA_information:
+            st.write("""A Monte Carlo Analysis is run with the input data. 
+                    The rows should be addable. For instance all the rows should be 
+                     time [Hours] or cost [1E06 USD]. 
+                     Uncertainties will be run on each variable according to Min, Max,
+                     ML (if applicable) and the probability distribution for that row.
+                     They will then be added together to give a final probability distribution. 
+                     A different probability distribution than the default Uniform 
+                     can the be chosen from a dropdown menu by double pressing the cell.
+                     The Monte Carlo Analysis Parameters can be adjusted to obtain higher or lower resolution
+                     according to the needs. Higher resolution is more computational costly.  
+                     """)
+        col16, col17 = st.columns(2)
+        col18, col19 = st.columns(2)
+        col20, col21 = st.columns(2)
+        with col16:
+            st.markdown("**Uncertainity in variables and probability distribution**")
+            edited_MC_table = GUI.display_table_Monte_Carlo_SA()
+            GUI.validate_MC_SA(edited_MC_table) #not configured yet
+        with col17:
+            st.markdown("**Monte Carlo Analysis parameters**")
+            self._Nr_random_num, self._Nr_bins = GUI.display_table_Monte_Carlo_param()
+        with col18:
+            MC = st.button(label = "Run Monte Carlo-Analysis", use_container_width=True)
+            if MC:
+                from Modules.MONTE_CARLO import Monte_carlo_standAlone
+                MC = Monte_carlo_standAlone(parent = self, NPVgaspricemin = -2422, NPVgaspricemax=4810, NPV_IGIPmin=513, NPV_IGIPmax=1653, LNGPlantMin=-853, LNGPlantMax=3204)
+                pdf_fig, cdf_fig, tab, std = MC.getResults()
+                with col20:
+                    st.plotly_chart(pdf_fig, use_container_width=True)
+                    st.dataframe(tab, hide_index=True, use_container_width=True)
+                    st.write("std:", round(std,1))
+                with col21:                      
+                    st.plotly_chart(cdf_fig, use_container_width=True)
+ 
 class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA:
     def __init__(self):
         m = st.markdown("""<style>
@@ -496,13 +528,13 @@ class SODIR_feature:
         sodir_obj = Sodir_prod(parent = SODIR_feature, session_id='sodir_prod', field = 'No field chosen')
         col4, col5  = st.columns(2)
         with col4:
-            field = GUI.dropdown(label = 'Choose a field', options = fieldnames, labelVisibility="visible")
+            self.__field = GUI.dropdown(label = 'Choose a field', options = fieldnames, labelVisibility="visible")
         with col5:
-            time = GUI.dropdown(label = 'Time frame of interest', options = ['Yearly', 'Monthly'], labelVisibility="visible")
+            self.__time = GUI.dropdown(label = 'Time frame of interest', options = ['Yearly', 'Monthly'], labelVisibility="visible")
         colA, colB, colC = st.columns(3)
         with colC:
             align = GUI.dropdown(label = 'Compare fields alignment', options = ['Compare from production startup', 'Compare by dates'], labelVisibility="visible")
-        sodir_obj.updateFromDropDown(fieldName = field, time = time, align = align)
+        sodir_obj.updateFromDropDown(fieldName = self.__field, time = self.__time, align = align)
         col6, col7 = st.columns(2)
         with col6:
             run = st.button('Show Produced Volumes', 'Show produced volumes', use_container_width=True)
@@ -513,17 +545,17 @@ class SODIR_feature:
             poly_button = st.button('Show Reservoir Area', 'polygon plotter', use_container_width=True)
         with col9:
             clear =  st.button('Clear Output', 'clear sodir', use_container_width=True)
-        if run and field == 'No field chosen':
+        if run and self.__field == 'No field chosen':
             import time as t
             alert3 = st.warning('Choose a field first')
             t.sleep(1.5)
             alert3.empty()
         
-        elif run and time == 'Yearly':
+        elif run and self.__time == 'Yearly':
             result = sodir_obj.runY()
             sodir_obj.append_result(result)
 
-        elif run and time == 'Monthly':
+        elif run and self.__time == 'Monthly':
             result = sodir_obj.runM()
             sodir_obj.append_result(result)
 
@@ -542,17 +574,14 @@ class SODIR_feature:
         st.write(' ')
         st.write(' ')
 
-        if poly_button and field == 'No field chosen':
+        if poly_button and self.__field == 'No field chosen':
             import time
             alert4 = st.warning('Choose a field first')
             time.sleep(3)
             alert4.empty()
-        elif poly_button and field != 'No field chosen':
+        elif poly_button and self.__field != 'No field chosen':
             from Modules.SODIR_DATA.Sodir_data import makePolyPlot
-            sodir_obj.append_polyPlot(makePolyPlot(field))
-            
-            
-        
+            sodir_obj.append_polyPlot(makePolyPlot(self.__field))
 
         from Modules.SODIR_DATA.Sodir_data import plotPolyPlot
         polyFig = sodir_obj.getPolyPlot()
@@ -561,29 +590,53 @@ class SODIR_feature:
         else:
             plotPolyPlot(polyFig[-1])
 
-        show_more_prod = st.toggle(label = ("Show me more information about the producing wells on "+ field))    
+        show_more_prod = st.toggle(label = ("Show me more information about the producing wells on "+ self.__field))    
         if show_more_prod:
-            if field == "No field chosen":
+            if self.__field == "No field chosen":
                 st.error("No field chosen")
             else:
-                st.dataframe(get.producing_wlb(field).style.pipe(make_pretty), hide_index=True, use_container_width=True)
+                st.dataframe(get.producing_wlb(self.__field).style.pipe(make_pretty), hide_index=True, use_container_width=True)
 
-        show_more_inj = st.toggle(label = ("Show me more information about the injection wells on  "+ field))   
+        show_more_inj = st.toggle(label = ("Show me more information about the injection wells on  "+ self.__field))   
         if show_more_inj:
-            if field == "No field chosen":
+            if self.__field == "No field chosen":
                 st.error("No field chosen")
             else:
-                st.dataframe(get.injecting_wlb(field).style.pipe(make_pretty), hide_index=True, use_container_width=True)
+                st.dataframe(get.injecting_wlb(self.__field).style.pipe(make_pretty), hide_index=True, use_container_width=True)
         
-        show_more_closed = st.toggle(label = ("Show me more information about the closed wells on  "+ field))   
+        show_more_closed = st.toggle(label = ("Show me more information about the closed wells on  "+ self.__field))   
         if show_more_closed:
-            if field == "No field chosen":
+            if self.__field == "No field chosen":
                 st.error("No field chosen")
             else:
-                st.dataframe(get.closed_wlb(field).style.pipe(make_pretty), hide_index=True, use_container_width=True)
-        show_more_PA = st.toggle(label = ("Show me more information about the P&A wells on  "+ field))   
+                st.dataframe(get.closed_wlb(self.__field).style.pipe(make_pretty), hide_index=True, use_container_width=True)
+        show_more_PA = st.toggle(label = ("Show me more information about the P&A wells on  "+ self.__field))   
         if show_more_PA:
-            if field == "No field chosen":
+            if self.__field == "No field chosen":
                 st.error("No field chosen")
             else:
-                st.dataframe(get.PA_wlb(field).style.pipe(make_pretty), hide_index=True, use_container_width=True)
+                st.dataframe(get.PA_wlb(self.__field).style.pipe(make_pretty), hide_index=True, use_container_width=True)
+    def Curve_fitting(self):
+            col0, col1, col2 = st.columns(3)
+            with col1:
+                CF_button = st.button('Forecast with Curve Fit Analysis', 'Curve fit', use_container_width=True)
+            import Modules.SODIR_DATA.Curve_Fitting as CF
+            import Data.dataProcessing as dP
+            if CF_button:
+                if self.__field != "No field chosen":
+                    if self.__time == 'Yearly':
+                        df = dP.yearly_produced_DF(self.__field, df = pd.DataFrame())
+                        df = dP.add_cumulative_columns(df, columns_to_ignore = ["Watercut"])
+                        df = dP.addProducedYears(self.__field, df)
+                    elif self.__time == 'Monthly':
+                        df = dP.monthly_produced_DF(self.__field, df = pd.DataFrame())
+                        df = dP.add_cumulative_columns(df, columns_to_ignore = ["Watercut"])
+                        df = dP.addProducedMonths(self.__field, df)
+                    else:
+                        st.error("Time frame is not yearly or monthly")
+                        st.stop()
+                    Curve_fitted = CF.Curve_fitting(df)
+                else:
+                    st.warning("You must choose a field first")
+
+

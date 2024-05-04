@@ -94,3 +94,16 @@ def default_MC():
     list3 = [0.5,300000000000, 220]
     return list1, list2, list3 
 
+def default_MC_params():
+    list1 = ['Nr of Random Numbers', 'Nr Bins']
+    list2 = [1000000,50] 
+    return list1, list2
+
+def default_MC_SA():
+    list1 = ['Time 1 [Hours]', 'Time 2 [Hours]', 'Time 3 [Hours]']    
+    list2 = [13,39, 11] 
+    list3 = [17, 44, 13]
+    list4 = [25,64, 22]
+    return list1, list2, list3, list4
+def probability_distributions():
+    return ['Uniform', 'Normal', 'Pert', 'Log-Normal', 'Triangular', 'Exponential'] #, 
