@@ -88,10 +88,19 @@ def default_template_distribution(def_well_list, N_temp, NWellsPerTemp, prod_sto
             break
     return def_temp_list
 
+def default_Optimization_table(f_variables):
+    nr_temps =f_variables[7]
+    wpertemp = f_variables[8]
+    list1 = ['Plateau rate [Sm3/d]', 'Nr Wells', 'Rate of Abandonment [Sm3/d]']
+    list2 = [10000000,wpertemp, 1e6] 
+    list3 = [40000000,wpertemp*nr_temps*2, None] 
+    list4 = [4,None,None] 
+    return list1,list2,list3,list4
+
 def default_MC():
-    list1 = ['Gas Price [USD/Sm3]', 'IGIP [Sm3]', 'LNG Plant [USD/Sm3/d]']    
-    list2 = [0.05,250000000000, 100] 
-    list3 = [0.5,300000000000, 220]
+    list1 = ['Gas Price [USD/Sm3]', 'IGIP [1E9 Sm3]', 'LNG Plant [USD/Sm3/d]']    
+    list2 = [0.05,250, 100] 
+    list3 = [0.15,300, 220]
     return list1, list2, list3 
 
 def default_MC_params():

@@ -251,7 +251,8 @@ class FIELD_DEVELOPMENT:
             st.markdown("**Field-variable optimization**")            
             col9, co10 = st.columns(2)
             with col9:
-                edited_grid = GUI.display_table_grid_search(Analysis.getParameters()[opt]) 
+                edited_grid = GUI.display_table_grid_search(Analysis.getParameters()[opt])
+                self.__minROA = float(edited_grid["Min"][2])
                 dry_gas_NPV.validate_grid_variables(edited_grid, Analysis.getParameters()[opt])
                 optimize_NPV = st.button(label = "Optimize NPV with grid search", use_container_width=True)
              
@@ -259,7 +260,7 @@ class FIELD_DEVELOPMENT:
                 dry_gas_NPV.update_grid_variables(edited_grid)
                 minP, maxP, pStep = dry_gas_NPV.get_grid_plateau_variables()
                 minW, maxW = dry_gas_NPV.get_grid_well_variables()
-                minROA = dry_gas_NPV.get_ROA_variables()
+                self.__minROA = dry_gas_NPV.get_ROA_variables()
                 rates = []
                 for i in range(pStep):
                     rates.append(minP + (maxP-minP)/(pStep-1)*i)
@@ -268,7 +269,7 @@ class FIELD_DEVELOPMENT:
                 while W[-1]<maxW:
                     W.append(W[-1]+Analysis.getParameters()[opt][8])
 
-                prodProfiles_to_NPV = dry_gas_NPV.grid_production_profiles(rates, minROA, W)
+                prodProfiles_to_NPV = dry_gas_NPV.grid_production_profiles(rates, self.__minROA, W)
 
                 NPV_dict = {}
                 for i in range(len(prodProfiles_to_NPV)):
@@ -330,14 +331,24 @@ class FIELD_DEVELOPMENT:
             col20, col21 = st.columns(2)
             with col16:
                 st.markdown("**Uncertainty in variables for Monte Carlo Analysis**")
-                edited_MC_table = GUI.display_table_Monte_Carlo()
-                NPVsMC = dry_gas_NPV.getNPVforMonteCarlo(edited_MC_table)
+                self.__edited_MC_table = GUI.display_table_Monte_Carlo()
+                
+                #edited_df = self.__edited_df, prod_profiles = prodProfiles_to_NPV, i = i)
+                
+                #st.write(NPVsMC)
             with col17:
                 st.markdown("**Monte Carlo Analysis parameters**")
                 self._Nr_random_num, self._Nr_bins = GUI.display_table_Monte_Carlo_param()
             with col18:
                 MC = st.button(label = "Run Monte Carlo-Analysis", use_container_width=True)
                 if MC:
+                    prodProfiles_to_MC = dry_gas_NPV.Monte_Carlo_production_profiles(self.__edited_MC_table, minROA=self.__minROA)
+                    initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax = dry_gas_NPV.getNPVsforMonteCarlo(dfMC = self.__edited_MC_table, NPV_edited_df=self.__edited_df, prod_profiles= prodProfiles_to_MC)
+                    GUI.tornadoPlot(initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax)    
+                    GUI.tornadoPlotSensitivity(NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax)    
+
+
+                    
                     from Modules.FIELD_DEVELOPMENT.Monte_Carlo import Monte_Carlo
                     MC = Monte_Carlo(parent = self, NPVgaspricemin = -2422, NPVgaspricemax=4810, NPV_IGIPmin=513, NPV_IGIPmax=1653, LNGPlantMin=-853, LNGPlantMax=3204)
                     pdf_fig, cdf_fig, tab, std = MC.getResults()
@@ -352,9 +363,7 @@ class FIELD_DEVELOPMENT:
                                use the optimized variables for the Monte Carlo Analyis, you would have to generate a new production profile with the optimized
                                variables that were found. The optimized rate of abandonment (assuming it occurs above the 
                                minimum Rate of Abandonment) is considered by considering the highest NPV found until the rates
-                               reach abandonment rates. 
-
-                               Changes in IGIP has direct effect on the production profile.
+                               reach abandonment rates.
 
                        """)
 

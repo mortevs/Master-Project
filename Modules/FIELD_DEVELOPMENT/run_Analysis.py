@@ -401,16 +401,16 @@ class NPV_dry_gas(NPVAnalysis):
         CASH_FLOW = [sum(x) for x in zip(revenue, np.negative(TOTAL_CAPEX), np.negative(edited_df['OPEX [1E6 USD]']))] #'Cash Flow [1E6 USD]'
         DISCOUNTED_CASH_FLOW =  [cf/(1+self._discount_rate/100)**year for cf, year in zip(CASH_FLOW, years)] #'Discounted Cash Flow [1E6 USD]'        
         my_dict = {}
-        for k in range(len(DISCOUNTED_CASH_FLOW)):
+        for k in range(self._CAPEX_period_prior, len(DISCOUNTED_CASH_FLOW)):
             NPV = float(sum(DISCOUNTED_CASH_FLOW[:k+1]))
             my_dict[NPV] = (wells, rate, (yearly_gas_offtake[k]/self._uptime))
         return my_dict
     
 
     def update_grid_variables(self, df):
-        self._minPlat = int(df["Min"][0])
-        self._minWells = int(df["Min"][1])
-        self._minROA = int(df["Min"][2])
+        self._minPlat = float(df["Min"][0])
+        self._minWells = float(df["Min"][1])
+        self._minROA = float(df["Min"][2])
 
         self._maxPlat = int(df["Max"][0])
         self._maxWells = int(df["Max"][1])
@@ -495,11 +495,11 @@ class NPV_dry_gas(NPVAnalysis):
     #     st.write(temp_well_optimization)
 
     def grid_production_profiles(self, rates, minROA, W):
+        self.__minROA = minROA
         pp_list = []
         stepping_field_variables = self.getParameters()[self._opt].copy()
         nWpT = stepping_field_variables.copy()[8]
-        
-        stepping_field_variables[2] = minROA           
+        stepping_field_variables[2] = self.__minROA           
         for rate in rates:
             stepping_field_variables[0] = rate
             for wells in W:
@@ -514,29 +514,88 @@ class NPV_dry_gas(NPVAnalysis):
                     from Modules.FIELD_DEVELOPMENT.Nodal.NodalAnalysis import NodalAnalysis
                     new_df = NodalAnalysis(self.getPrecision()[self._opt], stepping_field_variables)
                     pp_list.append([(new_df['Field Rates [Sm3/d]'].to_list()), wells, rate])
-
                 else:
                     st.error("Error, method and precision is:", self._method, self._precision)     
         return pp_list
+    def Monte_Carlo_production_profiles(self, dfMC, minROA):
+        self._minIGIP =dfMC["Min"][1]*1e9
+        self._maxIGIP =dfMC["Max"][1]*1e9
+        pp_MC_list = []
+        stepping_field_variables = self.getParameters()[self._opt].copy()
+        IGIP_input = stepping_field_variables[15]
+        stepping_field_variables[7] = minROA
+        IGIP_list = [IGIP_input, self._minIGIP, self._maxIGIP]
+        for el in IGIP_list:
+            stepping_field_variables[15] = el
+            if self.getMethod()[self._opt] == 'IPR':
+                from Modules.FIELD_DEVELOPMENT.IPR.IPRAnalysis import IPRAnalysis
+                new_df = IPRAnalysis(self.getPrecision()[self._opt], stepping_field_variables)
+                pp_MC_list.append(new_df['Field Rates [Sm3/d]'].to_list())
+                #pp_list.append(df[])
+
+            elif self.getMethod()[self._opt] == "NODAL":
+                from Modules.FIELD_DEVELOPMENT.Nodal.NodalAnalysis import NodalAnalysis
+                new_df = NodalAnalysis(self.getPrecision()[self._opt], stepping_field_variables)
+                pp_MC_list.append(new_df['Field Rates [Sm3/d]'].to_list())
+            else:
+                st.error("Error, method and precision is:", self._method, self._precision)    
+        return pp_MC_list
+
+    def NPV_calculation_MC(self, df, gas_price, LNG_p_vari, yGofftake):
+            yearly_gas_offtake = [0 for i in range (self._CAPEX_period_prior-1)] + [element * self._uptime for element in yGofftake]
+            end_prod = len(yearly_gas_offtake)
+            revenue = [offtake/(1000000) * gas_price for offtake in yearly_gas_offtake]
+            years = []         
+            for j in range(end_prod):
+                years.append(j)
+            
+            well_list = df['Nr Wells'].to_list()
+            templ_list = df['Nr Templates'].to_list()
+            DRILLEX = [element * self._Well_Cost for element in well_list]   #DRILLEX [1E6 USD]
+            TEMPLATES = [element * self._temp_cost for element in templ_list]
+            LNG_p = df['LNG Plant [1E6 USD]'].to_list()
+            LNG_v = df['LNG Vessels [1E6 USD]'].to_list()
+            LNG_p = np.array([element / sum(LNG_p) if sum(LNG_p) != 0 else 0 for element in LNG_p]) * self._plateau_rate * LNG_p_vari / 1e6
+            LNG_v = np.array([element / sum(LNG_v) if sum(LNG_v) != 0 else 0 for element in LNG_v]) * (math.ceil(self._plateau_rate*self._uptime/((86000000*22))))*self._LNG_cost_per_vessel
+            
+            TOTAL_CAPEX = [sum(x) for x in zip(DRILLEX, df['Pipeline & Umbilicals [1E6 USD]'], TEMPLATES, LNG_p, LNG_v)] #'TOTAL CAPEX [1E6 USD]'
+            CASH_FLOW = [sum(x) for x in zip(revenue, np.negative(TOTAL_CAPEX), np.negative(df['OPEX [1E6 USD]']))] #'Cash Flow [1E6 USD]'
+            DISCOUNTED_CASH_FLOW =  [cf/(1+self._discount_rate/100)**year for cf, year in zip(CASH_FLOW, years)] #'Discounted Cash Flow [1E6 USD]'        
+            NPV_list=[]
+            for k in range(self._CAPEX_period_prior, len(DISCOUNTED_CASH_FLOW)):
+                NPV = float(sum(DISCOUNTED_CASH_FLOW[:k+1]))
+                NPV_list.append(NPV)
+            maxNPV = round(max(NPV_list),1)  
+            return maxNPV
+
+    def getNPVsforMonteCarlo(self, dfMC, NPV_edited_df, prod_profiles):
+        self._minGasPrice = dfMC["Min"][0]
+        self._maxGasPrice =dfMC["Max"][0]
+        self._minLNGPlant =dfMC["Min"][2]
+        self._maxLNGPlant = dfMC["Max"][2]
+        
+        IGIPyGofftake = prod_profiles[0]
+        minIGIPyGofftake = prod_profiles[1]
+        maxIGIPyGofftake = prod_profiles[2]
+        
+        initial_NPV=self.NPV_calculation_MC(df = NPV_edited_df, gas_price = self._Gas_Price, LNG_p_vari = self._LNG_plant_per_Sm3, yGofftake = IGIPyGofftake)
+        
+        NPVgaspricemin=self.NPV_calculation_MC(df = NPV_edited_df, gas_price = self._minGasPrice, LNG_p_vari = self._LNG_plant_per_Sm3, yGofftake = IGIPyGofftake)
+        NPVgaspricemax=self.NPV_calculation_MC(df = NPV_edited_df, gas_price = self._maxGasPrice, LNG_p_vari = self._LNG_plant_per_Sm3, yGofftake = IGIPyGofftake)
+        
+        LNGPlantMin=self.NPV_calculation_MC(df = NPV_edited_df, gas_price = self._Gas_Price, LNG_p_vari = self._minLNGPlant, yGofftake = IGIPyGofftake)
+        LNGPlantMax=self.NPV_calculation_MC(df = NPV_edited_df, gas_price = self._Gas_Price, LNG_p_vari = self._maxLNGPlant, yGofftake = IGIPyGofftake)
+
+        NPV_IGIPmin=self.NPV_calculation_MC(df = NPV_edited_df, gas_price = self._Gas_Price, LNG_p_vari = self._LNG_plant_per_Sm3, yGofftake = minIGIPyGofftake)
+        NPV_IGIPmax=self.NPV_calculation_MC(df = NPV_edited_df, gas_price = self._Gas_Price, LNG_p_vari = self._LNG_plant_per_Sm3, yGofftake = maxIGIPyGofftake)
+
+        return initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax
     
 
-
-    def getNPVforMonteCarlo(self, df):
-        self._minGasPrice = df["Min"][0]
-        
-        self._maxGasPrice =df["Max"][0]
-        self._minIGIP =df["Min"][1]
-        self._maxIGIP =df["Max"][1]
-        self._minLNGPlant =df["Min"][2]
-        self._maxLNGPlant = df["Max"][2]
         
 
         
 
         
 
-
-
-
-
-
+        

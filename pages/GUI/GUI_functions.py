@@ -478,13 +478,8 @@ def display_table_NPV(list1, list2, edible=False, key = 'df_table_editor'):
         st.table(df_table)
 
 def display_table_grid_search(f_variables=None, key = 'df_table_editor'):
-    nr_temps =f_variables[7]
-    wpertemp = f_variables[8]
-    
-    list1 = ['Plateau rate [Sm3/d]', 'Nr Wells', 'Rate of Abandonment [Sm3/d]']
-    list2 = [10000000,wpertemp, 1e6] 
-    list3 = [40000000,wpertemp*nr_temps*2, None] 
-    list4 = [4,None,None] 
+    from Data.DefaultData import default_Optimization_table
+    list1,list2,list3,list4 = default_Optimization_table(f_variables)
     df_table = pd.DataFrame({
         'Input': list1,
         'Min': list2,
@@ -599,3 +594,100 @@ def columnDisplay1(list1:list):
         selected_option1 = dropdown(options = list1)
 
     return selected_option1
+
+def tornadoPlotSensitivity(NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax):
+    gas_price_sensitivity = NPVgaspricemax - NPVgaspricemin
+    LNG_plant_sensitivity = LNGPlantMin-LNGPlantMax 
+    IGIP_sensitivity = NPV_IGIPmax - NPV_IGIPmin
+
+    sensitivities = [gas_price_sensitivity, LNG_plant_sensitivity, IGIP_sensitivity]
+    labels = ['Gas Price [USD/Sm3]', 'LNG Plant [USD/Sm3/d]', 'IGIP [Sm3]']
+    fig = go.Figure()
+    fig.add_trace(
+        go.Bar(
+            y=labels,
+            x=sensitivities,
+            orientation='h',  # horizontal bars
+            marker=dict(
+                color=['blue', 'orange', 'red'],
+                opacity=0.7
+            )
+        )
+    )
+
+    # Add plot title and labels
+    fig.update_layout(
+        title='Tornado Plot of NPV Sensitivity',
+        xaxis_title='NPV [1E6 USD]',
+        yaxis_title='Variable',
+        barmode='group'
+    )
+    st.plotly_chart(fig, use_container_width=True)
+
+def tornadoPlot(initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax):
+    # Variable labels
+    labels = ['Gas Price [USD/Sm3]', 'LNG Plant [USD/Sm3/d]', 'IGIP [Sm3]']
+    
+    # Calculate the lengths of the bars
+    # Left bars: from initial NPV to min values
+    left_bar_lengths = [NPVgaspricemin, LNGPlantMax, NPV_IGIPmin]
+    # Right bars: from initial NPV to max values
+    right_bar_lengths = [NPVgaspricemax, LNGPlantMin, NPV_IGIPmax]
+    
+    # Create a figure
+    fig = go.Figure()
+    
+    # Add left bars (from initial NPV to min values)
+    fig.add_trace(
+        go.Bar(
+            y=labels,
+            x=left_bar_lengths,
+            orientation='h',
+            base=initial_NPV,
+            marker=dict(
+                color='red',
+                opacity=0.7
+            ),
+            name='Min Values'
+        )
+    )
+    
+    # Add right bars (from initial NPV to max values)
+    fig.add_trace(
+        go.Bar(
+            y=labels,
+            x=right_bar_lengths,
+            orientation='h',
+            base=initial_NPV,
+            marker=dict(
+                color='green',
+                opacity=0.7
+            ),
+            name='Max Values'
+        )
+    )
+    
+    # Add a vertical line at x = initial NPV
+    fig.add_shape(
+        type="line",
+        x0=initial_NPV,
+        y0=-0.5,  # Line starts just before the first label
+        x1=initial_NPV,
+        y1=len(labels) - 0.5,  # Line ends just after the last label
+        line=dict(
+            color="black",  # Color of the line
+            width=2  # Width of the line
+        )
+    )
+    
+    # Update the layout of the figure
+    fig.update_layout(
+        title='Tornado Plot of NPV Min and Max Values',
+        xaxis_title='NPV [1E6 USD]',
+        yaxis_title='Variable',
+        barmode='overlay',
+        showlegend=True
+    )
+
+    # Display the plot
+    st.plotly_chart(fig, use_container_width=True)
