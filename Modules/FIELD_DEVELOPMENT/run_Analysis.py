@@ -526,25 +526,22 @@ class NPV_dry_gas(NPVAnalysis):
         pp_MC_list = []
         stepping_field_variables = self.getParameters()[self._opt].copy()
         IGIP_input = stepping_field_variables[15]
-        stepping_field_variables[7] = minROA
 
+        stepping_field_variables[2] = minROA
         IGIP_list = [IGIP_input, self._minIGIP, self._maxIGIP]
-        for el in IGIP_list:
-            stepping_field_variables[15] = el
+        for ele in IGIP_list:
+            stepping_field_variables[15] = ele
             if self.getMethod()[self._opt] == 'IPR':
                 from Modules.FIELD_DEVELOPMENT.IPR.IPRAnalysis import IPRAnalysis
                 new_df = IPRAnalysis(self.getPrecision()[self._opt], stepping_field_variables)
                 pp_MC_list.append(new_df['Field Rates [Sm3/d]'].to_list())
-                
-                #pp_list.append(df[])
-
+            
             elif self.getMethod()[self._opt] == "NODAL":
                 from Modules.FIELD_DEVELOPMENT.Nodal.NodalAnalysis import NodalAnalysis
                 new_df = NodalAnalysis(self.getPrecision()[self._opt], stepping_field_variables)
-                st.write(new_df)
                 pp_MC_list.append(new_df['Field Rates [Sm3/d]'].to_list())
             else:
-                st.error("Error, method and precision is:", self._method, self._precision)    
+                st.error("Error, method and precision is:", self._method, self._precision)   
         return pp_MC_list
 
     def NPV_calculation_MC(self, df, gas_price, LNG_p_vari, yGofftake):
@@ -582,13 +579,13 @@ class NPV_dry_gas(NPVAnalysis):
         self._maxLNGPlant = dfMC["Max"][2]
         
         IGIPyGofftake = prod_profiles[0]
-        minIGIPyGofftake = prod_profiles[1]
-        maxIGIPyGofftake = prod_profiles[2]
-        st.write(self._Gas_Price, self._LNG_plant_per_Sm3)
-        st.write(IGIPyGofftake)
         initial_NPV=self.NPV_calculation_MC(df = NPV_edited_df, gas_price = self._Gas_Price, LNG_p_vari = self._LNG_plant_per_Sm3, yGofftake = IGIPyGofftake)
         
         NPVgaspricemin=self.NPV_calculation_MC(df = NPV_edited_df, gas_price = self._minGasPrice, LNG_p_vari = self._LNG_plant_per_Sm3, yGofftake = IGIPyGofftake)
+        minIGIPyGofftake = prod_profiles[1]
+        maxIGIPyGofftake = prod_profiles[2]
+        
+       
         NPVgaspricemax=self.NPV_calculation_MC(df = NPV_edited_df, gas_price = self._maxGasPrice, LNG_p_vari = self._LNG_plant_per_Sm3, yGofftake = IGIPyGofftake)
         
         LNGPlantMin=self.NPV_calculation_MC(df = NPV_edited_df, gas_price = self._Gas_Price, LNG_p_vari = self._minLNGPlant, yGofftake = IGIPyGofftake)

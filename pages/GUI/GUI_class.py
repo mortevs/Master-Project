@@ -344,6 +344,9 @@ class FIELD_DEVELOPMENT:
                 if MC:
                     prodProfiles_to_MC = dry_gas_NPV.Monte_Carlo_production_profiles(self.__edited_MC_table, minROA=self.__minROA)
                     initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax = dry_gas_NPV.getNPVsforMonteCarlo(dfMC = self.__edited_MC_table, NPV_edited_df=self.__edited_df, prod_profiles= prodProfiles_to_MC)
+                    st.write(initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax = dry_gas_NPV.getNPVsforMonteCarlo(dfMC = self.__edited_MC_table, NPV_edited_df=self.__edited_df, prod_profiles= prodProfiles_to_MC)
+)
+                    
                     GUI.tornadoPlot(initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax)    
                     GUI.tornadoPlotSensitivity(NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax)    
 

@@ -624,63 +624,68 @@ def tornadoPlotSensitivity(NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlant
     )
     st.plotly_chart(fig, use_container_width=True)
 
+import plotly.graph_objects as go
+import streamlit as st
+
 def tornadoPlot(initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax):
     # Variable labels
     labels = ['Gas Price [USD/Sm3]', 'LNG Plant [USD/Sm3/d]', 'IGIP [Sm3]']
     
-    # Calculate the lengths of the bars
-    # Left bars: from initial NPV to min values
-    left_bar_lengths = [NPVgaspricemin, LNGPlantMax, NPV_IGIPmin]
-    # Right bars: from initial NPV to max values
-    right_bar_lengths = [NPVgaspricemax, LNGPlantMin, NPV_IGIPmax]
     
-    # Create a figure
+    min_values = [NPVgaspricemin, LNGPlantMax, NPV_IGIPmin]
+    max_values = [NPVgaspricemax, LNGPlantMin, NPV_IGIPmax]
+    
+    # Create the plot
     fig = go.Figure()
     
     # Add left bars (from initial NPV to min values)
-    fig.add_trace(
-        go.Bar(
-            y=labels,
-            x=left_bar_lengths,
-            orientation='h',
-            base=initial_NPV,
-            marker=dict(
-                color='red',
-                opacity=0.7
-            ),
-            name='Min Values'
+    for i, label in enumerate(labels):
+        fig.add_trace(
+            go.Bar(
+                y=[label],
+                x=[-abs(initial_NPV - min_values[i])],
+                orientation='h',
+                base=initial_NPV,
+                marker=dict(
+                    color='red',
+                    opacity=0.7
+                ),
+                name=f'Min {label}',
+                showlegend=False
+            )
         )
-    )
     
     # Add right bars (from initial NPV to max values)
-    fig.add_trace(
-        go.Bar(
-            y=labels,
-            x=right_bar_lengths,
-            orientation='h',
-            base=initial_NPV,
-            marker=dict(
-                color='green',
-                opacity=0.7
-            ),
-            name='Max Values'
+    for i, label in enumerate(labels):
+        fig.add_trace(
+            go.Bar(
+                y=[label],
+                x=[abs(max_values[i] - initial_NPV)],
+                orientation='h',
+                base=initial_NPV,
+                marker=dict(
+                    color='green',
+                    opacity=0.7
+                ),
+                name=f'Max {label}',
+                showlegend=False
+            )
         )
-    )
     
-    # Add a vertical line at x = initial NPV
+    # Add vertical line at x = initial NPV
     fig.add_shape(
         type="line",
         x0=initial_NPV,
-        y0=-0.5,  # Line starts just before the first label
         x1=initial_NPV,
-        y1=len(labels) - 0.5,  # Line ends just after the last label
+        y0=-0.5,
+        y1=len(labels) - 0.5,
         line=dict(
-            color="black",  # Color of the line
-            width=2  # Width of the line
+            color="black",
+            width=2
         )
     )
     
-    # Update the layout of the figure
+    # Update layout
     fig.update_layout(
         title='Tornado Plot of NPV Min and Max Values',
         xaxis_title='NPV [1E6 USD]',
@@ -691,3 +696,8 @@ def tornadoPlot(initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPla
 
     # Display the plot
     st.plotly_chart(fig, use_container_width=True)
+
+# Example usage:
+# initial_NPV = 500, NPVgaspricemin = 400, NPVgaspricemax = 600
+# LNGPlantMin = 350, LNGPlantMax = 650, NPV_IGIPmin = 450, NPV_IGIPmax = 700
+# tornadoPlot(initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax)
