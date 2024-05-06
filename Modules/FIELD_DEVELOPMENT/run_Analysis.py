@@ -338,7 +338,9 @@ class NPV_dry_gas(NPVAnalysis):
                 st.error(error_str)
                 st.stop()
         validate_edited_df(edited_df)
-        self._yearly_gas_offtake = [0 for i in range (self._CAPEX_period_prior-1)] + [element * self._uptime for element in self._production_profile]
+        self._yearly_gas_offtake = [0 for i in range (self._CAPEX_period_prior)] + [(self._production_profile[i-1]+self._production_profile[i])/2 * self._uptime for i in range(1, len(self._production_profile))]
+        #self._yearly_gas_offtake = [0 for i in range (self._CAPEX_period_prior-1)] + [element * self._uptime for element in self._production_profile]
+
         self._NPV_prod_profile = [0 for i in range (self._CAPEX_period_prior-1)] + self._production_profile
         self._revenue = [offtake/(1000000) * self._Gas_Price for offtake in self._yearly_gas_offtake]
         
@@ -376,7 +378,8 @@ class NPV_dry_gas(NPVAnalysis):
         production_profile = prod_profiles[i][0].copy()
         wells=prod_profiles[i][1]
         rate = prod_profiles[i][2]
-        yearly_gas_offtake = [0 for i in range (self._CAPEX_period_prior-1)] + [element * self._uptime for element in production_profile]
+        yearly_gas_offtake = [0 for i in range (self._CAPEX_period_prior)] + [(production_profile[i-1]+production_profile[i])/2 * self._uptime for i in range(1, len(production_profile))]
+        #yearly_gas_offtake = [0 for i in range (self._CAPEX_period_prior-1)] + [element * self._uptime for element in production_profile]
         end_prod = len(yearly_gas_offtake)
         revenue = [offtake/(1000000) * self._Gas_Price for offtake in yearly_gas_offtake]
         years = []         
@@ -524,6 +527,7 @@ class NPV_dry_gas(NPVAnalysis):
         stepping_field_variables = self.getParameters()[self._opt].copy()
         IGIP_input = stepping_field_variables[15]
         stepping_field_variables[7] = minROA
+
         IGIP_list = [IGIP_input, self._minIGIP, self._maxIGIP]
         for el in IGIP_list:
             stepping_field_variables[15] = el
@@ -531,18 +535,21 @@ class NPV_dry_gas(NPVAnalysis):
                 from Modules.FIELD_DEVELOPMENT.IPR.IPRAnalysis import IPRAnalysis
                 new_df = IPRAnalysis(self.getPrecision()[self._opt], stepping_field_variables)
                 pp_MC_list.append(new_df['Field Rates [Sm3/d]'].to_list())
+                
                 #pp_list.append(df[])
 
             elif self.getMethod()[self._opt] == "NODAL":
                 from Modules.FIELD_DEVELOPMENT.Nodal.NodalAnalysis import NodalAnalysis
                 new_df = NodalAnalysis(self.getPrecision()[self._opt], stepping_field_variables)
+                st.write(new_df)
                 pp_MC_list.append(new_df['Field Rates [Sm3/d]'].to_list())
             else:
                 st.error("Error, method and precision is:", self._method, self._precision)    
         return pp_MC_list
 
     def NPV_calculation_MC(self, df, gas_price, LNG_p_vari, yGofftake):
-            yearly_gas_offtake = [0 for i in range (self._CAPEX_period_prior-1)] + [element * self._uptime for element in yGofftake]
+            yearly_gas_offtake = [0 for i in range (self._CAPEX_period_prior)] + [(yGofftake[i-1]+yGofftake[i])/2 * self._uptime for i in range(1, len(yGofftake))]
+            #yearly_gas_offtake = [0 for i in range (self._CAPEX_period_prior-1)] + [element * self._uptime for element in yGofftake]
             end_prod = len(yearly_gas_offtake)
             revenue = [offtake/(1000000) * gas_price for offtake in yearly_gas_offtake]
             years = []         
@@ -577,7 +584,8 @@ class NPV_dry_gas(NPVAnalysis):
         IGIPyGofftake = prod_profiles[0]
         minIGIPyGofftake = prod_profiles[1]
         maxIGIPyGofftake = prod_profiles[2]
-        
+        st.write(self._Gas_Price, self._LNG_plant_per_Sm3)
+        st.write(IGIPyGofftake)
         initial_NPV=self.NPV_calculation_MC(df = NPV_edited_df, gas_price = self._Gas_Price, LNG_p_vari = self._LNG_plant_per_Sm3, yGofftake = IGIPyGofftake)
         
         NPVgaspricemin=self.NPV_calculation_MC(df = NPV_edited_df, gas_price = self._minGasPrice, LNG_p_vari = self._LNG_plant_per_Sm3, yGofftake = IGIPyGofftake)
