@@ -497,15 +497,15 @@ def display_uncertainty_table(Gas_Price, IGIP_input, LNG_plant_per_Sm3):
     p_dists = probability_distributions() 
     df_table = pd.DataFrame({
         'Input': list1,
-        'Min': list2,
-        'ML': list3,
-        'Max': list4,
-        'Dist' : [p_dists[0] for el in list1]
+        'P10': list2,
+        'P50': list3,
+        'P90': list4,
+        'P Dist' : [p_dists[0] for el in list1]
     })
     
     edited_df = st.data_editor(
         df_table, hide_index=True, use_container_width=True, 
-        column_config={"Dist": st.column_config.SelectboxColumn(
+        column_config={"P Dist": st.column_config.SelectboxColumn(
                 label ="Prob dist",
                 help="Probability distribution",
                 width="small",
@@ -522,18 +522,18 @@ def display_table_Monte_Carlo_SA():
     
     df_table = pd.DataFrame({
         'Input': list1,
-        'Min': list2,
-        'ML': list3,
-        'Max': list4,
-        'Distribution' : [p_dists[0] for el in list1]
+        'P10': list2,
+        'P50': list3,
+        'P90': list4,
+        'P Dist' : [p_dists[0] for el in list1]
     })
     
     edited_df = st.data_editor(
         df_table, hide_index=True, use_container_width=True, 
-        column_config={"Distribution": st.column_config.SelectboxColumn(
-                label ="Probability distribution",
+        column_config={"P Dist": st.column_config.SelectboxColumn(
+                label ="Prob dist",
                 help="The probability distribution of the variable",
-                width="medium",
+                width="small",
                 options=p_dists,
                 required=True)})
 

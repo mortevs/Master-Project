@@ -346,11 +346,12 @@ class FIELD_DEVELOPMENT:
             if MC:
                 prodProfiles_to_MC = dry_gas_NPV.Monte_Carlo_production_profiles(self.__edited_MC_table, minROA=self.__minROA)
                 initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax = dry_gas_NPV.getNPVsforMonteCarlo(dfMC = self.__edited_MC_table, NPV_edited_df=self.__edited_df, prod_profiles= prodProfiles_to_MC)
-                st.write( NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax)
+                #st.write( NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax)
                 GUI.tornadoPlot(initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax, Gas_Price, IGIP_input, LNG_plant_per_Sm3)    
                 GUI.tornadoPlotSensitivity(NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax)                        
-                from Modules.FIELD_DEVELOPMENT.Monte_Carlo import Monte_Carlo
-                MC = Monte_Carlo(parent = self, NPVgaspricemin = -2422, NPVgaspricemax=4810, NPV_IGIPmin=513, NPV_IGIPmax=1653, LNGPlantMin=-853, LNGPlantMax=3204)
+                
+                from Modules.FIELD_DEVELOPMENT.Monte_Carlo import Monte_Carlo_FD
+                MC = Monte_Carlo_FD(parent = self, df = self.__edited_MC_table)
                 pdf_fig, cdf_fig, tab, std = MC.getResults()
                 col20, col21 = st.columns(2)
                 with col20:
@@ -396,7 +397,7 @@ class Monte_Carlo_standAlone:
             MC = st.button(label = "Run Monte Carlo-Analysis", use_container_width=True)
             if MC:
                 from Modules.MONTE_CARLO import Monte_carlo_standAlone
-                MC = Monte_carlo_standAlone(parent = self, NPVgaspricemin = -2422, NPVgaspricemax=4810, NPV_IGIPmin=513, NPV_IGIPmax=1653, LNGPlantMin=-853, LNGPlantMax=3204)
+                MC = Monte_carlo_standAlone(self, edited_MC_table)
                 pdf_fig, cdf_fig, tab, std = MC.getResults()
                 with col20:
                     st.plotly_chart(pdf_fig, use_container_width=True)

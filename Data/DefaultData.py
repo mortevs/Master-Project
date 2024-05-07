@@ -99,8 +99,7 @@ def default_Optimization_table(f_variables):
 
 def default_MC():
     list1 = ['Gas Price [USD/Sm3]', 'IGIP [1E9 Sm3]', 'LNG Plant [USD/Sm3/d]']    
-    list2 = [0.05,250, 100]
-    list3 = [] 
+    list2 = [0.05,250, 100] 
     list3 = [0.15,300, 220]
     return list1, list2, list3 
 
@@ -115,5 +114,6 @@ def default_MC_SA():
     list3 = [17, 44, 13]
     list4 = [25,64, 22]
     return list1, list2, list3, list4
+
 def probability_distributions():
-    return ['Uniform', 'Normal', 'Pert', 'Log-Normal', 'Triangular', 'Exponential'] #, 
+    return ['uniform', 'normal', 'pert', 'lognormal', 'triangular', 'exponential'] #, 
