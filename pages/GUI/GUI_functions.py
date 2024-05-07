@@ -600,7 +600,7 @@ def tornadoPlotSensitivity(NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlant
     LNG_plant_sensitivity = LNGPlantMin-LNGPlantMax 
     IGIP_sensitivity = NPV_IGIPmax - NPV_IGIPmin
 
-    sensitivities = [gas_price_sensitivity, LNG_plant_sensitivity, IGIP_sensitivity]
+    sensitivities = [round(gas_price_sensitivity, 2),round(LNG_plant_sensitivity,2), round(IGIP_sensitivity,2)]
     labels = ['Gas Price [USD/Sm3]', 'LNG Plant [USD/Sm3/d]', 'IGIP [Sm3]']
     fig = go.Figure()
     fig.add_trace(
@@ -611,29 +611,47 @@ def tornadoPlotSensitivity(NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlant
             marker=dict(
                 color=['blue', 'orange', 'red'],
                 opacity=0.7
-            )
+            ),
+            text=sensitivities,  
+            textposition='outside',
+            textfont=dict(size=14)
         )
     )
 
-    # Add plot title and labels
+
     fig.update_layout(
-        title='Tornado Plot of NPV Sensitivity',
-        xaxis_title='NPV [1E6 USD]',
-        yaxis_title='Variable',
-        barmode='group'
+        title={
+            'text': 'Tornado Plot - NPV Sensitivity',
+            'font': {
+                'size': 20  
+            }
+        },
+        xaxis_title={
+            'text': 'NPV [1E6 USD]',
+            'font': {
+                'size': 20  
+            }
+        },
+        yaxis_title={
+            'text': 'Variable',
+            'font': {
+                'size': 20 
+            }
+        },
+        barmode='group',
     )
     st.plotly_chart(fig, use_container_width=True)
 
 import plotly.graph_objects as go
 import streamlit as st
 
-def tornadoPlot(initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax):
+def tornadoPlot(initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax, Gas_Price, IGIP_input, LNG_plant_per_Sm3):
     # Variable labels
     labels = ['Gas Price [USD/Sm3]', 'LNG Plant [USD/Sm3/d]', 'IGIP [Sm3]']
     
     
-    min_values = [NPVgaspricemin, LNGPlantMax, NPV_IGIPmin]
-    max_values = [NPVgaspricemax, LNGPlantMin, NPV_IGIPmax]
+    min_values = [round(NPVgaspricemin, 2), round(LNGPlantMax, 2), round(NPV_IGIPmin, 2)]
+    max_values = [round(NPVgaspricemax,2), round(LNGPlantMin,2), round(NPV_IGIPmax,2)]
     
     # Create the plot
     fig = go.Figure()
@@ -651,7 +669,10 @@ def tornadoPlot(initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPla
                     opacity=0.7
                 ),
                 name=f'Min {label}',
-                showlegend=False
+                showlegend=False,
+                text=min_values[i],  
+                textposition='outside',
+                textfont=dict(size=14)
             )
         )
     
@@ -668,7 +689,10 @@ def tornadoPlot(initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPla
                     opacity=0.7
                 ),
                 name=f'Max {label}',
-                showlegend=False
+                showlegend=False,
+                text=max_values[i],  
+                textposition='outside',
+                textfont=dict(size=14)
             )
         )
     
@@ -687,15 +711,32 @@ def tornadoPlot(initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPla
     
     # Update layout
     fig.update_layout(
-        title='Tornado Plot of NPV Min and Max Values',
-        xaxis_title='NPV [1E6 USD]',
-        yaxis_title='Variable',
+        title={
+            'text': 'Tornado Plot - Min and Max NPVs',
+            'font': {
+                'size': 20  # Adjust the size of the plot title text here (e.g., 20)
+            }
+        },
+        xaxis_title={
+            'text': 'NPV [1E6 USD]',
+            'font': {
+                'size': 20  # Adjust the size of the x-axis title text here (e.g., 16)
+            }
+        },
+        yaxis_title={
+            'text': 'Variable',
+            'font': {
+                'size': 20  # Adjust the size of the y-axis title text here (e.g., 16)
+            }
+        },
         barmode='overlay',
         showlegend=True
     )
 
     # Display the plot
     st.plotly_chart(fig, use_container_width=True)
+    st.markdown(f'Initial NPV = {initial_NPV} 1E6 USD with gas price = {Gas_Price} USD/Sm3, IGIP = {IGIP_input/1e9} 1E9 Sm3, LNG plant = {LNG_plant_per_Sm3} USD/Sm3/d')
+
 
 # Example usage:
 # initial_NPV = 500, NPVgaspricemin = 400, NPVgaspricemax = 600

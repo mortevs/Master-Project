@@ -489,6 +489,8 @@ class NPV_dry_gas(NPVAnalysis):
         return self._minWells, self._maxWells
     def get_ROA_variables(self):
         return self._minROA
+    def get_inital_MC_variables(self):
+        return self._Gas_Price, self.__IGIP_input, self._LNG_plant_per_Sm3
 
     # def grid_production_profiles2(self, rates=40000000, minROA=1000000):
     #     temp_well_optimization = self.getParameters()[self._opt].copy()
@@ -525,10 +527,10 @@ class NPV_dry_gas(NPVAnalysis):
         self._maxIGIP =dfMC["Max"][1]*1e9
         pp_MC_list = []
         stepping_field_variables = self.getParameters()[self._opt].copy()
-        IGIP_input = stepping_field_variables[15]
+        self.__IGIP_input = stepping_field_variables[15]
 
         stepping_field_variables[2] = minROA
-        IGIP_list = [IGIP_input, self._minIGIP, self._maxIGIP]
+        IGIP_list = [self.__IGIP_input, self._minIGIP, self._maxIGIP]
         for ele in IGIP_list:
             stepping_field_variables[15] = ele
             if self.getMethod()[self._opt] == 'IPR':

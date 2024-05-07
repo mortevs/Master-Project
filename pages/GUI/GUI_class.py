@@ -328,7 +328,7 @@ class FIELD_DEVELOPMENT:
             st.write(" ")
             col16, col17 = st.columns(2)
             col18, col19 = st.columns(2)
-            col20, col21 = st.columns(2)
+            
             with col16:
                 st.markdown("**Uncertainty in variables for Monte Carlo Analysis**")
                 self.__edited_MC_table = GUI.display_table_Monte_Carlo()
@@ -341,34 +341,32 @@ class FIELD_DEVELOPMENT:
                 self._Nr_random_num, self._Nr_bins = GUI.display_table_Monte_Carlo_param()
             with col18:
                 MC = st.button(label = "Run Monte Carlo-Analysis", use_container_width=True)
-                if MC:
-                    prodProfiles_to_MC = dry_gas_NPV.Monte_Carlo_production_profiles(self.__edited_MC_table, minROA=self.__minROA)
-                    initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax = dry_gas_NPV.getNPVsforMonteCarlo(dfMC = self.__edited_MC_table, NPV_edited_df=self.__edited_df, prod_profiles= prodProfiles_to_MC)
-                    st.write(initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax = dry_gas_NPV.getNPVsforMonteCarlo(dfMC = self.__edited_MC_table, NPV_edited_df=self.__edited_df, prod_profiles= prodProfiles_to_MC)
-)
-                    
-                    GUI.tornadoPlot(initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax)    
-                    GUI.tornadoPlotSensitivity(NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax)    
+            
+            if MC:
 
-
-                    
-                    from Modules.FIELD_DEVELOPMENT.Monte_Carlo import Monte_Carlo
-                    MC = Monte_Carlo(parent = self, NPVgaspricemin = -2422, NPVgaspricemax=4810, NPV_IGIPmin=513, NPV_IGIPmax=1653, LNGPlantMin=-853, LNGPlantMax=3204)
-                    pdf_fig, cdf_fig, tab, std = MC.getResults()
-                    with col20:
-                        st.plotly_chart(pdf_fig, use_container_width=True)
-                        st.dataframe(tab, hide_index=True, use_container_width=True)
-                        st.write("std:", round(std,1))
-                    with col21:                      
-                        st.plotly_chart(cdf_fig, use_container_width=True)
-                    st.warning("""The Monte Carlo Analysis is based on the active production profile (chosen from the dropdown menu) and the editable NPV table.
-                                NOTE that optimized number of templates and plateau rate are not automaticly used. If you would like to 
-                               use the optimized variables for the Monte Carlo Analyis, you would have to generate a new production profile with the optimized
-                               variables that were found. The optimized rate of abandonment (assuming it occurs above the 
-                               minimum Rate of Abandonment) is considered by considering the highest NPV found until the rates
-                               reach abandonment rates.
-
-                       """)
+                prodProfiles_to_MC = dry_gas_NPV.Monte_Carlo_production_profiles(self.__edited_MC_table, minROA=self.__minROA)
+                initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax = dry_gas_NPV.getNPVsforMonteCarlo(dfMC = self.__edited_MC_table, NPV_edited_df=self.__edited_df, prod_profiles= prodProfiles_to_MC)
+                Gas_Price, IGIP_input, LNG_plant_per_Sm3 = dry_gas_NPV.get_inital_MC_variables()
+                st.write( NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax)
+                GUI.tornadoPlot(initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax, Gas_Price, IGIP_input, LNG_plant_per_Sm3)    
+                GUI.tornadoPlotSensitivity(NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax)                        
+                from Modules.FIELD_DEVELOPMENT.Monte_Carlo import Monte_Carlo
+                MC = Monte_Carlo(parent = self, NPVgaspricemin = -2422, NPVgaspricemax=4810, NPV_IGIPmin=513, NPV_IGIPmax=1653, LNGPlantMin=-853, LNGPlantMax=3204)
+                pdf_fig, cdf_fig, tab, std = MC.getResults()
+                col20, col21 = st.columns(2)
+                with col20:
+                    st.plotly_chart(pdf_fig, use_container_width=True)
+                    st.dataframe(tab, hide_index=True, use_container_width=True)
+                    st.write("std:", round(std,1))
+                with col21:                      
+                    st.plotly_chart(cdf_fig, use_container_width=True)
+                st.warning("""The Monte Carlo Analysis is based on the active production profile (chosen from the dropdown menu) and the editable NPV table.
+                            NOTE that optimized number of templates and plateau rate are not automaticly used. If you would like to 
+                            use the optimized variables for the Monte Carlo Analyis, you would have to generate a new production profile with the optimized
+                            variables that were found. The optimized rate of abandonment (assuming it occurs above the 
+                            minimum Rate of Abandonment) is considered by considering the highest NPV found until the rates
+                            reach abandonment rates.
+                    """)
 
 class Monte_Carlo_standAlone:
     def __init__(self):
