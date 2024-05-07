@@ -322,7 +322,7 @@ class FIELD_DEVELOPMENT:
             st.write(" ")
             st.write(" ")
             st.write(" ")
-            st.title("Monte Carlo Analysis")
+            st.title("Uncertainity Analysis")
             st.write(" ")
             st.write(" ")
             st.write(" ")
@@ -330,8 +330,9 @@ class FIELD_DEVELOPMENT:
             col18, col19 = st.columns(2)
             
             with col16:
-                st.markdown("**Uncertainty in variables for Monte Carlo Analysis**")
-                self.__edited_MC_table = GUI.display_table_Monte_Carlo()
+                st.markdown("**Uncertainty in variables**")
+                Gas_Price, IGIP_input, LNG_plant_per_Sm3 = dry_gas_NPV.get_inital_MC_variables()
+                self.__edited_MC_table = GUI.display_uncertainty_table(Gas_Price, IGIP_input, LNG_plant_per_Sm3)
                 
                 #edited_df = self.__edited_df, prod_profiles = prodProfiles_to_NPV, i = i)
                 
@@ -340,13 +341,11 @@ class FIELD_DEVELOPMENT:
                 st.markdown("**Monte Carlo Analysis parameters**")
                 self._Nr_random_num, self._Nr_bins = GUI.display_table_Monte_Carlo_param()
             with col18:
-                MC = st.button(label = "Run Monte Carlo-Analysis", use_container_width=True)
+                MC = st.button(label = "Run uncertainity Analysis", use_container_width=True)
             
             if MC:
-
                 prodProfiles_to_MC = dry_gas_NPV.Monte_Carlo_production_profiles(self.__edited_MC_table, minROA=self.__minROA)
                 initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax = dry_gas_NPV.getNPVsforMonteCarlo(dfMC = self.__edited_MC_table, NPV_edited_df=self.__edited_df, prod_profiles= prodProfiles_to_MC)
-                Gas_Price, IGIP_input, LNG_plant_per_Sm3 = dry_gas_NPV.get_inital_MC_variables()
                 st.write( NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax)
                 GUI.tornadoPlot(initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax, Gas_Price, IGIP_input, LNG_plant_per_Sm3)    
                 GUI.tornadoPlotSensitivity(NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax)                        

@@ -490,6 +490,7 @@ class NPV_dry_gas(NPVAnalysis):
     def get_ROA_variables(self):
         return self._minROA
     def get_inital_MC_variables(self):
+        self.__IGIP_input = self.__field_variables[15]
         return self._Gas_Price, self.__IGIP_input, self._LNG_plant_per_Sm3
 
     # def grid_production_profiles2(self, rates=40000000, minROA=1000000):

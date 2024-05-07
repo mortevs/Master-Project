@@ -99,7 +99,8 @@ def default_Optimization_table(f_variables):
 
 def default_MC():
     list1 = ['Gas Price [USD/Sm3]', 'IGIP [1E9 Sm3]', 'LNG Plant [USD/Sm3/d]']    
-    list2 = [0.05,250, 100] 
+    list2 = [0.05,250, 100]
+    list3 = [] 
     list3 = [0.15,300, 220]
     return list1, list2, list3 
 

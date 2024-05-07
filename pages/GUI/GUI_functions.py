@@ -490,27 +490,29 @@ def display_table_grid_search(f_variables=None, key = 'df_table_editor'):
     edited_df = st.data_editor(df_table, hide_index=True, use_container_width=True)
     return edited_df
 
-def display_table_Monte_Carlo(Variables = None):    
-    from Data.DefaultData import default_MC
-    list1, list2, list3 = default_MC()
+def display_uncertainty_table(Gas_Price, IGIP_input, LNG_plant_per_Sm3):    
+    from Data.DefaultData import default_MC, probability_distributions
+    list3 = [Gas_Price, IGIP_input/1e9, LNG_plant_per_Sm3]
+    list1, list2, list4 = default_MC()
+    p_dists = probability_distributions() 
     df_table = pd.DataFrame({
         'Input': list1,
         'Min': list2,
-        'Max': list3,
+        'ML': list3,
+        'Max': list4,
+        'Dist' : [p_dists[0] for el in list1]
     })
-    edited_df = st.data_editor(df_table, hide_index=True, use_container_width=True)
+    
+    edited_df = st.data_editor(
+        df_table, hide_index=True, use_container_width=True, 
+        column_config={"Dist": st.column_config.SelectboxColumn(
+                label ="Prob dist",
+                help="Probability distribution",
+                width="small",
+                options=p_dists,
+                required=True)})
+
     return edited_df
-
-def display_table_Monte_Carlo_param():    
-    from Data.DefaultData import default_MC_params
-    list1, list2 = default_MC_params()
-    df_table = pd.DataFrame({
-        'Parameter': list1,
-        'Value': list2,
-
-    })
-    edited_df = st.data_editor(df_table, hide_index=True, use_container_width=True)
-    return edited_df['Value']
 
 def display_table_Monte_Carlo_SA():    
     from Data.DefaultData import default_MC_SA, probability_distributions
@@ -537,7 +539,16 @@ def display_table_Monte_Carlo_SA():
 
     return edited_df
 
+def display_table_Monte_Carlo_param():    
+    from Data.DefaultData import default_MC_params
+    list1, list2 = default_MC_params()
+    df_table = pd.DataFrame({
+        'Parameter': list1,
+        'Value': list2,
 
+    })
+    edited_df = st.data_editor(df_table, hide_index=True, use_container_width=True)
+    return edited_df['Value']
 def validate_MC_SA(edited_MC_table):
     #needs implementation
     pass
