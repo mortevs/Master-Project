@@ -1,18 +1,22 @@
-import plotly.graph_objects as go
-import numpy as np
-import pandas as pd
-import streamlit as st
+# import plotly.graph_objects as go
+# import numpy as np
+# import pandas as pd
+# import streamlit as st
 
 
 
-def NPV(Gas_price, IGIP, CAPEX):
-    NPV = (Gas_price+IGIP+CAPEX)/3
-    return NPV
+# def NPV(Gas_price, IGIP, CAPEX):
+#     NPV = (Gas_price+IGIP+CAPEX)/3
+#     return NPV
 
-class Monte_Carlo_FD():
-    def __init__(self, parent, df):
-        from Modules.MONTE_CARLO.Monte_carlo_standAlone import Monte_Carlo
-        MonteC = Monte_Carlo(parent, df) 
+# class Monte_Carlo_FD():
+#     def __init__(self, df):
+#         from Modules.MONTE_CARLO.Monte_carlo_standAlone import RandomNumbers_with_Distribution_consideration
+#         #RandomNumbers_with_Distribution_consideration(df = df, size = parent._Nr_random_num)
+#         st.write(RandomNumbers_with_Distribution_consideration(df = df, size = 5))
+
+        
+
 
         
         
@@ -46,5 +50,5 @@ class Monte_Carlo_FD():
         # 'Value':[np.percentile(NPV_v,10),np.percentile(NPV_v,50),np.percentile(NPV_v,90)]})
         # self._std = np.std(NPV_v)
 
-    def getResults(self):
-        return self._fig_pdf, self._fig_cdf, self._table, self._std
+    # def getResults(self):
+    #     return self._fig_pdf, self._fig_cdf, self._table, self._std

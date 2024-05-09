@@ -505,49 +505,52 @@ class NPV_dry_gas(NPVAnalysis):
         pp_list = []
         stepping_field_variables = self.getParameters()[self._opt].copy()
         nWpT = stepping_field_variables.copy()[8]
-        stepping_field_variables[2] = self.__minROA           
+        stepping_field_variables[2] = self.__minROA  
+        method = self.getMethod()[self._opt]
+        precision = self.getPrecision()[self._opt]
+        from Modules.FIELD_DEVELOPMENT.IPR.IPRAnalysis import IPRAnalysis
+        from Modules.FIELD_DEVELOPMENT.Nodal.NodalAnalysis import NodalAnalysis
         for rate in rates:
             stepping_field_variables[0] = rate
             for wells in W:
                 stepping_field_variables[7] = wells/nWpT
-                if self.getMethod()[self._opt] == 'IPR':
-                    from Modules.FIELD_DEVELOPMENT.IPR.IPRAnalysis import IPRAnalysis
-                    new_df = IPRAnalysis(self.getPrecision()[self._opt], stepping_field_variables)
+                if method == 'IPR':
+                    new_df = IPRAnalysis(precision, stepping_field_variables)
                     pp_list.append([(new_df['Field Rates [Sm3/d]'].to_list()), wells, rate])
                     #pp_list.append(df[])
 
-                elif self.getMethod()[self._opt] == "NODAL":
-                    from Modules.FIELD_DEVELOPMENT.Nodal.NodalAnalysis import NodalAnalysis
-                    new_df = NodalAnalysis(self.getPrecision()[self._opt], stepping_field_variables)
+                elif method == "NODAL":
+                    new_df = NodalAnalysis(precision, stepping_field_variables)
                     pp_list.append([(new_df['Field Rates [Sm3/d]'].to_list()), wells, rate])
                 else:
                     st.error("Error, method and precision is:", self._method, self._precision)     
         return pp_list
-    def Monte_Carlo_production_profiles(self, dfMC, minROA):
+    def Tornado_production_profiles(self, dfMC, minROA):
         self._minIGIP =dfMC["P1"][1]*1e9
         self._maxIGIP =dfMC["P99"][1]*1e9
-        pp_MC_list = []
+        pp__tornado_list = []
         stepping_field_variables = self.getParameters()[self._opt].copy()
         self.__IGIP_input = stepping_field_variables[15]
 
         stepping_field_variables[2] = minROA
         IGIP_list = [self.__IGIP_input, self._minIGIP, self._maxIGIP]
+        precision = self.getPrecision()[self._opt]
+        method = self.getMethod()[self._opt]
+        from Modules.FIELD_DEVELOPMENT.IPR.IPRAnalysis import IPRAnalysis
+        from Modules.FIELD_DEVELOPMENT.Nodal.NodalAnalysis import NodalAnalysis
         for ele in IGIP_list:
             stepping_field_variables[15] = ele
-            if self.getMethod()[self._opt] == 'IPR':
-                from Modules.FIELD_DEVELOPMENT.IPR.IPRAnalysis import IPRAnalysis
-                new_df = IPRAnalysis(self.getPrecision()[self._opt], stepping_field_variables)
-                pp_MC_list.append(new_df['Field Rates [Sm3/d]'].to_list())
-            
-            elif self.getMethod()[self._opt] == "NODAL":
-                from Modules.FIELD_DEVELOPMENT.Nodal.NodalAnalysis import NodalAnalysis
-                new_df = NodalAnalysis(self.getPrecision()[self._opt], stepping_field_variables)
-                pp_MC_list.append(new_df['Field Rates [Sm3/d]'].to_list())
+            if method == 'IPR':
+                new_df = IPRAnalysis(precision, stepping_field_variables)
+                pp__tornado_list.append(new_df['Field Rates [Sm3/d]'].to_list())
+            elif method == "NODAL":
+                new_df = NodalAnalysis(precision, stepping_field_variables)
+                pp__tornado_list.append(new_df['Field Rates [Sm3/d]'].to_list())
             else:
                 st.error("Error, method and precision is:", self._method, self._precision)   
-        return pp_MC_list
+        return pp__tornado_list
 
-    def NPV_calculation_MC(self, df, gas_price, LNG_p_vari, yGofftake):
+    def NPV_calculation_Tornado(self, df, gas_price, LNG_p_vari, yGofftake):
             yearly_gas_offtake = [0 for i in range (self._CAPEX_period_prior)] + [(yGofftake[i-1]+yGofftake[i])/2 * self._uptime for i in range(1, len(yGofftake))]
             #yearly_gas_offtake = [0 for i in range (self._CAPEX_period_prior-1)] + [element * self._uptime for element in yGofftake]
             end_prod = len(yearly_gas_offtake)
@@ -582,24 +585,79 @@ class NPV_dry_gas(NPVAnalysis):
         self._maxLNGPlant = dfMC["P99"][2]
         
         IGIPyGofftake = prod_profiles[0]
-        initial_NPV=self.NPV_calculation_MC(df = NPV_edited_df, gas_price = self._Gas_Price, LNG_p_vari = self._LNG_plant_per_Sm3, yGofftake = IGIPyGofftake)
+        initial_NPV=self.NPV_calculation_Tornado(df = NPV_edited_df, gas_price = self._Gas_Price, LNG_p_vari = self._LNG_plant_per_Sm3, yGofftake = IGIPyGofftake)
         
-        NPVgaspricemin=self.NPV_calculation_MC(df = NPV_edited_df, gas_price = self._minGasPrice, LNG_p_vari = self._LNG_plant_per_Sm3, yGofftake = IGIPyGofftake)
+        NPVgaspricemin=self.NPV_calculation_Tornado(df = NPV_edited_df, gas_price = self._minGasPrice, LNG_p_vari = self._LNG_plant_per_Sm3, yGofftake = IGIPyGofftake)
         minIGIPyGofftake = prod_profiles[1]
         maxIGIPyGofftake = prod_profiles[2]
         
        
-        NPVgaspricemax=self.NPV_calculation_MC(df = NPV_edited_df, gas_price = self._maxGasPrice, LNG_p_vari = self._LNG_plant_per_Sm3, yGofftake = IGIPyGofftake)
+        NPVgaspricemax=self.NPV_calculation_Tornado(df = NPV_edited_df, gas_price = self._maxGasPrice, LNG_p_vari = self._LNG_plant_per_Sm3, yGofftake = IGIPyGofftake)
         
-        LNGPlantMin=self.NPV_calculation_MC(df = NPV_edited_df, gas_price = self._Gas_Price, LNG_p_vari = self._minLNGPlant, yGofftake = IGIPyGofftake)
-        LNGPlantMax=self.NPV_calculation_MC(df = NPV_edited_df, gas_price = self._Gas_Price, LNG_p_vari = self._maxLNGPlant, yGofftake = IGIPyGofftake)
+        LNGPlantMin=self.NPV_calculation_Tornado(df = NPV_edited_df, gas_price = self._Gas_Price, LNG_p_vari = self._minLNGPlant, yGofftake = IGIPyGofftake)
+        LNGPlantMax=self.NPV_calculation_Tornado(df = NPV_edited_df, gas_price = self._Gas_Price, LNG_p_vari = self._maxLNGPlant, yGofftake = IGIPyGofftake)
 
-        NPV_IGIPmin=self.NPV_calculation_MC(df = NPV_edited_df, gas_price = self._Gas_Price, LNG_p_vari = self._LNG_plant_per_Sm3, yGofftake = minIGIPyGofftake)
-        NPV_IGIPmax=self.NPV_calculation_MC(df = NPV_edited_df, gas_price = self._Gas_Price, LNG_p_vari = self._LNG_plant_per_Sm3, yGofftake = maxIGIPyGofftake)
+        NPV_IGIPmin=self.NPV_calculation_Tornado(df = NPV_edited_df, gas_price = self._Gas_Price, LNG_p_vari = self._LNG_plant_per_Sm3, yGofftake = minIGIPyGofftake)
+        NPV_IGIPmax=self.NPV_calculation_Tornado(df = NPV_edited_df, gas_price = self._Gas_Price, LNG_p_vari = self._LNG_plant_per_Sm3, yGofftake = maxIGIPyGofftake)
 
         return initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax
     
+    def Monte_Carlo_production_profiles(self, minROA, IGIP_array):
+        from Modules.FIELD_DEVELOPMENT.IPR.IPRAnalysis import IPRAnalysis
+        from Modules.FIELD_DEVELOPMENT.Nodal.NodalAnalysis import NodalAnalysis
+        stepping_field_variables = self.getParameters()[self._opt].copy()
+        stepping_field_variables[2] = minROA
+        pp_MC_list = []
+        precision = self.getPrecision()[self._opt]
+        method = self.getMethod()[self._opt]
+        for ele in IGIP_array:
+            start = time.time()
+            stepping_field_variables[15] = ele*1e9
+            if method == 'IPR':
+                new_df = IPRAnalysis(precision, stepping_field_variables)
+                pp_MC_list.append(new_df['Field Rates [Sm3/d]'].to_list())
+            elif method == "NODAL":
+                new_df = NodalAnalysis(precision, stepping_field_variables)
+                pp_MC_list.append(new_df['Field Rates [Sm3/d]'].to_list())
+            else:
+                st.error("Error, method and precision is:", self._method, self._precision)  
+            stop = time.time()
+            st.write(stop-start)
+        return pp_MC_list
 
+
+
+        # NPV_gas_v = np.random.uniform(NPVgaspricemin,NPVgaspricemax, parent._Nr_random_num)
+        # NPV_IGIP_v = np.random.uniform(NPV_IGIPmin ,NPV_IGIPmax, parent._Nr_random_num)
+        # NPV_CAPEX_v = np.random.uniform(LNGPlantMin ,LNGPlantMax, parent._Nr_random_num)
+        # NPV_v = NPV(NPV_gas_v,NPV_IGIP_v,NPV_CAPEX_v)
+        # nr_bins = parent._Nr_bins
+        # bins = np.linspace(NPV_v.min(),NPV_v.max(),nr_bins)
+        # counts = np.histogram(NPV_v,bins)[0]
+        # pdf = counts/parent._Nr_random_num
+        # bin_for_plotting = (bins[0:-1]+bins[1:])/2
+
+        # self._fig_pdf = go.Figure()
+        # self._fig_pdf.add_trace(go.Scatter(x=bin_for_plotting, y=pdf, mode='lines', name='pdf'))
+        # self._fig_pdf.update_layout(title='PDF', xaxis_title='NPV [1E06 USD]', yaxis_title='frequency', showlegend=True)
+        
+        # # Calculate CDF
+        # cdf = np.cumsum(pdf)
+        # invcdf = 1 - cdf
+        # bins_cdfplot = bins[1:]
+
+        # # Create CDF plot
+        # self._fig_cdf = go.Figure()
+        # self._fig_cdf.add_trace(go.Scatter(x=bins_cdfplot, y=invcdf, mode='lines', name='ccdf'))
+        # self._fig_cdf.update_layout(title='CCPF', xaxis_title='NPV [1E06 USD]', yaxis_title='Complementary cumulative probability distribution', showlegend=True)
+
+        
+        # self._table = pd.DataFrame({'Variable':['P90 [1E06 USD]','P50 [1E06 USD]','P10 [1E06 USD]'],
+        # 'Value':[np.percentile(NPV_v,10),np.percentile(NPV_v,50),np.percentile(NPV_v,90)]})
+        # self._std = np.std(NPV_v)
+
+    # def getResults(self):
+    #     return self._fig_pdf, self._fig_cdf, self._table, self._std
         
 
         

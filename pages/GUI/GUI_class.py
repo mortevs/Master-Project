@@ -2,6 +2,7 @@ import streamlit as st
 import pages.GUI.GUI_functions as GUI
 import time
 import Data.getData as get
+import numpy as np
 import os
 from Data.dataProcessing import get_field_list_inc_No_field_chosen
 import math
@@ -344,28 +345,38 @@ class FIELD_DEVELOPMENT:
                 UC = st.button(label = "Run uncertainity Analysis", use_container_width=True)
             
             if UC:
-                prodProfiles_to_MC = dry_gas_NPV.Monte_Carlo_production_profiles(self.__edited_uncertainity_table, minROA=self.__minROA)
+                prodProfiles_to_MC = dry_gas_NPV.Tornado_production_profiles(self.__edited_uncertainity_table, minROA=self.__minROA)
                 initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax = dry_gas_NPV.getNPVsforTornado(dfMC = self.__edited_uncertainity_table, NPV_edited_df=self.__edited_df, prod_profiles= prodProfiles_to_MC)
                 #st.write( NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax)
                 GUI.tornadoPlot(initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax, Gas_Price, IGIP_input, LNG_plant_per_Sm3)    
                 GUI.tornadoPlotSensitivity(NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax)                        
+                from Modules.MONTE_CARLO.Monte_carlo_standAlone import RandomNumbers_with_Distribution_consideration
+                GP_array, IGIP_array, LNG_array = RandomNumbers_with_Distribution_consideration(df = self.__edited_uncertainity_table, size = 10)
+                IGIP_P1 = self.__edited_uncertainity_table['P1'][1]
+                IGIP_P99 = self.__edited_uncertainity_table['P99'][1]
+                #IGIP_smart_array = np.linspace(IGIP_P1, IGIP_P99, self._Nr_bins)
+                IGIP_smart_array = np.linspace(IGIP_P1, IGIP_P99, 3)
+
+                MC_smart_production_profiles = dry_gas_NPV.Monte_Carlo_production_profiles(self.__minROA, IGIP_smart_array)
+                dry_gas_NPV.getNPVsforMonteCarlo(dfMC = self.__edited_uncertainity_table, NPV_edited_df=self.__edited_df, prod_profiles= prodProfiles_to_MC)
+
                 
-                from Modules.FIELD_DEVELOPMENT.Monte_Carlo import Monte_Carlo_FD
-                MC = Monte_Carlo_FD(parent = self, df = self.__edited_uncertainity_table)
-                pdf_fig, cdf_fig, tab, std = MC.getResults()
-                col20, col21 = st.columns(2)
-                with col20:
-                    st.plotly_chart(pdf_fig, use_container_width=True)
-                    st.dataframe(tab, hide_index=True, use_container_width=True)
-                    st.write("std:", round(std,1))
-                with col21:                      
-                    st.plotly_chart(cdf_fig, use_container_width=True)
-                st.warning("""The Monte Carlo Analysis is based on the active production profile (chosen from the dropdown menu) and the editable NPV table.
+
+                
+
+                #pdf_fig, cdf_fig, tab, std = MC.getResults()
+                # col20, col21 = st.columns(2)
+                # with col20:
+                #     st.plotly_chart(pdf_fig, use_container_width=True)
+                #     st.dataframe(tab, hide_index=True, use_container_width=True)
+                #     st.write("std:", round(std,1))
+                # with col21:                      
+                #     st.plotly_chart(cdf_fig, use_container_width=True)
+                st.warning("""The Monte Carlo Analysis is based on the editable NPV table above. For every IGIP, a new production profile is estimated.
                             NOTE that optimized number of templates and plateau rate are not automaticly used. If you would like to 
                             use the optimized variables for the Monte Carlo Analyis, you would have to generate a new production profile with the optimized
                             variables that were found. The optimized rate of abandonment (assuming it occurs above the 
-                            minimum Rate of Abandonment) is considered by considering the highest NPV found until the rates
-                            reach abandonment rates.
+                            minimum Rate of Abandonment treshhold specified above) is considered in the Monte Carlo Analysis.
                     """)
 
 class Monte_Carlo_standAlone:
@@ -375,9 +386,8 @@ class Monte_Carlo_standAlone:
             st.write("""A Monte Carlo Analysis is run with the input data. 
                     The rows should be addable. For instance all the rows should be 
                      time [Hours] or cost [1E06 USD]. 
-                     Uncertainties will be run on each variable according to Min, Max,
-                     ML (if applicable) and the probability distribution for that row.
-                     They will then be added together to give a final probability distribution. 
+                     Uncertainties will be run on each variable according to the probability distribution for that row, P1 (Min), P99 (Max),
+                     and P50 (ML) if applicable for the distribution chosen. They will then be added together to give a final probability distribution. 
                      A different probability distribution than the default Uniform 
                      can the be chosen from a dropdown menu by double pressing the cell.
                      The Monte Carlo Analysis Parameters can be adjusted to obtain higher or lower resolution

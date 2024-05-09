@@ -6,6 +6,7 @@ from Equations.MBgastank_PR import MBgastank_PR
 from Equations.RF import RF
 from scipy.optimize import fsolve,root
 import streamlit as st
+from Modules.RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA.dry_gas_R_analysis import ResAnalysis
 def Nodal(qFieldTarget: float, PRi: float, abandonmentRate: float, TR:float, gasMolecularWeight: float, C_R: float, n:float, N_temp: float, NWellsPerTemplate: float, upTime: int, C_t: float, S:float, C_FL:float, C_PL:float, P_sep: float, IGIP: float, build_up: int) -> pd.DataFrame: 
     """
     qFieldTarget =  plateau rate, [sm3/day],
@@ -34,7 +35,6 @@ def Nodal(qFieldTarget: float, PRi: float, abandonmentRate: float, TR:float, gas
         buildUp_df = pd.DataFrame(np.zeros((max_sim_time, 16)))
         buildup_rate = qFieldTarget/build_up
         build_up_list = [buildup_rate*i for i in range(build_up)]
-        from Modules.RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA.dry_gas_R_analysis import ResAnalysis
         gas_offtake = [0]   
         for i in range(1, len(build_up_list)):
             gas_offtake.append((build_up_list[i-1]+build_up_list[i])/2 * upTime) #Trapezoidal rule
