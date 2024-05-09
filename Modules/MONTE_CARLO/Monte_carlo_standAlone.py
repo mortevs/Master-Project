@@ -4,26 +4,25 @@ import plotly.graph_objects as go
 import pandas as pd
 class Monte_Carlo():
     def __init__(self, parent, df):
-        self.__P10_GP = df['P10'][0]
-        self.__P10_IGIP = df['P10'][1]
-        self.__P10_LNG = df['P10'][2]
-        
-        self.__P50_GP = df['P50'][0]
-        self.__P50_IGIP = df['P50'][1]
-        self.__P50_LNG = df['P50'][2]
+        self.__rows = len(df.index)
+        function_map = {'uniform': np.random.uniform, 'normal': np.random.normal}
+        dist_dict = {'uniform': ['P1', 'P99'], 'pert (default)' : ['P1', 'P50', 'P99']}
+        rand_variables = []
+        for i in range(self.__rows):
+            func = (function_map[df.iloc[i]['P Dist']])
+            var = func(*df[dist_dict[df.iloc[i]['P Dist']]].loc[i].to_list(), 5)
+            rand_variables.append(var)
 
-        self.__P90_GP = df['P90'][0]
-        self.__P90_IGIP = df['P90'][1]
-        self.__P90_LNG = df['P90'][2]
+        st.write(rand_variables)
+            
 
-        self.__Dist_GP = df['P Dist'][0]
-        self.__Dist_IGIP = df['P Dist'][1]
-        self.__Dist_LNG = df['P Dist'][2]
-
-        prob_dists_dict = {}
+            
 
 
-        NPV_gas_v = np.random.(NPVgaspricemin,NPVgaspricemax, parent._Nr_random_num)
+
+
+
+        #NPV_gas_v = np.random.(NPVgaspricemin,NPVgaspricemax, parent._Nr_random_num)
     #     NPV_IGIP_v = np.random.uniform(NPV_IGIPmin ,NPV_IGIPmax, parent._Nr_random_num)
     #     NPV_CAPEX_v = np.random.uniform(LNGPlantMin ,LNGPlantMax, parent._Nr_random_num)
     #     NPV_v = NPV(NPV_gas_v,NPV_IGIP_v,NPV_CAPEX_v)

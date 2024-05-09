@@ -490,53 +490,57 @@ def display_table_grid_search(f_variables=None, key = 'df_table_editor'):
     edited_df = st.data_editor(df_table, hide_index=True, use_container_width=True)
     return edited_df
 
+def create_uncertainty_table(list1, list2,list3, list4, p_dists):
+    df_table = pd.DataFrame({
+        'Input': list1,
+        'P1': list2,
+        'P50': list3,
+        'P99': list4,
+        'P Dist' : [p_dists[0] for el in list1]
+    })
+    edited_df = st.data_editor(
+        df_table,
+        hide_index=True,
+        use_container_width=True,
+        column_config={
+            "P Dist": st.column_config.SelectboxColumn(
+                label="Prob dist",
+                help="Probability distribution of the input variable",
+                width="small",
+                options=p_dists,
+                required=True
+            ),
+            "P1": st.column_config.NumberColumn(
+                label="P1",
+                help="1% probability for variable to be below input"
+            ),
+            "P50": st.column_config.NumberColumn(
+                label="P50",
+                help="Most Likely value / Median value (50% probability)"
+            ),
+            "P99": st.column_config.NumberColumn(
+                label="P99",
+                help="99% probability for variable to be below input"
+            )
+        }
+    )
+    return edited_df
+
 def display_uncertainty_table(Gas_Price, IGIP_input, LNG_plant_per_Sm3):    
     from Data.DefaultData import default_MC, probability_distributions
     list3 = [Gas_Price, IGIP_input/1e9, LNG_plant_per_Sm3]
     list1, list2, list4 = default_MC()
     p_dists = probability_distributions() 
-    df_table = pd.DataFrame({
-        'Input': list1,
-        'P10': list2,
-        'P50': list3,
-        'P90': list4,
-        'P Dist' : [p_dists[0] for el in list1]
-    })
-    
-    edited_df = st.data_editor(
-        df_table, hide_index=True, use_container_width=True, 
-        column_config={"P Dist": st.column_config.SelectboxColumn(
-                label ="Prob dist",
-                help="Probability distribution",
-                width="small",
-                options=p_dists,
-                required=True)})
-
+    edited_df = create_uncertainty_table(list1, list2, list3, list4, p_dists)
+    validate_uncertainty_table(edited_df)
     return edited_df
 
 def display_table_Monte_Carlo_SA():    
     from Data.DefaultData import default_MC_SA, probability_distributions
     list1, list2, list3, list4 = default_MC_SA()
     p_dists = probability_distributions()
-
-    
-    df_table = pd.DataFrame({
-        'Input': list1,
-        'P10': list2,
-        'P50': list3,
-        'P90': list4,
-        'P Dist' : [p_dists[0] for el in list1]
-    })
-    
-    edited_df = st.data_editor(
-        df_table, hide_index=True, use_container_width=True, 
-        column_config={"P Dist": st.column_config.SelectboxColumn(
-                label ="Prob dist",
-                help="The probability distribution of the variable",
-                width="small",
-                options=p_dists,
-                required=True)})
-
+    edited_df = create_uncertainty_table(list1, list2, list3, list4, p_dists)
+    validate_uncertainty_table(edited_df)
     return edited_df
 
 def display_table_Monte_Carlo_param():    
@@ -549,9 +553,24 @@ def display_table_Monte_Carlo_param():
     })
     edited_df = st.data_editor(df_table, hide_index=True, use_container_width=True)
     return edited_df['Value']
-def validate_MC_SA(edited_MC_table):
-    #needs implementation
-    pass
+def validate_uncertainty_table(df):
+    
+    P1GasPrice = df["P1"][0]
+    P50GasPrice = df["P50"][0]
+    P99GasPrice =df["P99"][0]
+    
+    P1IGIP =df["P1"][1]
+    P50IGIP =df["P50"][1]
+    P99IGIP = df["P99"][1]
+    
+    P1LNGPlant =df["P1"][2]
+    P50LNGPlant =df["P50"][2]
+    P99LNGPlant = df["P99"][2]
+
+    if P1GasPrice >= P50GasPrice or P50GasPrice>=P99GasPrice or P1IGIP >= P50IGIP or P50IGIP>=P99IGIP or P1LNGPlant >= P50LNGPlant or P50LNGPlant>=P99LNGPlant :
+        st.error("Uncertainty table is not correct, P1 must be less than P50 which must be less than P99 ")
+        st.stop()
+
 # class edible_df():
 #     def __init__(self, list2):
 #         self.df = self.initialize_table(list2)
@@ -632,7 +651,7 @@ def tornadoPlotSensitivity(NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlant
 
     fig.update_layout(
         title={
-            'text': 'Tornado Plot - NPV Sensitivity',
+            'text': 'Tornado Plot - NPV Sensitivity based on P1, P99',
             'font': {
                 'size': 20  
             }
@@ -684,6 +703,7 @@ def tornadoPlot(initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPla
                 text=min_values[i],  
                 textposition='outside',
                 textfont=dict(size=14)
+                
             )
         )
     
@@ -692,7 +712,7 @@ def tornadoPlot(initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPla
         fig.add_trace(
             go.Bar(
                 y=[label],
-                x=[abs(max_values[i] - initial_NPV)],
+                x=[(max_values[i] - initial_NPV)],
                 orientation='h',
                 base=initial_NPV,
                 marker=dict(
@@ -723,7 +743,7 @@ def tornadoPlot(initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPla
     # Update layout
     fig.update_layout(
         title={
-            'text': 'Tornado Plot - Min and Max NPVs',
+            'text': 'Tornado Plot - NPV from P1 and P99 input',
             'font': {
                 'size': 20  # Adjust the size of the plot title text here (e.g., 20)
             }

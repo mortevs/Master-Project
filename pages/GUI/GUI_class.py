@@ -332,7 +332,7 @@ class FIELD_DEVELOPMENT:
             with col16:
                 st.markdown("**Uncertainty in variables**")
                 Gas_Price, IGIP_input, LNG_plant_per_Sm3 = dry_gas_NPV.get_inital_MC_variables()
-                self.__edited_MC_table = GUI.display_uncertainty_table(Gas_Price, IGIP_input, LNG_plant_per_Sm3)
+                self.__edited_uncertainity_table = GUI.display_uncertainty_table(Gas_Price, IGIP_input, LNG_plant_per_Sm3)
                 
                 #edited_df = self.__edited_df, prod_profiles = prodProfiles_to_NPV, i = i)
                 
@@ -341,17 +341,17 @@ class FIELD_DEVELOPMENT:
                 st.markdown("**Monte Carlo Analysis parameters**")
                 self._Nr_random_num, self._Nr_bins = GUI.display_table_Monte_Carlo_param()
             with col18:
-                MC = st.button(label = "Run uncertainity Analysis", use_container_width=True)
+                UC = st.button(label = "Run uncertainity Analysis", use_container_width=True)
             
-            if MC:
-                prodProfiles_to_MC = dry_gas_NPV.Monte_Carlo_production_profiles(self.__edited_MC_table, minROA=self.__minROA)
-                initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax = dry_gas_NPV.getNPVsforMonteCarlo(dfMC = self.__edited_MC_table, NPV_edited_df=self.__edited_df, prod_profiles= prodProfiles_to_MC)
+            if UC:
+                prodProfiles_to_MC = dry_gas_NPV.Monte_Carlo_production_profiles(self.__edited_uncertainity_table, minROA=self.__minROA)
+                initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax = dry_gas_NPV.getNPVsforTornado(dfMC = self.__edited_uncertainity_table, NPV_edited_df=self.__edited_df, prod_profiles= prodProfiles_to_MC)
                 #st.write( NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax)
                 GUI.tornadoPlot(initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax, Gas_Price, IGIP_input, LNG_plant_per_Sm3)    
                 GUI.tornadoPlotSensitivity(NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax)                        
                 
                 from Modules.FIELD_DEVELOPMENT.Monte_Carlo import Monte_Carlo_FD
-                MC = Monte_Carlo_FD(parent = self, df = self.__edited_MC_table)
+                MC = Monte_Carlo_FD(parent = self, df = self.__edited_uncertainity_table)
                 pdf_fig, cdf_fig, tab, std = MC.getResults()
                 col20, col21 = st.columns(2)
                 with col20:
@@ -389,9 +389,9 @@ class Monte_Carlo_standAlone:
         with col16:
             st.markdown("**Uncertainity in variables and probability distribution**")
             edited_MC_table = GUI.display_table_Monte_Carlo_SA()
-            GUI.validate_MC_SA(edited_MC_table) #not configured yet
+            GUI.validate_uncertainty_table(edited_MC_table) #not configured yet
         with col17:
-            st.markdown("**Monte Carlo Analysis parameters**")
+            st.markdown("**Monte Carlo Analysis parameters (optional optimization)**")
             self._Nr_random_num, self._Nr_bins = GUI.display_table_Monte_Carlo_param()
         with col18:
             MC = st.button(label = "Run Monte Carlo-Analysis", use_container_width=True)

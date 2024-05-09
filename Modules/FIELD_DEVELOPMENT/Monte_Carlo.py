@@ -1,6 +1,7 @@
 import plotly.graph_objects as go
 import numpy as np
 import pandas as pd
+import streamlit as st
 
 
 
@@ -10,10 +11,11 @@ def NPV(Gas_price, IGIP, CAPEX):
 
 class Monte_Carlo_FD():
     def __init__(self, parent, df):
-        import Modules.MONTE_CARLO.Monte_carlo_standAlone as SA
+        from Modules.MONTE_CARLO.Monte_carlo_standAlone import Monte_Carlo
+        MonteC = Monte_Carlo(parent, df) 
 
         
-        MC = SA.Monte_Carlo(parent, df) 
+        
 
         # NPV_gas_v = np.random.uniform(NPVgaspricemin,NPVgaspricemax, parent._Nr_random_num)
         # NPV_IGIP_v = np.random.uniform(NPV_IGIPmin ,NPV_IGIPmax, parent._Nr_random_num)

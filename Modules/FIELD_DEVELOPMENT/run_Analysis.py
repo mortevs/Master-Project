@@ -524,8 +524,8 @@ class NPV_dry_gas(NPVAnalysis):
                     st.error("Error, method and precision is:", self._method, self._precision)     
         return pp_list
     def Monte_Carlo_production_profiles(self, dfMC, minROA):
-        self._minIGIP =dfMC["Min"][1]*1e9
-        self._maxIGIP =dfMC["Max"][1]*1e9
+        self._minIGIP =dfMC["P1"][1]*1e9
+        self._maxIGIP =dfMC["P99"][1]*1e9
         pp_MC_list = []
         stepping_field_variables = self.getParameters()[self._opt].copy()
         self.__IGIP_input = stepping_field_variables[15]
@@ -575,11 +575,11 @@ class NPV_dry_gas(NPVAnalysis):
             maxNPV = round(max(NPV_list),1)  
             return maxNPV
 
-    def getNPVsforMonteCarlo(self, dfMC, NPV_edited_df, prod_profiles):
-        self._minGasPrice = dfMC["Min"][0]
-        self._maxGasPrice =dfMC["Max"][0]
-        self._minLNGPlant =dfMC["Min"][2]
-        self._maxLNGPlant = dfMC["Max"][2]
+    def getNPVsforTornado(self, dfMC, NPV_edited_df, prod_profiles):
+        self._minGasPrice = dfMC["P1"][0]
+        self._maxGasPrice =dfMC["P99"][0]
+        self._minLNGPlant =dfMC["P1"][2]
+        self._maxLNGPlant = dfMC["P99"][2]
         
         IGIPyGofftake = prod_profiles[0]
         initial_NPV=self.NPV_calculation_MC(df = NPV_edited_df, gas_price = self._Gas_Price, LNG_p_vari = self._LNG_plant_per_Sm3, yGofftake = IGIPyGofftake)
