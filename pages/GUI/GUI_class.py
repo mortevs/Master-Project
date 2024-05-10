@@ -353,7 +353,6 @@ class FIELD_DEVELOPMENT:
                 GUI.tornadoPlotSensitivity(NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax)                        
                 from Modules.MONTE_CARLO.Monte_carlo_standAlone import RandomNumbers_with_Distribution_consideration
                 GP_array, IGIP_array, LNG_array = RandomNumbers_with_Distribution_consideration(df = self.__edited_uncertainity_table, size = self._Nr_random_num)
-                start = time.time()
                 IGIP_P1 = self.__edited_uncertainity_table['P1'][1]
                 IGIP_P99 = self.__edited_uncertainity_table['P99'][1]
                 IGIP_smart_array = np.linspace(IGIP_P1, IGIP_P99, self._Nr_bins)
@@ -388,27 +387,16 @@ class FIELD_DEVELOPMENT:
                         closest_numbers.append(closest)
                         
                     return closest_numbers             
-                time2 = time.time()
-                st.write(time2-start)
                 closest_IGIP_array = find_closest_numbers(IGIP_smart_array, IGIP_array)
-                time3 = time.time()
-                st.write(time3-start)
                 pp_MC_pre_defined_dict = dry_gas_NPV.Monte_Carlo_production_profiles(self.__minROA, IGIP_smart_array)
-                time4 = time.time()
-                st.write(time4-start)
                 PP_MC_assigned_array = np.array(([np.array(pp_MC_pre_defined_dict.get(key)) for key in closest_IGIP_array]), dtype=object)
-                time5 = time.time()
-                st.write(time5-start)
                 results = [dry_gas_NPV.NPV_calculation_Monte_Carlo(df=self.__edited_df, gas_price=gas_price, 
                                                    LNG_p_vari=LNG_p_vari, pp=pp) 
                                                 for gas_price, LNG_p_vari, pp in zip(GP_array, LNG_array, PP_MC_assigned_array)]
 
-                time6 = time.time()
-                st.write(time6-start)
                 results_array = np.array(results)
                 from Modules.MONTE_CARLO.Monte_carlo_standAlone import Monte_Carlo_Simulation
                 time7 = time.time()
-                st.write(time7-start)
                 fig_pdf, fig_cdf, table, std = Monte_Carlo_Simulation(self._Nr_bins, results_array, self._Nr_random_num)
                 col20, col21 = st.columns(2)
                 with col20:

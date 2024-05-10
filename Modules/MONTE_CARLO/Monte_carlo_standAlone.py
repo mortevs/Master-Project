@@ -2,14 +2,20 @@ import numpy as np
 import streamlit as st
 import plotly.graph_objects as go
 import pandas as pd
+def pert_distribution(a, b, c, size=1):
+   r = c-a
+   alpha = 1 + 4*(b-a) / r
+   beta = 1 + 4 * (c-b) / r
+   return a + np.random.beta(alpha, beta, size = size) * r
+
 def RandomNumbers_with_Distribution_consideration(df, size):
     rows = len(df.index)
-    function_map = {'uniform': np.random.uniform, 'normal': np.random.normal}
+    function_map = {'uniform': np.random.uniform, 'normal': np.random.normal, 'pert (default)': pert_distribution, 'normal': np.random.normal, 'lognormal' : np.random.lognormal, 'triangular' : np.random.triangular, 'exponential': np.random.exponential}
     dist_dict = {'uniform': ['P1', 'P99'], 'pert (default)' : ['P1', 'P50', 'P99']}
     rand_variables = []
     for i in range(rows):
         func = (function_map[df.iloc[i]['P Dist']])
-        var = func(*df[dist_dict[df.iloc[i]['P Dist']]].loc[i].to_list(), size)
+        var = func(*df[dist_dict[df.iloc[i]['P Dist']]].loc[i].to_list(), size = size)
         rand_variables.append(var)
     return rand_variables
 

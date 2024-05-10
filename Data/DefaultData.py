@@ -105,7 +105,7 @@ def default_MC():
 
 def default_MC_params():
     list1 = ['Nr of Random Numbers', 'Nr Bins']
-    list2 = [1000000,50] 
+    list2 = [50000,25] 
     return list1, list2
 
 def default_MC_SA():
