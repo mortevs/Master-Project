@@ -7,6 +7,7 @@ import os
 from Data.dataProcessing import get_field_list_inc_No_field_chosen
 import math
 import pandas as pd
+from bisect import bisect_left
 try:
     fieldnames = get_field_list_inc_No_field_chosen()
 except Exception as e:
@@ -345,33 +346,77 @@ class FIELD_DEVELOPMENT:
                 UC = st.button(label = "Run uncertainity Analysis", use_container_width=True)
             
             if UC:
-                prodProfiles_to_MC = dry_gas_NPV.Tornado_production_profiles(self.__edited_uncertainity_table, minROA=self.__minROA)
-                initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax = dry_gas_NPV.getNPVsforTornado(dfMC = self.__edited_uncertainity_table, NPV_edited_df=self.__edited_df, prod_profiles= prodProfiles_to_MC)
+                prodProfiles_to_Tornado = dry_gas_NPV.Tornado_production_profiles(self.__edited_uncertainity_table, minROA=self.__minROA)
+                initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax = dry_gas_NPV.getNPVsforTornado(dfMC = self.__edited_uncertainity_table, NPV_edited_df=self.__edited_df, prod_profiles= prodProfiles_to_Tornado)
                 #st.write( NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax)
                 GUI.tornadoPlot(initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax, Gas_Price, IGIP_input, LNG_plant_per_Sm3)    
                 GUI.tornadoPlotSensitivity(NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax)                        
                 from Modules.MONTE_CARLO.Monte_carlo_standAlone import RandomNumbers_with_Distribution_consideration
-                GP_array, IGIP_array, LNG_array = RandomNumbers_with_Distribution_consideration(df = self.__edited_uncertainity_table, size = 10)
+                GP_array, IGIP_array, LNG_array = RandomNumbers_with_Distribution_consideration(df = self.__edited_uncertainity_table, size = self._Nr_random_num)
+                start = time.time()
                 IGIP_P1 = self.__edited_uncertainity_table['P1'][1]
                 IGIP_P99 = self.__edited_uncertainity_table['P99'][1]
-                #IGIP_smart_array = np.linspace(IGIP_P1, IGIP_P99, self._Nr_bins)
-                IGIP_smart_array = np.linspace(IGIP_P1, IGIP_P99, 3)
+                IGIP_smart_array = np.linspace(IGIP_P1, IGIP_P99, self._Nr_bins)
+                def find_closest_numbers(a_list, b_list):
+                    # Function to find the closest numbers in a_list for each element in b_list
+                    def closest_number(target):
+                        # Use binary search to find the position to insert the target in a_list
+                        pos = bisect_left(a_list, target)
+                        
+                        # If the position is at the start of a_list, the closest number must be the first element
+                        if pos == 0:
+                            return a_list[0]
+                        # If the position is at the end of a_list, the closest number must be the last element
+                        if pos == len(a_list):
+                            return a_list[-1]
+                        
+                        # Check the closest element between the element at pos and pos - 1
+                        before = a_list[pos - 1]
+                        after = a_list[pos]
+                        
+                        # Return the closest number
+                        if abs(after - target) < abs(before - target):
+                            return after
+                        else:
+                            return before
+                    
+                    # Find the closest numbers for each element in b_list
+                    closest_numbers = []
+                    
+                    for b in b_list:
+                        closest = closest_number(b)
+                        closest_numbers.append(closest)
+                        
+                    return closest_numbers             
+                time2 = time.time()
+                st.write(time2-start)
+                closest_IGIP_array = find_closest_numbers(IGIP_smart_array, IGIP_array)
+                time3 = time.time()
+                st.write(time3-start)
+                pp_MC_pre_defined_dict = dry_gas_NPV.Monte_Carlo_production_profiles(self.__minROA, IGIP_smart_array)
+                time4 = time.time()
+                st.write(time4-start)
+                PP_MC_assigned_array = np.array(([np.array(pp_MC_pre_defined_dict.get(key)) for key in closest_IGIP_array]), dtype=object)
+                time5 = time.time()
+                st.write(time5-start)
+                results = [dry_gas_NPV.NPV_calculation_Monte_Carlo(df=self.__edited_df, gas_price=gas_price, 
+                                                   LNG_p_vari=LNG_p_vari, pp=pp) 
+                                                for gas_price, LNG_p_vari, pp in zip(GP_array, LNG_array, PP_MC_assigned_array)]
 
-                MC_smart_production_profiles = dry_gas_NPV.Monte_Carlo_production_profiles(self.__minROA, IGIP_smart_array)
-                dry_gas_NPV.getNPVsforMonteCarlo(dfMC = self.__edited_uncertainity_table, NPV_edited_df=self.__edited_df, prod_profiles= prodProfiles_to_MC)
-
-                
-
-                
-
-                #pdf_fig, cdf_fig, tab, std = MC.getResults()
-                # col20, col21 = st.columns(2)
-                # with col20:
-                #     st.plotly_chart(pdf_fig, use_container_width=True)
-                #     st.dataframe(tab, hide_index=True, use_container_width=True)
-                #     st.write("std:", round(std,1))
-                # with col21:                      
-                #     st.plotly_chart(cdf_fig, use_container_width=True)
+                time6 = time.time()
+                st.write(time6-start)
+                results_array = np.array(results)
+                from Modules.MONTE_CARLO.Monte_carlo_standAlone import Monte_Carlo_Simulation
+                time7 = time.time()
+                st.write(time7-start)
+                fig_pdf, fig_cdf, table, std = Monte_Carlo_Simulation(self._Nr_bins, results_array, self._Nr_random_num)
+                col20, col21 = st.columns(2)
+                with col20:
+                    st.plotly_chart(fig_pdf, use_container_width=True)
+                    st.dataframe(table, hide_index=True, use_container_width=True)
+                    st.write("std:", round(std,1))
+                with col21:                      
+                    st.plotly_chart(fig_cdf, use_container_width=True)
                 st.warning("""The Monte Carlo Analysis is based on the editable NPV table above. For every IGIP, a new production profile is estimated.
                             NOTE that optimized number of templates and plateau rate are not automaticly used. If you would like to 
                             use the optimized variables for the Monte Carlo Analyis, you would have to generate a new production profile with the optimized
