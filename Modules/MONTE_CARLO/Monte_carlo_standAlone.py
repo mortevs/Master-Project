@@ -2,20 +2,40 @@ import numpy as np
 import streamlit as st
 import plotly.graph_objects as go
 import pandas as pd
+import scipy.stats as stats
 def pert_distribution(a, b, c, size=1):
    r = c-a
    alpha = 1 + 4*(b-a) / r
    beta = 1 + 4 * (c-b) / r
    return a + np.random.beta(alpha, beta, size = size) * r
 
+def calculate_mean_std_from_p1_p99(p1_value, p99_value):
+    z1 = stats.norm.ppf(0.01)
+    z99 = stats.norm.ppf(0.99)
+    std_dev = (p99_value - p1_value) / (z99 - z1)
+    mean = p1_value - z1 * std_dev
+    return [mean, std_dev]
+
+def calculate_scale_from_p1_p99(p1_value, p99_value):
+    q1 = stats.expon.ppf(0.01)
+    q99 = stats.expon.ppf(0.99)
+    scale = (p99_value - p1_value) / (q99 - q1)
+    return [scale]
+
+
 def RandomNumbers_with_Distribution_consideration(df, size):
     rows = len(df.index)
     function_map = {'uniform': np.random.uniform, 'normal': np.random.normal, 'pert (default)': pert_distribution, 'normal': np.random.normal, 'lognormal' : np.random.lognormal, 'triangular' : np.random.triangular, 'exponential': np.random.exponential}
-    dist_dict = {'uniform': ['P1', 'P99'], 'pert (default)' : ['P1', 'P50', 'P99']}
+    dist_dict = {'uniform': ['P1', 'P99'], 'pert (default)' : ['P1', 'P50', 'P99'], 'triangular' : ['P1', 'P50', 'P99'], 'normal': ['P1', 'P99'], 'lognormal': ['P1', 'P99'], 'exponential': ['P1', 'P99']}
     rand_variables = []
     for i in range(rows):
         func = (function_map[df.iloc[i]['P Dist']])
-        var = func(*df[dist_dict[df.iloc[i]['P Dist']]].loc[i].to_list(), size = size)
+        func_var = df[dist_dict[df.iloc[i]['P Dist']]].loc[i].to_list()
+        if df.iloc[i]['P Dist'] == 'normal' or df.iloc[i]['P Dist'] == 'lognormal':
+            func_var = calculate_mean_std_from_p1_p99(*func_var)
+        elif df.iloc[i]['P Dist'] == 'exponential':
+            func_var = calculate_scale_from_p1_p99(*func_var)
+        var = func(*func_var, size = size)
         rand_variables.append(var)
     return rand_variables
 

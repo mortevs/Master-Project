@@ -116,4 +116,4 @@ def default_MC_SA():
     return list1, list2, list3, list4
 
 def probability_distributions():
-    return ['pert (default)', 'uniform', 'normal', 'lognormal', 'triangular', 'exponential'] #, 
+    return ['pert (default)', 'triangular', 'uniform', 'normal', 'lognormal', 'exponential'] #, 
