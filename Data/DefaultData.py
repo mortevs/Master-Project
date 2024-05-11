@@ -107,6 +107,10 @@ def default_MC_params():
     list1 = ['Nr of Random Numbers', 'Nr Bins']
     list2 = [50000,25] 
     return list1, list2
+def default_MC_params2():
+    list1 = ['Nr of Random Numbers', 'Nr Bins']
+    list2 = [5000000,50] 
+    return list1, list2
 
 def default_MC_SA():
     list1 = ['Time 1 [Hours]', 'Time 2 [Hours]', 'Time 3 [Hours]']    

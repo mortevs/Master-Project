@@ -1,5 +1,5 @@
 import pandas as pd, plotly.graph_objects as go, streamlit as st
-from datetime import datetime
+import plotly.graph_objects as go
 def multi_plot_PR(dfs, addAll = True, addProduced = False, time_frame = "Yearly"):
     if time_frame == "Monthly":
         date_format = '%m:%Y'
@@ -535,17 +535,9 @@ def display_uncertainty_table(Gas_Price, IGIP_input, LNG_plant_per_Sm3):
     validate_uncertainty_table(edited_df)
     return edited_df
 
-def display_table_Monte_Carlo_SA():    
-    from Data.DefaultData import default_MC_SA, probability_distributions
-    list1, list2, list3, list4 = default_MC_SA()
-    p_dists = probability_distributions()
-    edited_df = create_uncertainty_table(list1, list2, list3, list4, p_dists)
-    validate_uncertainty_table(edited_df)
-    return edited_df
-
 def display_table_Monte_Carlo_param():    
-    from Data.DefaultData import default_MC_params
-    list1, list2 = default_MC_params()
+    from Data.DefaultData import default_MC_params2
+    list1, list2 = default_MC_params2()
     df_table = pd.DataFrame({
         'Parameter': list1,
         'Value': list2,
@@ -553,6 +545,7 @@ def display_table_Monte_Carlo_param():
     })
     edited_df = st.data_editor(df_table, hide_index=True, use_container_width=True)
     return edited_df['Value']
+
 def validate_uncertainty_table(df):
     
     P1GasPrice = df["P1"][0]
@@ -570,24 +563,6 @@ def validate_uncertainty_table(df):
     if P1GasPrice >= P50GasPrice or P50GasPrice>=P99GasPrice or P1IGIP >= P50IGIP or P50IGIP>=P99IGIP or P1LNGPlant >= P50LNGPlant or P50LNGPlant>=P99LNGPlant :
         st.error("Uncertainty table is not correct, P1 must be less than P50 which must be less than P99 ")
         st.stop()
-
-# class edible_df():
-#     def __init__(self, list2):
-#         self.df = self.initialize_table(list2)
-#     def initialize_table(self, list2):
-#         list1 = ['Initial Reservoir Pressure [bara]', 'Reservoir Temperature [degree C]', 'Gas Molecular Weight [g/mol]', 'Initial Gas in Place [sm3]']
-#         self.df_table = pd.DataFrame({
-#             'Input': list1,
-#             'Value': list2
-#         })
-#         edited_df = st.data_editor(self.df_table, key='df_table_editor', width=790, height=175, hide_index=True)
-#         return edited_df
-#     def update_table(self, new_values):
-#         self.df_table['Value'] = new_values
-#         return st.data_editor(self.df_table, key='df_table_editor__', width=790, height=175, hide_index=True)
-    
-#     def get_parameters(self):
-#         return self.df_table['Value'].to_list()
         
 def dropdown(label:str = ' ', options: list = None, index:int = 0, labelVisibility: str ='collapsed') ->str:
     selected_option = st.selectbox(label, options, index, label_visibility=labelVisibility)
@@ -671,9 +646,6 @@ def tornadoPlotSensitivity(NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlant
         barmode='group',
     )
     st.plotly_chart(fig, use_container_width=True)
-
-import plotly.graph_objects as go
-import streamlit as st
 
 def tornadoPlot(initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax, Gas_Price, IGIP_input, LNG_plant_per_Sm3):
     # Variable labels
@@ -767,9 +739,3 @@ def tornadoPlot(initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPla
     # Display the plot
     st.plotly_chart(fig, use_container_width=True)
     st.markdown(f'Initial NPV = {initial_NPV} 1E6 USD with gas price = {Gas_Price} USD/Sm3, IGIP = {IGIP_input/1e9} 1E9 Sm3, LNG plant = {LNG_plant_per_Sm3} USD/Sm3/d')
-
-
-# Example usage:
-# initial_NPV = 500, NPVgaspricemin = 400, NPVgaspricemax = 600
-# LNGPlantMin = 350, LNGPlantMax = 650, NPV_IGIPmin = 450, NPV_IGIPmax = 700
-# tornadoPlot(initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax)
