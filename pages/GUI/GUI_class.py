@@ -340,8 +340,8 @@ class FIELD_DEVELOPMENT:
 
                 #st.write(NPVsMC)
             with col17:
-                st.markdown("**Monte Carlo Analysis parameters**")
-                self._Nr_random_num, self._Nr_bins = GUI.display_table_Monte_Carlo_param()
+                st.markdown("**Monte Carlo Analysis parameters (optional optimization)**")
+                self._Nr_random_num, self._Nr_bins, self._Nr_Production_profiles = GUI.display_table_Monte_Carlo_param()
             with col18:
                 UC = st.button(label = "Run uncertainity Analysis", use_container_width=True)
 
@@ -355,7 +355,7 @@ class FIELD_DEVELOPMENT:
                 GP_array, IGIP_array, LNG_array = RandomNumbers_with_Distribution_consideration(df = self.__edited_uncertainity_table, size = self._Nr_random_num)
                 IGIP_P1 = self.__edited_uncertainity_table['P1'][1]
                 IGIP_P99 = self.__edited_uncertainity_table['P99'][1]
-                IGIP_smart_array = np.linspace(IGIP_P1, IGIP_P99, self._Nr_bins)
+                IGIP_smart_array = np.linspace(IGIP_P1, IGIP_P99, self._Nr_Production_profiles)
                 def find_closest_numbers(a_list, b_list):
                     # Function to find the closest numbers in a_list for each element in b_list
                     def closest_number(target):
@@ -428,15 +428,18 @@ class Monte_Carlo_standAlone:
                      """)
         col18, col19 = st.columns(2)
         col16, col17 = st.columns(2)
+        my_list = []
+        for i in range(1, 101):
+            my_list.append(i)
         with col16:
-            self.__rows = st.selectbox(label='Number of rows', options = [3, 4, 5, 6, 7])
-            row_table_obj = self.Add_row_table(self.__rows)
+            self.__rows = st.selectbox(label='Number of rows', options = my_list)
+        row_table_obj = self.Add_row_table(self.__rows)
         with col18:
             st.markdown("**Uncertainity in variables and probability distribution**")
             self._edited_MC_table = row_table_obj.display_table()
         with col19:
             st.markdown("**Monte Carlo Analysis parameters (optional optimization)**")
-            self._Nr_random_num, self._Nr_bins = GUI.display_table_Monte_Carlo_param()
+            self._Nr_random_num, self._Nr_bins = GUI.display_table_Monte_Carlo_param2()
 
         colR, colR2 = st.columns(2)
         with col16:
@@ -471,11 +474,20 @@ class Monte_Carlo_standAlone:
             list2 = list(df['P1'])
             list3 = list(df['P50']) 
             list4 = list(df['P99'])
-            for i in range(rows-(len(list1))):
-                list1.append("New Input")
-                list2.append(1)
-                list3.append(2)
-                list4.append(3)
+
+            if rows < 3:
+                for i in range((len(list1)-rows)):
+                    list1 =  list1[:-1]
+                    list2 =  list2[:-1]
+                    list3 =  list3[:-1]
+                    list4 = list4[:-1]
+
+            else:
+                for i in range(rows-(len(list1))):
+                    list1.append("New Input")
+                    list2.append(1)
+                    list3.append(2)
+                    list4.append(3)
 
             from Data.DefaultData import probability_distributions
             p_dists = probability_distributions()

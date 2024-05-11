@@ -536,6 +536,16 @@ def display_uncertainty_table(Gas_Price, IGIP_input, LNG_plant_per_Sm3):
     return edited_df
 
 def display_table_Monte_Carlo_param():    
+    from Data.DefaultData import default_MC_params
+    list1, list2 = default_MC_params()
+    df_table = pd.DataFrame({
+        'Parameter': list1,
+        'Value': list2,
+
+    })
+    edited_df = st.data_editor(df_table, hide_index=True, use_container_width=True)
+    return edited_df['Value']
+def display_table_Monte_Carlo_param2():    
     from Data.DefaultData import default_MC_params2
     list1, list2 = default_MC_params2()
     df_table = pd.DataFrame({
