@@ -58,25 +58,18 @@ class Curve_fitting():
         return self._curve_fitted_dfs
     
     def remove_outliers_year(self, lst):
-        # Filter out elements less than or equal to 0
         lst = [el for el in lst[:-1] if el > 0]
         
-        # Calculate the average of the remaining elements
-        #average = np.average(np.array(lst))
-        
-        # Filter out elements less than 50% of the average
-        #lst = [el for el in lst if el >= average * 0.5]
+        average = np.average(np.array(lst))
+        lst = [el for el in lst if el >= average * 0.5]
         
         return lst
     def remove_outliers_month(self, lst):
-        # Filter out elements less than or equal to 0
         lst = [el for el in lst if el > 0]
         
-        # Calculate the average of the remaining elements
-        #average = np.average(np.array(lst))
+        average = np.average(np.array(lst))
         
-        # Filter out elements less than 50% of the average
-        #lst = [el for el in lst if el >= average * 0.5]
+        lst = [el for el in lst if el >= average * 0.5]
         
         return lst
 
