@@ -751,38 +751,50 @@ class SODIR_feature:
                 st.error("No field chosen")
             else:
                 st.dataframe(get.PA_wlb(self.__field).style.pipe(make_pretty), hide_index=True, use_container_width=True)
+        show_more_PLUGGED = st.toggle(label = ("Show me more information about the plugged wells on  "+ self.__field))
+        if show_more_PLUGGED:
+            if self.__field == "No field chosen":
+                st.error("No field chosen")
+            else:
+                st.dataframe(get.plugged_wlb(self.__field).style.pipe(make_pretty), hide_index=True, use_container_width=True)
 
-        CF = self.Curve_fitting(sodir_obj)
+
+        CF = self.Curve_fitting(sodir_obj, self.__field)
     class Curve_fitting():
-        def __init__(self, parent):
+        def __init__(self, parent, field):
             self.parent = parent
-            st.title("Forecasting")
+            my_title = "Forecasting "+ field
+            st.title(my_title)
             col0, col1 = st.columns(2)
-            forecast_l = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,35,35,36,37,38,39,4,41,42,43,44,45,46,47,48,49,50,51,52,52,54,55,56,57,58,59,60]
+            forecast_l = []
+            for i in range(1, 51):
+                forecast_l.append(i)
             with col0:
                 FC_length = GUI.dropdown(label="Forecast length (time frame of interst - Years/Months)", options = forecast_l, index = 2, labelVisibility='visible')
                 CF_button = st.button('Forecast with Curve Fit Analysis', 'Curve fit', use_container_width=True)
+
             import Modules.SODIR_DATA.Curve_Fitting as CF
             import Data.dataProcessing as dP
             if CF_button:
-                self.__fields = parent.getField()
                 self.__time = parent.get_time_frame()
                 self.__dfs = parent.getResult()
+
                 if len(self.__dfs) == 0:
                     st.warning("""You must choose a field first and then click 'Show Produced Volumes'.
                                Repeat for as many fields as desired. Then click
                                'Forecast with Curve Fit Analysis'.""")
                 else:
-                    st.write(self.__time)
                     if len(set(self.__time)) != 1:
                         st.error("""Forecasts will be made for all fields above.
                                     Several fields require that the fields have the same
                                     time frame. Clear Output. Then click Show Produced volumes
                                     for each field desired, and do not change Time frame of interest between the fields""")
                     else:
-                        #Curve_fitted_dfs = CF.Curve_fitting(self.__dfs)
-                        Curve_fitted_dfs = (self.__dfs)
-                        parent.plot_forecast(self.__dfs, self.__fields, self.__time)
+                        self.__Curve_fitted__obj = CF.Curve_fitting(self.__dfs, FC_length, self.__time )
+                        self.__curve_fitted_to_plot = self.__Curve_fitted__obj.get_curve_fitted_dfs()
+                        
+                        parent.plot_forecast(self.__curve_fitted_to_plot)
+
 
 
 

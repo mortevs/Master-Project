@@ -76,10 +76,18 @@ def closed_wlb(fieldName):
     p = swap_columns(p, "wlbNpdidWellbore", "wlbWellboreName")
     p = p.astype(str)
     return p
+def plugged_wlb(fieldName):
+    p = wlbPoint_field_sorted(fieldName)
+    #st.write(p)
+    p.drop(p[p['wlbStatus'] != 'PLUGGED'].index, inplace=True)
+    p = swap_columns(p, "wlbNpdidWellbore", "wlbWellboreName")
+    p = p.astype(str)
+    return p
+
 
 def junked_wlb(fieldName):
     p = wlbPoint_field_sorted(fieldName)
-    p.drop(p[p['wlbStatus'] != 'junked'].index, inplace=True)
+    p.drop(p[p['wlbStatus'] != 'JUNKED'].index, inplace=True)
     p.set_index("WlbWellboreName", drop = True, inplace = True)
 
     return p
