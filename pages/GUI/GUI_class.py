@@ -775,11 +775,13 @@ class SODIR_feature:
             st.title(my_title)
             col0, col1 = st.columns(2)
             forecast_l = []
-            for i in range(1, 51):
+            for i in range(1, 501):
                 forecast_l.append(i)
             with col0:
                 FC_length = GUI.dropdown(label="Forecast length (time frame of interst - Years/Months)", options = forecast_l, index = 2, labelVisibility='visible')
                 CF_button = st.button('Forecast with Curve Fit Analysis', 'Curve fit', use_container_width=True)
+            with col1:
+                data_points = GUI.dropdown(label="Number of last datapoints to consider (excluding year to date volumes)", options = forecast_l, index = 9, labelVisibility='visible')
 
             import Modules.SODIR_DATA.Curve_Fitting as CF
             import Data.dataProcessing as dP
@@ -798,7 +800,7 @@ class SODIR_feature:
                                     time frame. Clear Output. Then click Show Produced volumes
                                     for each field desired, and do not change Time frame of interest between the fields""")
                     else:
-                        self.__Curve_fitted__obj = CF.Curve_fitting(self.__dfs, FC_length+1, self.__time )
+                        self.__Curve_fitted__obj = CF.Curve_fitting(self.__dfs, FC_length+1, self.__time , data_points)
                         self.__res_forecast = self.__Curve_fitted__obj.get_curve_fitted_dfs()
                         
                         parent.plot_forecast(self.__res_forecast)
