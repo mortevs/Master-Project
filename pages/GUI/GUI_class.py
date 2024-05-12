@@ -405,26 +405,34 @@ class FIELD_DEVELOPMENT:
                     st.write("std:", round(std,1))
                 with col21:
                     st.plotly_chart(fig_cdf, use_container_width=True)
-                st.warning("""The Monte Carlo Analysis is based on the editable NPV table above. For every IGIP, a new production profile is estimated.
+                st.warning("""A number (Nr production profiles) of predefined production profiles are created for IGIP values covering the IGIP interval from P1 to P99
+                           (Nr production profiles (25 points by default) are genereated  between P1 and P99 IGIP with fixed spacing). 
+                           A random IGIP number is chosen between P1 and P99 Nr random Samples times ( 50 000 times by default).
+                           Instead of creating 50 000 production profiles, the predefined production profile generated for the IGIP closest to the random IGIP is used.
+                           This is an approximation, because generating 50 000 production profiles would be too computational costly. 
                             NOTE that optimized number of templates and plateau rate are not automaticly used. If you would like to
                             use the optimized variables for the Monte Carlo Analyis, you would have to generate a new production profile with the optimized
                             variables that were found. The optimized rate of abandonment (assuming it occurs above the
                             minimum Rate of Abandonment treshhold specified above) is considered in the Monte Carlo Analysis.
+                            The Monte Carlo Analysis considers the editable NPV table above. Any changes to the editable table
+                           will be considered in the Monte Carlo analysis.
                     """)
 
 class Monte_Carlo_standAlone:
     def __init__(self):
         on_MCSA_information = st.toggle("Show me information on how to use Monte Carlo Analysis", value=False, label_visibility="visible")
         if on_MCSA_information:
-            st.write("""A Monte Carlo Analysis is run with the input data.
-                    The rows should be addable. For instance all the rows should be
+            st.write("""A Monte Carlo Analysis is run with the input data. Change the inputs by double pressing the cells. P1 should be less than P50 which should be 
+                     less than P99. 
+                    The rows should be addable. Number of rows in the table can be chosen from the dropdown menu below. For instance all the rows should be
                      time [Hours] or cost [1E06 USD].
                      Uncertainties will be run on each variable according to the probability distribution for that row, P1 (Min), P99 (Max),
-                     and P50 (ML) if applicable for the distribution chosen. They will then be added together to give a final probability distribution.
-                     A different probability distribution than the default Uniform
-                     can the be chosen from a dropdown menu by double pressing the cell.
-                     The Monte Carlo Analysis Parameters can be adjusted to obtain higher or lower resolution
-                     according to the needs. Higher resolution is more computational costly.
+                     and P50 (ML) if applicable for the distribution chosen. They will then be added together to give a final/total probability distribution.
+                     A different probability distribution than the pert (default) can be considered. Other available distributions 
+                     are 'triangular', 'uniform', 'normal', 'lognormal' and 'exponential'. They can be chosen from a dropdown menu by double pressing the cell.
+                     The Monte Carlo Analysis Parameters can be adjusted to obtain a smoother output probability distribution
+                     according to the needs by adjusting the table below to the right. For most basic applications, the default values should be sufficient. 
+                     If needed, the number of random numbers (simulations) and number of bins can be adjusted. Higher numbers are more computational costly.
                      """)
         col18, col19 = st.columns(2)
         col16, col17 = st.columns(2)
@@ -432,7 +440,7 @@ class Monte_Carlo_standAlone:
         for i in range(1, 101):
             my_list.append(i)
         with col16:
-            self.__rows = st.selectbox(label='Number of rows', options = my_list)
+            self.__rows = st.selectbox(label='Number of rows', options = my_list, index=2)
         row_table_obj = self.Add_row_table(self.__rows)
         with col18:
             st.markdown("**Uncertainity in variables and probability distribution**")
@@ -790,10 +798,10 @@ class SODIR_feature:
                                     time frame. Clear Output. Then click Show Produced volumes
                                     for each field desired, and do not change Time frame of interest between the fields""")
                     else:
-                        self.__Curve_fitted__obj = CF.Curve_fitting(self.__dfs, FC_length, self.__time )
-                        self.__curve_fitted_to_plot = self.__Curve_fitted__obj.get_curve_fitted_dfs()
+                        self.__Curve_fitted__obj = CF.Curve_fitting(self.__dfs, FC_length+1, self.__time )
+                        self.__res_forecast = self.__Curve_fitted__obj.get_curve_fitted_dfs()
                         
-                        parent.plot_forecast(self.__curve_fitted_to_plot)
+                        parent.plot_forecast(self.__res_forecast)
 
 
 

@@ -52,17 +52,14 @@ class Sodir_prod(SODIR_feature):
         return df
 
     
-    def plot_forecast(self, res):
+    def plot_forecast(self, res_forcast):
         lst = self.get_time_frame()
-        dfs = []
-        for df in self.__state.result:
-            reset_ind_df = df.reset_index(drop = True)
-            dfs.append(reset_ind_df)
         fields = []
         for field in self.__state.field:
             fields.append(field)
         #display.multi_plot_SODIR_compare(dfs, fields, res, self._aligned, lst[0])
-        display.multi_plot_SODIR_compare(dfs, fields, res, "Compare by dates", lst[0])
+        res = res = self.getResult()
+        display.multi_plot_SODIR_forecast(self.__state.field, res, res_forcast, lst[0])
 
     def plot(self, comp=False):
 

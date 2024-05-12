@@ -432,6 +432,217 @@ def multi_plot_SODIR_compare(dfs, fields, res, comp_align, time_frame):
 
     st.plotly_chart(fig, use_container_width=True)
 
+def multi_plot_SODIR_forecast(fields, res, res_forecast, time_frame):
+    if time_frame == "Monthly":
+        date_format = '%m:%Y'
+        period = "M"
+    else:
+        date_format = '%Y'
+        period = "Y"
+
+    fig = go.Figure()
+    columns_to_plot = []
+    axis_titles = {
+        'GasSm3Yearly': ('Date', 'Sm3'),
+        'NGLSm3Yearly': ('Date', 'Sm3'),
+        'OilSm3Yearly': ('Date', 'Sm3'),
+        'CondensateSm3Yearly': ('Date', 'Sm3'),
+        'OilEquivalentsSm3Yearly': ('Date', 'Sm3'),
+        'WaterSm3Yearly': ('Date', 'Sm3'),
+        'GasSm3Monthly': ('Date', 'Sm3'),
+        'NGLSm3Monthly': ('Date', 'Sm3'),
+        'OilSm3Monthly': ('Date', 'Sm3'),
+        'CondensateSm3Monthly': ('Date', 'Sm3'),
+        'OilEquivalentsSm3Monthly': ('Date', 'Sm3'),
+        'WaterSm3Monthly': ('Date', 'Sm3'),
+        'Watercut': ('Date', '%'),
+        'GasSm3YearlyCumulative': ('Date', 'Sm3'),
+        'NGLSm3YearlyCumulative': ('Date', 'Sm3'),
+        'OilSm3YearlyCumulative': ('Date', 'Sm3'),
+        'CondensateSm3YearlyCumulative': ('Date', 'Sm3'),
+        'OilEquivalentsSm3YearlyCumulative': ('Date', 'Sm3'),
+        'WaterSm3YearlyCumulative': ('Date', 'Sm3'),
+        'GasSm3MonthlyCumulative': ('Date', 'Sm3'),
+        'NGLSm3MonthlyCumulative': ('Date', 'Sm3'),
+        'OilSm3MonthlyCumulative': ('Date', 'Sm3'),
+        'CondensateSm3MonthlyCumulative': ('Date', 'Sm3'),
+        'OilEquivalentsSm3MonthlyCumulative': ('Date', 'Sm3'),
+        'WaterSm3MonthlyCumulative': ('Date', 'Sm3'),
+    }
+
+    # Plot res
+    for i in range(len(res)):
+        df = res[i]
+        for column in df.columns:
+            if column not in columns_to_plot:
+                columns_to_plot.append(column)
+        try:
+            for column in df.columns:
+                fig.add_trace(
+                    go.Scatter(
+                        x=pd.to_datetime(df.index, format=date_format).to_period(period).to_timestamp(period),
+                        y=df[column],
+                        mode='lines',
+                        name=f"{fields[i]} - {column}",
+                        visible='legendonly' if column != df.columns[0] else True,
+                        showlegend=True,
+                    )
+                )
+        except KeyError:
+            st.error("Cannot compare fields")
+
+    # Plot res_forecast in red
+    for i in range(len(res_forecast)):
+        df = res_forecast[i]
+        for column in df.columns:
+            if column not in columns_to_plot:
+                columns_to_plot.append(column)
+        try:
+            for column in df.columns:
+                fig.add_trace(
+                    go.Scatter(
+                        x=pd.to_datetime(df.index, format=date_format).to_period(period).to_timestamp(period),
+                        y=df[column],
+                        mode='lines',
+                        name=f"{fields[i]} - {column} (Forecast)",
+                        line=dict(color='red'),
+                        visible='legendonly' if column != df.columns[0] else True,
+                        showlegend=True,
+                    )
+                )
+        except KeyError:
+            st.error("Cannot plot forecast fields")
+
+    def create_layout_button(column):
+        # Define the function to create a button
+        return dict(
+            label=column,
+            method='update',
+            args=[
+                {
+                    # Check each trace name and determine visibility based on the column name
+                    'visible': [trace.name.split(' - ')[1] == column or trace.name.split(' - ')[1] == f"{column} (Forecast)" for trace in fig.data],
+                    'title': column,
+                    'showlegend': True
+                },
+                {
+                    'xaxis': {'title': axis_titles[column][0]},
+                    'yaxis': {'title': axis_titles[column][1]}
+                }
+            ]
+        )
+
+    all_buttons = [create_layout_button(column) for column in columns_to_plot]
+
+    fig.update_layout(
+        updatemenus=[go.layout.Updatemenu(
+            active=0,  # Change active button here
+            buttons=all_buttons)],
+        xaxis_title="Date",  
+        yaxis_title="Sm3", 
+        height=450,
+        showlegend=True  
+    )
+    active_column = list(columns_to_plot)[0]
+    for trace in fig.data:
+        if trace.name.split(' - ')[1] != active_column and trace.name.split(' - ')[1] != f"{active_column} (Forecast)":
+            trace.showlegend = False
+
+    st.plotly_chart(fig, use_container_width=True)
+
+def display_FD_variables_table(list1, list2, edible=False, key = 'df_table_editor'):
+    df_table = pd.DataFrame({
+        'Input': list1,
+        'Value': list2
+    })
+    if edible:
+        edited_df = st.data_editor(df_table, key=key, use_container_width=True, height=213, hide_index=True)
+        return edited_df['Value'].to_list()
+    else:
+        st.table(df_table)
+def display_FD_variables_table2(list2):
+    def make_pretty(styler):
+        styler.set_properties(**{'color': 'red'})
+        return styler
+    list1 = ['Target Rate [Sm3/d]', 'Initial Reservoir Pressure [bara]', 'Rate of Abandonment [Sm3/d]', 'Reservoir Temperature [degree C]', 'Gas Molecular Weight [g/mol]', 'Inflow backpressure coefficient', 'Inflow backpressure exponent', 'Number of Templates', 'Number of Wells per Template', 'Uptime [days]', 'Tubing Flow Coefficient', 'Tubing Elevation Coefficient', 'Flowline Coefficient from Template-PLEM', 'Pipeline coefficient from PLEM-Shore', 'Seperator Pressure [bara]', 'Initial Gas in Place [sm3]', 'Build-up period [years]']
+    pd.set_option('display.float_format', '{:.0f}'.format)
+    df_table = pd.DataFrame({
+        'Input': list1,
+        'Value': list2
+    })
+    df_table['Value'] = df_table['Value'].astype(str)
+    pd.set_option("display.max_rows", 2)
+    st.dataframe(df_table.style.pipe(make_pretty), hide_index=True, use_container_width=True, height=633)
+def display_table_RESPRES(list1, list2, edible = False, clear_table = False) ->list:
+    # Create a DataFrame from the two lists
+    df_table = pd.DataFrame({
+        'Input': list1,
+        'Value': list2
+    })
+
+    if edible:
+        edited_df = st.data_editor(df_table, key='df_table_editor', use_container_width=True, height=175, hide_index=True)
+        return edited_df['Value'].to_list()
+
+def display_table_NPV(list1, list2, edible=False, key = 'df_table_editor'):
+    df_table = pd.DataFrame({
+        'Input': list1,
+        'Value': list2,
+    })
+    if edible:
+        edited_df = st.data_editor(df_table, key=key, use_container_width=True, hide_index=True)
+        return edited_df['Value'].to_list()
+    else:
+        st.table(df_table)
+
+def display_table_grid_search(f_variables=None, key = 'df_table_editor'):
+    from Data.DefaultData import default_Optimization_table
+    list1,list2,list3,list4 = default_Optimization_table(f_variables)
+    df_table = pd.DataFrame({
+        'Input': list1,
+        'Min': list2,
+        'Max': list3,
+        'Steps': list4
+
+    })
+    edited_df = st.data_editor(df_table, hide_index=True, use_container_width=True)
+    return edited_df
+
+def create_uncertainty_table(list1, list2,list3, list4, p_dists):
+    df_table = pd.DataFrame({
+        'Input': list1,
+        'P1': list2,
+        'P50': list3,
+        'P99': list4,
+        'P Dist' : [p_dists[0] for el in list1]
+    })
+    edited_df = st.data_editor(
+        df_table,
+        hide_index=True,
+        use_container_width=True,
+        column_config={
+            "P Dist": st.column_config.SelectboxColumn(
+                label="Prob dist",
+                help="Probability distribution of the input variable",
+                width="small",
+                options=p_dists,
+                required=True
+            ),
+            "P1": st.column_config.NumberColumn(
+                label="P1",
+                help="1% probability for variable to be below input"
+            ),
+            "P50": st.column_config.NumberColumn(
+                label="P50",
+                help="Most Likely value / Median value (50% probability)"
+            ),
+            "P99": st.column_config.NumberColumn(
+                label="P99",
+                help="99% probability for variable to be below input"
+            )
+        }
+    )
+    return edited_df
 def display_FD_variables_table(list1, list2, edible=False, key = 'df_table_editor'):
     df_table = pd.DataFrame({
         'Input': list1,

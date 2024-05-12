@@ -8,7 +8,7 @@ class Curve_fitting():
             empty_df = pd.DataFrame(data = 0, index=range(FC_length), columns=df.columns)
             
             if time[0] == 'Yearly':
-                self.__custom_index = [(df.index[-1]+i) for i in range(1, FC_length+1)]
+                self.__custom_index = [(df.index[-1]+i) for i in range(0, FC_length)]
             else:
                 prev_ind = df.index[-1]
                 def next_month_year(prev_ind):
@@ -19,12 +19,13 @@ class Curve_fitting():
                     else:
                         string = str(1)+':'+str((int(year)+1))
                         return string
-                self.__custom_index = [next_month_year(prev_ind)]
+                self.__custom_index = [(prev_ind)]
                 for i in range(FC_length-1):
                      last_el = self.__custom_index[-1]
                      self.__custom_index.append(next_month_year(last_el))
             empty_df.index = self.__custom_index
-            df = pd.concat([df, empty_df])
+            #df = pd.concat([df, empty_df])
+            df = empty_df
             self._curve_fitted_dfs.append(df)
 
     def get_curve_fitted_dfs(self):
