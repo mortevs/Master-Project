@@ -771,7 +771,7 @@ class SODIR_feature:
     class Curve_fitting():
         def __init__(self, parent, field):
             self.parent = parent
-            my_title = "Forecasting "+ field
+            my_title = "Forecasting "+ str(parent.getField())
             st.title(my_title)
             col0, col1 = st.columns(2)
             forecast_l = []

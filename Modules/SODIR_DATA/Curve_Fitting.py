@@ -24,10 +24,14 @@ class Curve_fitting():
                      last_el = self.__custom_index[-1]
                      self.__custom_index.append(next_month_year(last_el))
             empty_df.index = self.__custom_index
+            for column in empty_df:
+                empty_df[column] = self.curve_fit(df[column], FC_length)
+                
             #df = pd.concat([df, empty_df])
-            df = empty_df
-            self._curve_fitted_dfs.append(df)
-
+            curve_fitted_df = empty_df
+            self._curve_fitted_dfs.append(curve_fitted_df)
+    def curve_fit(self, list, FC_length):
+        return [200*1e6 for i in range(FC_length)]
     def get_curve_fitted_dfs(self):
         return self._curve_fitted_dfs
 

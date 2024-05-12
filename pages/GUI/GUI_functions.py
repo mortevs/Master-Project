@@ -505,7 +505,7 @@ def multi_plot_SODIR_forecast(fields, res, res_forecast, time_frame):
                         y=df[column],
                         mode='lines',
                         name=f"{fields[i]} - {column} (Forecast)",
-                        line=dict(color='red'),
+                        line=dict(color='red', dash = 'dash'),
                         visible='legendonly' if column != df.columns[0] else True,
                         showlegend=True,
                     )
