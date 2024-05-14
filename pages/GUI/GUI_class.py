@@ -240,8 +240,9 @@ class FIELD_DEVELOPMENT:
 
             final_NPV_value = str(dry_gas_NPV.get_final_NPV())
             font_size = "44px"
-            NPV_str = f"<div style='font-size:{font_size};'>NPV of project: <span style='color:red;'>{final_NPV_value}</span> 1E6 USD</div>"
+            NPV_str = f"<div style='font-size:{font_size};'>(NPV of project: <span style='color:red;'>{final_NPV_value}</span> 1E6 USD</div>"
             st.markdown(NPV_str, unsafe_allow_html=True)
+            st.write("The NPV does not take consideration to applicable taxes/royalties")
             with col1:
                 st.markdown("**Non-editable**")
                 st.dataframe(self.__ned_df.style.format("{:.0f}").pipe(make_pretty), hide_index=True, use_container_width=True, height=350)
@@ -282,7 +283,7 @@ class FIELD_DEVELOPMENT:
                 optimized_rate = NPV_dict[optimized_NPV][1]
                 optimized_ROA = math.floor(NPV_dict[optimized_NPV][2])
 
-                w_string = f"""All templates and wells are assumed equal. Therefore number of wells in grid seach follows
+                w_string = f"""The NPV does not take consideration to taxes and royalties. All templates and wells are assumed equal. Therefore number of wells in grid seach follows
                 stepsize of "Number of Wells per Template" = {Analysis.getParameters()[opt][8]}. (In other words
                 only "full templates" are considered). The editable table above was used as basis in the grid search analysis.
                 The Pipeline & umbilical and OPEX columns in the table remain unchanged throughout the grid search.
