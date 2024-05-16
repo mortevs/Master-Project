@@ -240,7 +240,7 @@ class FIELD_DEVELOPMENT:
 
             final_NPV_value = str(dry_gas_NPV.get_final_NPV())
             font_size = "44px"
-            NPV_str = f"<div style='font-size:{font_size};'>(NPV of project: <span style='color:red;'>{final_NPV_value}</span> 1E6 USD</div>"
+            NPV_str = f"<div style='font-size:{font_size};'>NPV of project: <span style='color:red;'>{final_NPV_value}</span> 1E6 USD</div>"
             st.markdown(NPV_str, unsafe_allow_html=True)
             st.write("The NPV does not take consideration to applicable taxes/royalties")
             with col1:
@@ -325,7 +325,7 @@ class FIELD_DEVELOPMENT:
             st.write(" ")
             st.write(" ")
             st.write(" ")
-            st.title("Uncertainity Analysis")
+            st.title("Uncertainty Analysis")
             st.write(" ")
             st.write(" ")
             st.write(" ")
@@ -444,7 +444,7 @@ class Monte_Carlo_standAlone:
             self.__rows = st.selectbox(label='Number of rows', options = my_list, index=2)
         row_table_obj = self.Add_row_table(self.__rows)
         with col18:
-            st.markdown("**Uncertainity in variables and probability distribution**")
+            st.markdown("**Uncertainty in variables and probability distribution**")
             self._edited_MC_table = row_table_obj.display_table()
         with col19:
             st.markdown("**Monte Carlo Analysis parameters (optional optimization)**")
