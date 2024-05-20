@@ -11,7 +11,7 @@ class Curve_fitting():
                 self._data_points = df_length
             empty_df = pd.DataFrame(data = 0, index=range(FC_length), columns=df.columns)
             if time[0] == 'Yearly':
-                self.__custom_index = [(df.index[-1]+i) for i in range(0, FC_length)]
+                self.__custom_index = [(df.index[-2]+i) for i in range(0, FC_length)]
             else:
                 prev_ind = df.index[-1]
                 def next_month_year(prev_ind):
@@ -28,7 +28,10 @@ class Curve_fitting():
                      self.__custom_index.append(next_month_year(last_el))
             empty_df.index = self.__custom_index
             for column in empty_df:
-                empty_df[column] = self.curve_fit(df[column][-self._data_points:], FC_length, time)
+                if time[0] == 'Yearly':
+                    empty_df[column] = self.curve_fit(df[column][-(self._data_points)-1:-1], FC_length, time)
+                else:
+                    empty_df[column] = self.curve_fit(df[column][-self._data_points:], FC_length, time)
                 
             #df = pd.concat([df, empty_df])
             curve_fitted_df = empty_df

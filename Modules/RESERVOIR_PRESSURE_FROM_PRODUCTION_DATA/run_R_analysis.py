@@ -2,9 +2,11 @@ import pandas as pd
 from Data.Storage.Cache import SessionState
 import pages.GUI.GUI_functions as display
 import streamlit as st
-from pages.GUI.GUI_class import RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA
+# RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA = __import__("pages.SODIR Data Investigation.SODIR_feature", fromlist=['SODIR_feature']).SODIR_feature
+
+# from pages.GUI.main_page import RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA
 import Data.getData as get
-class ReservoirPressureAnalysis(RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA):
+class ReservoirPressureAnalysis(): #RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA
     def __init__(self, parent, session_id:str, field:str = 'No field chosen', time: str = 'Yearly'):
         self.__production_data = []
         self.__field = field

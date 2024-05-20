@@ -1,16 +1,14 @@
 import pandas as pd
 from Data.Storage.Cache import SessionState
 import pages.GUI.GUI_functions as display
-from pages.GUI.GUI_class import SODIR_feature
+#from pages.SODIR Data Investigation
 import streamlit as st
 from shapely.wkt import loads
 from shapely.geometry import Polygon, MultiPolygon
 import plotly.graph_objects as go
 import streamlit as st
 from pandas import DataFrame
-from decimal import Decimal
-
-class Sodir_prod(SODIR_feature):
+class Sodir_prod(): #SODIR_feature
     def __init__(self, parent, session_id:str, field:str = 'No field chosen'):
         self.__field = field
         self.__session_id = session_id
@@ -50,7 +48,6 @@ class Sodir_prod(SODIR_feature):
         df = dP.add_cumulative_columns(df, columns_to_ignore = ["Watercut"])
         df = dP.addProducedMonths(self.__field, df)
         return df
-
     
     def plot_forecast(self, res_forcast):
         lst = self.get_time_frame()
@@ -89,7 +86,6 @@ class Sodir_prod(SODIR_feature):
         SessionState.delete(id = self.__session_id)
         self.__state = SessionState.get(id=self.__session_id, result=[], field=[], time_frame = [])
     
-
     def getResult(self) -> list:
         session_state = self.__state.get(self.__session_id)
         return getattr(session_state, 'result', [])

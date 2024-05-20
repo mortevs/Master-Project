@@ -959,4 +959,4 @@ def tornadoPlot(initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPla
 
     # Display the plot
     st.plotly_chart(fig, use_container_width=True)
-    st.markdown(f'Initial NPV = {initial_NPV} 1E6 USD with gas price = {Gas_Price} USD/Sm3, IGIP = {IGIP_input/1e9} 1E9 Sm3, LNG plant = {LNG_plant_per_Sm3} USD/Sm3/d')
+    st.markdown(f'Initial NPV with optimized rate of abandonment = {initial_NPV} 1E6 USD with gas price = {Gas_Price} USD/Sm3, IGIP = {IGIP_input/1e9} 1E9 Sm3, LNG plant = {LNG_plant_per_Sm3} USD/Sm3/d')
