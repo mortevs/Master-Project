@@ -4,7 +4,6 @@ import pages.GUI.GUI_functions as GUI
 from Data.DefaultData import default_FD_data
 import streamlit as st
 import numpy as np
-import time
 import math
 from Modules.FIELD_DEVELOPMENT.IPR.IPRAnalysis import IPRAnalysis
 from Modules.FIELD_DEVELOPMENT.Nodal.NodalAnalysis import NodalAnalysis
@@ -215,15 +214,7 @@ class DryGasAnalysis():
     def append_field(self, item) -> str:
         SessionState.append(id = self.__session_id, key = 'field', value = item)
 
-
-        
-    
-        
-
-
-
 class NPVAnalysis(DryGasAnalysis):
-    #from Modules.FIELD_DEVELOPMENT.Artificial_lift import artificial_lift_class
     def __init__(self):
         super().__init__(session_id='DryGasAnalysis')
         self._CAPEX = []
@@ -231,14 +222,6 @@ class NPVAnalysis(DryGasAnalysis):
         self._NPV_variables = []
         self._sheet = []
         self._data_For_NPV_sheet = []
-        #self._production_profile = Analysis.get_production_profile(opt = opt)
-   
-        #const_NPV_toggle = st.toggle("constant Gas Price and Discount rate ", value=True, label_visibility="visible")
-
-
-        #self.__sheet.display_table_NPV_Sheet()
-        #NPV_str = str("Final NPV: " + str(self.__sheet.get_final_NPV().round(1)) + ' 1E6 USD')
-        #st.title(NPV_str)
 
 class NPV_dry_gas(NPVAnalysis):
     def __init__(self, opt):
@@ -262,17 +245,14 @@ class NPV_dry_gas(NPVAnalysis):
             self.__CAPEX = (GUI.display_table_NPV(list1=CAPEX, list2=default_data_NPV_CAPEX(), edible=True, key = 'df_table_editor2_CAPEX'))
         with col2:
             st.markdown('**OPEX variables**')
-            self.__OPEX = (GUI.display_table_NPV(list1=OPEX, list2=default_data_NPV_OPEX(), edible=True, key = 'df_table_editor2_OPEX'))
-            
+            self.__OPEX = (GUI.display_table_NPV(list1=OPEX, list2=default_data_NPV_OPEX(), edible=True, key = 'df_table_editor2_OPEX'))           
         
     def dry_gas_NPV_calc_sheet(self):
-        #field development parameters
         self._OPEX_cost = float(self.__OPEX[0])
         self._N_temp = self.__field_variables[7]
         self._N_Wells_per_Temp = self.__field_variables[8]
         self._buildUp_length = int(self.__field_variables[16])
 
-        #NPV table 
         self._Gas_Price = self.__NPV_variables[0]
         self._discount_rate = self.__NPV_variables[1]
         self._Max_Well_per_year_nr = int(self.__NPV_variables[2])
@@ -285,8 +265,6 @@ class NPV_dry_gas(NPVAnalysis):
             st.error("CAPEX Period Prior to Production Startup must be greater than 0")
             st.stop()
 
-
-        #CAPEX table 
         from Data.DefaultData import default_well_distribution, default_template_distribution
         self._end_prod = int(len(self._production_profile)+ (self._CAPEX_period_prior-1))
         self._years = []         
@@ -307,7 +285,7 @@ class NPV_dry_gas(NPVAnalysis):
         self._LNG_plant_per_Sm3 = self.__CAPEX[3]
         self._LNG_cost_per_vessel = self.__CAPEX[4]
         import math 
-        number_of_LNG_vessels = (math.ceil(self._plateau_rate*self._uptime/((86000000*22)))) #rough estimation
+        number_of_LNG_vessels = (math.ceil(self._plateau_rate*self._uptime/((86000000*22)))) 
         self._LNG_plant = self._plateau_rate * self._LNG_plant_per_Sm3 / 1e6
         self._LNG_vessels = self._LNG_cost_per_vessel*number_of_LNG_vessels
 
@@ -330,7 +308,6 @@ class NPV_dry_gas(NPVAnalysis):
         })
         return self.__df_table
     
-
     def update_dry_gas_NPV_calc_sheet(self, edited_df):
         def validate_edited_df(edited_df):
             self.__edited_dataframe = edited_df
@@ -341,7 +318,6 @@ class NPV_dry_gas(NPVAnalysis):
                 st.stop()
         validate_edited_df(edited_df)
         self._yearly_gas_offtake = [0 for i in range (self._CAPEX_period_prior)] + [(self._production_profile[i-1]+self._production_profile[i])/2 * self._uptime for i in range(1, len(self._production_profile))]
-        #self._yearly_gas_offtake = [0 for i in range (self._CAPEX_period_prior-1)] + [element * self._uptime for element in self._production_profile]
 
         self._NPV_prod_profile = [0 for i in range (self._CAPEX_period_prior-1)] + self._production_profile
         self._revenue = [offtake/(1000000) * self._Gas_Price for offtake in self._yearly_gas_offtake]
@@ -370,18 +346,15 @@ class NPV_dry_gas(NPVAnalysis):
         self.__df_table2['NPV [1E6 USD]'] = [sum(self.__df_table2['Discounted Cash Flow [1E6 USD]'][0:(i+1)]) for i in range(self._end_prod)]
         return self.__df_table2
 
-
     def get_final_NPV(self):
         self.__final_NPV = self.__df_table2['NPV [1E6 USD]'].to_list()[-1]
         return round(self.__final_NPV, 1)
-    
     
     def run_grid_NPV(self, edited_df, prod_profiles, i):
         production_profile = prod_profiles[i][0].copy()
         wells=prod_profiles[i][1]
         rate = prod_profiles[i][2]
         yearly_gas_offtake = [0 for i in range (self._CAPEX_period_prior)] + [(production_profile[i-1]+production_profile[i])/2 * self._uptime for i in range(1, len(production_profile))]
-        #yearly_gas_offtake = [0 for i in range (self._CAPEX_period_prior-1)] + [element * self._uptime for element in production_profile]
         end_prod = len(yearly_gas_offtake)
         revenue = [offtake/(1000000) * self._Gas_Price for offtake in yearly_gas_offtake]
         years = []         
@@ -411,7 +384,6 @@ class NPV_dry_gas(NPVAnalysis):
             my_dict[NPV] = (wells, rate, (yearly_gas_offtake[k]/self._uptime))
         return my_dict
     
-
     def update_grid_variables(self, df):
         self._minPlat = float(df["Min"][0])
         self._minWells = float(df["Min"][1])
@@ -421,7 +393,6 @@ class NPV_dry_gas(NPVAnalysis):
         self._maxWells = int(df["Max"][1])
         
         self._platSteps = int(df["Steps"][0])
-        #self._WellSteps = int(df["Steps"][1])
 
     def validate_grid_variables(self, df, params):
         minPlat = float(df["Min"][0])
@@ -487,21 +458,17 @@ class NPV_dry_gas(NPVAnalysis):
 
     def get_grid_plateau_variables(self):
         return self._minPlat, self._maxPlat, self._platSteps
+    
     def get_grid_well_variables(self):
         return self._minWells, self._maxWells
+    
     def get_ROA_variables(self):
         return self._minROA
+    
     def get_inital_MC_variables(self):
         self.__IGIP_input = self.__field_variables[15]
         return self._Gas_Price, self.__IGIP_input, self._LNG_plant_per_Sm3
-
-    # def grid_production_profiles2(self, rates=40000000, minROA=1000000):
-    #     temp_well_optimization = self.getParameters()[self._opt].copy()
-    #     temp_well_optimization[2] = minROA
-    #     temp_well_optimization[7] = 4
-    #     temp_well_optimization[8] = 4
-    #     st.write(temp_well_optimization)
-
+    
     def grid_production_profiles(self, rates, minROA, W):
         self.__minROA = minROA
         pp_list = []
@@ -527,6 +494,7 @@ class NPV_dry_gas(NPVAnalysis):
                 else:
                     st.error("Error, method and precision is:", self._method, self._precision)     
         return pp_list
+   
     def Tornado_production_profiles(self, dfMC, minROA):
         self._minIGIP =dfMC["P1"][1]*1e9
         self._maxIGIP =dfMC["P99"][1]*1e9
@@ -554,7 +522,6 @@ class NPV_dry_gas(NPVAnalysis):
 
     def NPV_calculation_Tornado(self, df, gas_price, LNG_p_vari, yGofftake):
             yearly_gas_offtake = [0 for i in range (self._CAPEX_period_prior)] + [(yGofftake[i-1]+yGofftake[i])/2 * self._uptime for i in range(1, len(yGofftake))]
-            #yearly_gas_offtake = [0 for i in range (self._CAPEX_period_prior-1)] + [element * self._uptime for element in yGofftake]
             end_prod = len(yearly_gas_offtake)
             revenue = [offtake/(1000000) * gas_price for offtake in yearly_gas_offtake]
             years = []         
@@ -585,23 +552,16 @@ class NPV_dry_gas(NPVAnalysis):
         self._maxGasPrice =dfMC["P99"][0]
         self._minLNGPlant =dfMC["P1"][2]
         self._maxLNGPlant = dfMC["P99"][2]
-        
         IGIPyGofftake = prod_profiles[0]
         initial_NPV=self.NPV_calculation_Tornado(df = NPV_edited_df, gas_price = self._Gas_Price, LNG_p_vari = self._LNG_plant_per_Sm3, yGofftake = IGIPyGofftake)
-        
         NPVgaspricemin=self.NPV_calculation_Tornado(df = NPV_edited_df, gas_price = self._minGasPrice, LNG_p_vari = self._LNG_plant_per_Sm3, yGofftake = IGIPyGofftake)
         minIGIPyGofftake = prod_profiles[1]
         maxIGIPyGofftake = prod_profiles[2]
-        
-       
         NPVgaspricemax=self.NPV_calculation_Tornado(df = NPV_edited_df, gas_price = self._maxGasPrice, LNG_p_vari = self._LNG_plant_per_Sm3, yGofftake = IGIPyGofftake)
-        
         LNGPlantMin=self.NPV_calculation_Tornado(df = NPV_edited_df, gas_price = self._Gas_Price, LNG_p_vari = self._minLNGPlant, yGofftake = IGIPyGofftake)
         LNGPlantMax=self.NPV_calculation_Tornado(df = NPV_edited_df, gas_price = self._Gas_Price, LNG_p_vari = self._maxLNGPlant, yGofftake = IGIPyGofftake)
-
         NPV_IGIPmin=self.NPV_calculation_Tornado(df = NPV_edited_df, gas_price = self._Gas_Price, LNG_p_vari = self._LNG_plant_per_Sm3, yGofftake = minIGIPyGofftake)
         NPV_IGIPmax=self.NPV_calculation_Tornado(df = NPV_edited_df, gas_price = self._Gas_Price, LNG_p_vari = self._LNG_plant_per_Sm3, yGofftake = maxIGIPyGofftake)
-
         return initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax
     
     def Monte_Carlo_production_profiles(self, minROA, IGIP_array):
@@ -613,8 +573,7 @@ class NPV_dry_gas(NPVAnalysis):
         pp_MC_dict = {ele: (
             IPRAnalysis(precision, stepping_field_variables).get('Field Rates [Sm3/d]') if method == 'IPR'
             else NodalAnalysis(precision, stepping_field_variables).get('Field Rates [Sm3/d]') if method == 'NODAL'
-            else None
-        ).to_numpy() for ele in IGIP_array}
+            else None).to_numpy() for ele in IGIP_array}
         if method not in ['IPR', 'NODAL']:
             st.error("Error: Invalid method or precision:", self._method, self._precision)
         return pp_MC_dict
@@ -643,41 +602,6 @@ class NPV_dry_gas(NPVAnalysis):
                 NPV_list.append(NPV)
             maxNPV = round(max(NPV_list),1)  
             return maxNPV
-
-
-
-        # NPV_gas_v = np.random.uniform(NPVgaspricemin,NPVgaspricemax, parent._Nr_random_num)
-        # NPV_IGIP_v = np.random.uniform(NPV_IGIPmin ,NPV_IGIPmax, parent._Nr_random_num)
-        # NPV_CAPEX_v = np.random.uniform(LNGPlantMin ,LNGPlantMax, parent._Nr_random_num)
-        # NPV_v = NPV(NPV_gas_v,NPV_IGIP_v,NPV_CAPEX_v)
-        # nr_bins = parent._Nr_bins
-        # bins = np.linspace(NPV_v.min(),NPV_v.max(),nr_bins)
-        # counts = np.histogram(NPV_v,bins)[0]
-        # pdf = counts/parent._Nr_random_num
-        # bin_for_plotting = (bins[0:-1]+bins[1:])/2
-
-        # self._fig_pdf = go.Figure()
-        # self._fig_pdf.add_trace(go.Scatter(x=bin_for_plotting, y=pdf, mode='lines', name='pdf'))
-        # self._fig_pdf.update_layout(title='PDF', xaxis_title='NPV [1E06 USD]', yaxis_title='frequency', showlegend=True)
-        
-        # # Calculate CDF
-        # cdf = np.cumsum(pdf)
-        # invcdf = 1 - cdf
-        # bins_cdfplot = bins[1:]
-
-        # # Create CDF plot
-        # self._fig_cdf = go.Figure()
-        # self._fig_cdf.add_trace(go.Scatter(x=bins_cdfplot, y=invcdf, mode='lines', name='ccdf'))
-        # self._fig_cdf.update_layout(title='CCPF', xaxis_title='NPV [1E06 USD]', yaxis_title='Complementary cumulative probability distribution', showlegend=True)
-
-        
-        # self._table = pd.DataFrame({'Variable':['P90 [1E06 USD]','P50 [1E06 USD]','P10 [1E06 USD]'],
-        # 'Value':[np.percentile(NPV_v,10),np.percentile(NPV_v,50),np.percentile(NPV_v,90)]})
-        # self._std = np.std(NPV_v)
-
-    # def getResults(self):
-    #     return self._fig_pdf, self._fig_cdf, self._table, self._std
-        
 
         
 

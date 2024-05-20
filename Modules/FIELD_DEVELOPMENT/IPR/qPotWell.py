@@ -7,7 +7,6 @@ def qPotWell(C_R, n, P_R, PWfMin):
     n = inflow backpressure coefficient
     PWfMin = minimum bottomhole pressure|
     """
-    
     q_potWell = IPRqg(C_R, n, P_R, PWfMin)
     return q_potWell
 

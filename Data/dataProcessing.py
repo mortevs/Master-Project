@@ -9,27 +9,23 @@ def get_field_list_inc_No_field_chosen():
         return ''.join(char_map.get(c, c) for c in s)
 
     def locale_aware_sort(arr):
-        # Map special characters to a representation for sorting
         char_map = {'Ø': 'Oz', 'Æ': 'Ae', 'Å': 'Aa'}
-
-        # Sort using the custom sort key
         arr.sort(key=lambda s: custom_sort_key(s, char_map))
 
     locale_aware_sort(fieldnames)
     fieldnames.insert(0, 'No field chosen')
     return fieldnames
                
-def estimatedReservoirPressure(TVD: float) -> float:
-    """
-    takes in discoveryWell and returns the estimated reservoir pressure in bara. estimate: pressure increases with 1.1 bar for every 10 m of depth
-
-    """
-    pressure = TVD/10 * 1.1
-    return pressure
+# def estimatedReservoirPressure(TVD: float) -> float:
+#     """
+#     takes in discoveryWell and returns the estimated reservoir pressure in bara. estimate: pressure increases with 1.1 bar for every 10 m of depth
+#     """
+#     pressure = TVD/10 * 1.1
+#     return pressure
 
 def addActualProdYtoDF(field: str, df: DataFrame,  adjustLength = True, upTime = 365) ->DataFrame:
     gas, NGL, oil, cond, Oe, w = get.CSVProductionYearly(field)
-    if adjustLength == True: #should i remove 0 production
+    if adjustLength == True:
         while len(df) != len(gas):
             gas.append(0)
         while len(df) != len(NGL):

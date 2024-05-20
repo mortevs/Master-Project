@@ -1,14 +1,9 @@
-import pandas as pd
+import pandas as pd, pages.GUI.GUI_functions as display, streamlit as st, plotly.graph_objects as go, streamlit as st
 from Data.Storage.Cache import SessionState
-import pages.GUI.GUI_functions as display
-#from pages.SODIR Data Investigation
-import streamlit as st
 from shapely.wkt import loads
 from shapely.geometry import Polygon, MultiPolygon
-import plotly.graph_objects as go
-import streamlit as st
 from pandas import DataFrame
-class Sodir_prod(): #SODIR_feature
+class Sodir_prod(): 
     def __init__(self, parent, session_id:str, field:str = 'No field chosen'):
         self.__field = field
         self.__session_id = session_id
@@ -54,7 +49,6 @@ class Sodir_prod(): #SODIR_feature
         fields = []
         for field in self.__state.field:
             fields.append(field)
-        #display.multi_plot_SODIR_compare(dfs, fields, res, self._aligned, lst[0])
         res = res = self.getResult()
         display.multi_plot_SODIR_forecast(self.__state.field, res, res_forcast, lst[0])
 
@@ -131,7 +125,6 @@ class PolygonPlotter:
             multipolygon = loads(self.wkt_str)
 
             if isinstance(multipolygon, MultiPolygon):
-                # Handle the case of a MultiPolygon
                 traces = [
                     go.Scatter(
                         x=list(polygon.exterior.xy[0]),
@@ -144,7 +137,6 @@ class PolygonPlotter:
                     ) for polygon in multipolygon.geoms
                 ]
             elif isinstance(multipolygon, Polygon):
-                # Handle the case of a single Polygon
                 traces = [
                     go.Scatter(
                         x=list(multipolygon.exterior.xy[0]),
@@ -180,25 +172,20 @@ def wlb_plot_production(fig, df, field):
     try:
         df[['Longitude', 'Latitude']] = df['wlbPointGeometryWKT'].str.strip('POINT ()').str.split(expand=True)
         df['Longitude'] = df['Longitude'].astype(float)
-        df['Latitude'] = df['Latitude'].astype(float)    # Create a scatter trace
+        df['Latitude'] = df['Latitude'].astype(float)    
         scatter_trace = go.Scatter(
             x=df['Longitude'],
             y=df['Latitude'],
-            text=df['wlbWellboreName'],  # Use the 'wlbWellboreName' column for text labels
-            mode='markers', #+text
+            text=df['wlbWellboreName'],  
+            mode='markers', 
             name = "Producing wells",
             marker=dict(size=10, color='green', symbol='circle'))
-
-        # Add the scatter trace to the provided figure
         fig.add_trace(scatter_trace)
-
-        # Update layout properties (optional)
         fig.update_layout(
             title='Reservoir and well locations ' + str(field),
             xaxis_title='Longitude',
             yaxis_title='Latitude',
         )
-
         return fig
     except Exception as e:
         st.warning("No wells are categorized under wlbStatus as PRODUCING for this field")
@@ -207,46 +194,38 @@ def wlb_plot_injection(fig, df, field):
     try:
         df[['Longitude', 'Latitude']] = df['wlbPointGeometryWKT'].str.strip('POINT ()').str.split(expand=True)
         df['Longitude'] = df['Longitude'].astype(float)
-        df['Latitude'] = df['Latitude'].astype(float)    # Create a scatter trace
+        df['Latitude'] = df['Latitude'].astype(float)    
         scatter_trace = go.Scatter(
             x=df['Longitude'],
             y=df['Latitude'],
-            text=df['wlbWellboreName'],  # Use the 'wlbWellboreName' column for text labels
-            mode='markers', #+text
+            text=df['wlbWellboreName'],  
+            mode='markers', 
             name = "Injecting wells",
-            #hoverinfo=df['wlbContentPlanned'],
             marker=dict(size=10, color='blue', symbol='circle'),
             showlegend= True
 
         )
-        #scatter_trace.visible = 'legendonly'
-        # Add the scatter trace to the provided figure
         fig.add_trace(scatter_trace)
-
-        # Update layout properties (optional)
         fig.update_layout(
             title='Reservoir and well locations ' + str(field),
             xaxis_title='Longitude',
             yaxis_title='Latitude',
         )
-
         return fig
     except Exception as e:
         st.warning("No wells are categorized under wlbStatus as INJECTING for this field") 
 
 def wlb_plot_closed(fig, df, field):
-    # Extract latitude and longitude from the WKT coordinates
     try:
         df[['Longitude', 'Latitude']] = df['wlbPointGeometryWKT'].str.strip('POINT ()').str.split(expand=True)
         df['Longitude'] = df['Longitude'].astype(float)
-        df['Latitude'] = df['Latitude'].astype(float)    # Create a scatter trace
+        df['Latitude'] = df['Latitude'].astype(float)
         scatter_trace = go.Scatter(
             x=df['Longitude'],
             y=df['Latitude'],
-            text=df['wlbWellboreName'],  # Use the 'wlbWellboreName' column for text labels
-            mode='markers', #+text
+            text=df['wlbWellboreName'],
+            mode='markers',
             name = "Closed wells",
-            #hoverinfo=df['wlbContentPlanned'],
             marker=dict(size=10, color='yellow', symbol='circle'),
             showlegend= True
 
@@ -267,27 +246,21 @@ def wlb_plot_closed(fig, df, field):
         st.warning("No wells are categorized under wlbStatus as CLOSED for this field") 
 
 def wlb_plot_PA(fig, df, field):
-    # Extract latitude and longitude from the WKT coordinates
     try:
         df[['Longitude', 'Latitude']] = df['wlbPointGeometryWKT'].str.strip('POINT ()').str.split(expand=True)
         df['Longitude'] = df['Longitude'].astype(float)
-        df['Latitude'] = df['Latitude'].astype(float)    # Create a scatter trace
+        df['Latitude'] = df['Latitude'].astype(float)    
         scatter_trace = go.Scatter(
             x=df['Longitude'],
             y=df['Latitude'],
-            text=df['wlbWellboreName'],  # Use the 'wlbWellboreName' column for text labels
-            mode='markers', #+text
+            text=df['wlbWellboreName'],  
+            mode='markers',
             name = "P&A wells",
-            #hoverinfo=df['wlbContentPlanned'],
             marker=dict(size=10, color='grey', symbol='circle'),
             showlegend= True
-
         )
         scatter_trace.visible = 'legendonly'
-        # Add the scatter trace to the provided figure
         fig.add_trace(scatter_trace)
-
-        # Update layout properties (optional)
         fig.update_layout(
             title='Reservoir and well locations ' + str(field),
             xaxis_title='Longitude',
@@ -299,36 +272,30 @@ def wlb_plot_PA(fig, df, field):
         st.warning("No wells are categorized under wlbStatus as P&A for this field") 
 
 def wlb_plot_Plugged(fig, df, field):
-    # Extract latitude and longitude from the WKT coordinates
     try:
         df[['Longitude', 'Latitude']] = df['wlbPointGeometryWKT'].str.strip('POINT ()').str.split(expand=True)
         df['Longitude'] = df['Longitude'].astype(float)
-        df['Latitude'] = df['Latitude'].astype(float)    # Create a scatter trace
+        df['Latitude'] = df['Latitude'].astype(float)    
         scatter_trace = go.Scatter(
             x=df['Longitude'],
             y=df['Latitude'],
-            text=df['wlbWellboreName'],  # Use the 'wlbWellboreName' column for text labels
-            mode='markers', #+text
+            text=df['wlbWellboreName'], 
+            mode='markers',
             name = "Plugged wells",
-            #hoverinfo=df['wlbContentPlanned'],
             marker=dict(size=10, color='black', symbol='circle'),
             showlegend= True
-
         )
         scatter_trace.visible = 'legendonly'
-        # Add the scatter trace to the provided figure
         fig.add_trace(scatter_trace)
-
-        # Update layout properties (optional)
         fig.update_layout(
             title='Reservoir and well locations ' + str(field),
             xaxis_title='Longitude',
             yaxis_title='Latitude',
         )
-
         return fig
     except Exception as e:
         st.warning("No wells are categorized under wlbStatus as PLUGGED for this field") 
+
 def makePolyPlot(field):
     fig = go.Figure()
     import Data.getData as get

@@ -1,12 +1,7 @@
-import pandas as pd
+import pandas as pd, pages.GUI.GUI_functions as display, streamlit as st, Data.getData as get
 from Data.Storage.Cache import SessionState
-import pages.GUI.GUI_functions as display
-import streamlit as st
-# RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA = __import__("pages.SODIR Data Investigation.SODIR_feature", fromlist=['SODIR_feature']).SODIR_feature
 
-# from pages.GUI.main_page import RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA
-import Data.getData as get
-class ReservoirPressureAnalysis(): #RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA
+class ReservoirPressureAnalysis(): 
     def __init__(self, parent, session_id:str, field:str = 'No field chosen', time: str = 'Yearly'):
         self.__production_data = []
         self.__field = field
@@ -74,7 +69,6 @@ class ReservoirPressureAnalysis(): #RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA
             ti.sleep(5)
             alert10.empty()
 
- 
     def runM(self):
         self.append_field(self.__field)
         self.append_time_frame(self.__time_frame)
@@ -91,15 +85,12 @@ class ReservoirPressureAnalysis(): #RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA
     
         return df
     
-
     def plot(self):
-        import streamlit as st
-        from pandas import DataFrame
         res = self.getResult()
         field = self.getField()
         time_frame = self.get_time_frame()
         for i in reversed(range(len(res))):
-            if isinstance(res[i], DataFrame):
+            if isinstance(res[i], pd.DataFrame):
                 header_ = 'Estimated Reservoir Pressure ' + str(i+1)
                 st.header(header_, divider='red')
                 tab1, tab2 = st.tabs(["Plot", "Data"])
@@ -118,24 +109,26 @@ class ReservoirPressureAnalysis(): #RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA
                             pass                                
 
                 with tab1:
-                    st.write("The model assumes gas filled reservoir and does not account for injection volumes or reservoir geometry.")
+                    st.write("The model assumes gas filled reservoir and does not account for injection volumes or reservoir geometry")
                     display.multi_plot_PR([res[i]], addAll= False, time_frame=time_frame[i])
-
 
     def clear_output(self):
         from Data.Storage.Cache import SessionState
         SessionState.delete(id = self.__session_id)
         self.__state = SessionState.get(id=self.__session_id, result=[], time_frame=[], field=[], production_data=[], parameters = [])
-    
-    
+      
     def get_current_time_frame(self):
         return self.__time_frame
+    
     def get_current_field(self):
         return self.__field
+    
     def get_current_result(self):
         return self.__result
+    
     def get_current_parameters(self):
         return self.__parameters
+    
     def get_current_production_data(self):
         return self.__production_data
 
@@ -162,7 +155,6 @@ class ReservoirPressureAnalysis(): #RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA
     def delParameters(self):
         del self.__parameters
     
-    
     def append_time_frame(self, item) -> str:
         SessionState.append(id = self.__session_id, key = 'time_frame', value = item)
 
@@ -183,6 +175,3 @@ class ReservoirPressureAnalysis(): #RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA
     
     def update_edible_df(self, list2):
         self.__edible_df.update_table(list2)
-        #self.__edible_df = display.edible_df(list2)
-        #self.__parameters =self.__edible_df.get_parameters()
-        #self.__edible_df = self.__edible_df, self.__parameters = (display.display_table_RESPRES(list1=list1, list2=list2, edible=True))

@@ -107,6 +107,7 @@ def default_MC_params():
     list1 = ['Nr of Random Samples', 'Nr Bins', 'Nr production profiles']
     list2 = [50000,25, 25] 
     return list1, list2
+
 def default_MC_params2():
     list1 = ['Nr of Random samples', 'Nr Bins']
     list2 = [5000000,50] 
@@ -120,4 +121,4 @@ def default_MC_SA():
     return list1, list2, list3, list4
 
 def probability_distributions():
-    return ['pert (default)', 'triangular', 'uniform', 'normal', 'lognormal', 'exponential'] #, 
+    return ['pert (default)', 'triangular', 'uniform', 'normal', 'lognormal', 'exponential'] 

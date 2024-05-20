@@ -1,7 +1,4 @@
-import os
-import pandas as pd
-import shelve
-import streamlit as st
+import os, pandas as pd, shelve, streamlit as st
 data_storage_folder = os.path.join(os.getcwd(), 'Data', 'Storage')
 cacheDF = {}
 
@@ -38,7 +35,6 @@ def loadDict(key):
             loaded_data = d[key]
             return loaded_data
     
-import streamlit as st
 class SessionState:
     def __init__(self, **kwargs):
         for key, val in kwargs.items():
@@ -59,10 +55,7 @@ class SessionState:
     def append(id, key, value):
         if not hasattr(st, '_global_session_states'):
             st._global_session_states = {}
-        # Retrieve the specific session state using the provided ID
         session_state = st._global_session_states.get(id)
-
-        # Append the value to the list corresponding to the key
         current_list = getattr(session_state, key, [])
         current_list.append(value)     
         setattr(session_state, key, current_list)

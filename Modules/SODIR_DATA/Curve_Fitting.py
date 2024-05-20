@@ -1,4 +1,3 @@
-import streamlit as st
 import pandas as pd
 import numpy as np
 class Curve_fitting():
@@ -31,11 +30,10 @@ class Curve_fitting():
                 if time[0] == 'Yearly':
                     empty_df[column] = self.curve_fit(df[column][-(self._data_points)-1:-1], FC_length, time)
                 else:
-                    empty_df[column] = self.curve_fit(df[column][-self._data_points:], FC_length, time)
-                
-            #df = pd.concat([df, empty_df])
+                    empty_df[column] = self.curve_fit(df[column][-self._data_points:], FC_length, time)                
             curve_fitted_df = empty_df
             self._curve_fitted_dfs.append(curve_fitted_df)
+    
     def curve_fit(self, list, FC_length, time ):
         if time[0] == 'Yearly':
             self.__clean_data = self.remove_outliers_year(list)
@@ -53,27 +51,21 @@ class Curve_fitting():
                 curve_fitted_data.append(next_value)
             except:
                 curve_fitted_data.append(0)
-        return curve_fitted_data
-        
-
-
+        return curve_fitted_data      
+    
     def get_curve_fitted_dfs(self):
-        return self._curve_fitted_dfs
+        return self._curve_fitted_dfs 
     
     def remove_outliers_year(self, lst):
         lst = [el for el in lst[:-1] if el > 0]
-        
         average = np.average(np.array(lst))
         lst = [el for el in lst if el >= average * 0.5]
-        
         return lst
+    
     def remove_outliers_month(self, lst):
         lst = [el for el in lst if el > 0]
-        
         average = np.average(np.array(lst))
-        
         lst = [el for el in lst if el >= average * 0.5]
-        
         return lst
 
 

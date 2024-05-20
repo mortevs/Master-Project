@@ -22,7 +22,6 @@ def calculate_scale_from_p1_p99(p1_value, p99_value):
     scale = (p99_value - p1_value) / (q99 - q1)
     return [scale]
 
-
 def RandomNumbers_with_Distribution_consideration(df, size):
     rows = len(df.index)
     function_map = {'uniform': np.random.uniform, 'normal': np.random.normal, 'pert (default)': pert_distribution, 'normal': np.random.normal, 'lognormal' : np.random.lognormal, 'triangular' : np.random.triangular, 'exponential': np.random.exponential}

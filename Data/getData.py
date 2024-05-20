@@ -76,14 +76,13 @@ def closed_wlb(fieldName):
     p = swap_columns(p, "wlbNpdidWellbore", "wlbWellboreName")
     p = p.astype(str)
     return p
+
 def plugged_wlb(fieldName):
     p = wlbPoint_field_sorted(fieldName)
-    #st.write(p)
     p.drop(p[p['wlbStatus'] != 'PLUGGED'].index, inplace=True)
     p = swap_columns(p, "wlbNpdidWellbore", "wlbWellboreName")
     p = p.astype(str)
     return p
-
 
 def junked_wlb(fieldName):
     p = wlbPoint_field_sorted(fieldName)
@@ -122,7 +121,7 @@ def CSVProductionYearly(field: str):
             data_to_store = c.csvURLtoDF(csvURL)
             p = c.CacheDF(df = data_to_store, key = 'yearlyProduction')
         else:
-            st.write(f'Failed to get NPD data using digitaliseringsdirektoratets API, status code: {response.status_code}')
+            st.write(f'Failed to get SODIR data from Data.Norge, status code: {response.status_code}')
     p.drop(p[p['prfInformationCarrier'] != field.upper()].index, inplace=True)
     gas = p['prfPrdGasNetBillSm3'].tolist()
     NGL = p['prfPrdNGLNetMillSm3'].tolist()
@@ -142,7 +141,7 @@ def CSVProducedYears(fieldName: str) -> list:
             data_to_store = c.csvURLtoDF(csvURL)
             p = c.CacheDF(df = data_to_store, key = 'yearlyProduction')
         else:
-            st.write(f'Failed to get NPD data using digitaliseringsdirektoratets API, status code: {response.status_code}')
+            st.write(f'Failed to get SODIR data from Data.Norge, status code: {response.status_code}')
     p.drop(p[p['prfInformationCarrier'] != fieldName.upper()].index, inplace=True)
     years = p['prfYear'].tolist()
     return years
@@ -178,7 +177,7 @@ def deleteAndLoadNewDataFromNPD():
             ZiptoDF()
             ZiptoDF(zipname = 'wlbPoint.zip', zipFileUrl = 'https://factpages.sodir.no/downloads/csv/wlbPoint.zip')
         else:
-            raise Exception("Not all Sodir resources are available. Visit Sodir for further information.")
+            raise Exception("Not all Sodir resources are available. Visit Sodir/Data.Norge for further information.")
     except requests.exceptions.RequestException as e:
         my = st.warning(f"Request error: {e}")
         time.sleep(5)
@@ -198,7 +197,7 @@ def CSV_reserves():
             data_to_store = c.csvURLtoDF(csvURL)
             p = c.CacheDF(df = data_to_store, key = 'reserves')
         else:
-            st.warning(f'Failed to get NPD data using digitaliseringsdirektoratets resources, status code: {response.status_code}')
+            st.write(f'Failed to get SODIR data from Data.Norge, status code: {response.status_code}')
     return p
 
 def Temp(fieldName):

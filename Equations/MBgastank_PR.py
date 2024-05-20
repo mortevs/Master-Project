@@ -5,7 +5,6 @@ def MBgastank_PR(PRi, Zi, ZR, RF):
     Pi = initial reservoir pressure year 0,
     Zi = intial Z factor year 0,
     RF = recovery factor at year i.
-    
     """
     MBgastank_PR = (ZR * (PRi/Zi)*(1-RF))
     return MBgastank_PR
