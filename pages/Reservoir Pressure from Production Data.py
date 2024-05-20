@@ -2,25 +2,6 @@ import streamlit as st
 import pages.GUI.GUI_functions as GUI
 import time
 from Data.dataProcessing import get_field_list_inc_No_field_chosen
-# email_address = "morten.viersi@gmail.com"
-
-# email_subject_Help = "Get help with the SMIPPS application"
-# email_body_Help = "Hi Morten, \n\n I need help with using the SMIPPS Application. I need help with the following: .........."
-
-# email_subject_BUG = "Report a SMIPPS Bug"
-# email_body_BUG = "Hi Morten, \n\n I'm sending you an email experiencing a bug while using the SMIPPS Application. I experienced the bug after performing the following steps .........."
-# email_link_Help = f"mailto:{email_address}?subject={email_subject_Help}&body={email_body_Help}"
-# email_link_BUG = f"mailto:{email_address}?subject={email_subject_BUG}&body={email_body_BUG}"
-
-# st.set_page_config(
-#     page_title="Smipps",
-#     layout="wide",
-#     menu_items={'Get Help': email_link_Help,
-#         'Report a bug': email_link_BUG,
-#         'About': "# Master project by Morten Vier Simensen"
-#     }
-#    )
-
 
 class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA:
     def __init__(self):
@@ -31,11 +12,7 @@ class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA:
             st.warning("could not get list of fieldnames from SODIR")
             self.__fieldnames = ["None"]
             
-        m = st.markdown("""<style>
-        div.stButton > button:first-child {
-        background-color: rgb(204, 49, 49);
-        }
-        </style>""", unsafe_allow_html=True)
+
         self.place_holder = 1
         on_information = st.toggle("Show me information on how to use the reservoir pressure from production data feature", value=False, label_visibility="visible")
         if on_information:
@@ -129,6 +106,29 @@ class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA:
 
         RES_Analysis.plot()
         #self.parent = parent
+email_address = "morten.viersi@gmail.com"
+email_subject_Help = "Get help with the SMIPPS application"
+email_body_Help = "Hi Morten, \n\n I need help with using the SMIPPS Application. I need help with the following: .........."
+email_subject_BUG = "Report a SMIPPS Bug"
+email_body_BUG = "Hi Morten, \n\n I'm sending you an email experiencing a bug while using the SMIPPS Application. I experienced the bug after performing the following steps .........."
+email_link_Help = f"mailto:{email_address}?subject={email_subject_Help}&body={email_body_Help}"
+email_link_BUG = f"mailto:{email_address}?subject={email_subject_BUG}&body={email_body_BUG}"
+
+st.set_page_config(
+    page_title="Smipps",
+    layout="wide",
+    page_icon=":wrench:",
+    menu_items={'Get Help': email_link_Help,
+    'Report a bug': email_link_BUG,
+    'About': "# Master project by Morten Vier Simensen"
+}
+    )
+m = st.markdown("""
+<style>
+div.stButton > button:first-child {
+    background-color: rgb(264, 49, 49);
+}
+</style>""", unsafe_allow_html=True)
 st.title('Reservoir Pressure from Production Data')
 reservoir_pressure_from_production_data = RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA()
 

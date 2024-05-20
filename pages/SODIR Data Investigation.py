@@ -2,40 +2,14 @@ import streamlit as st
 import pages.GUI.GUI_functions as GUI
 import Data.getData as get
 from Data.dataProcessing import get_field_list_inc_No_field_chosen
-# email_address = "morten.viersi@gmail.com"
-# email_subject_Help = "Get help with the SMIPPS application"
-# email_body_Help = "Hi Morten, \n\n I need help with using the SMIPPS Application. I need help with the following: .........."
-# email_subject_BUG = "Report a SMIPPS Bug"
-# email_body_BUG = "Hi Morten, \n\n I'm sending you an email experiencing a bug while using the SMIPPS Application. I experienced the bug after performing the following steps .........."
-# email_link_Help = f"mailto:{email_address}?subject={email_subject_Help}&body={email_body_Help}"
-# email_link_BUG = f"mailto:{email_address}?subject={email_subject_BUG}&body={email_body_BUG}"
-# st.set_page_config(
-#     page_title="Smipps",
-#     layout="wide",
-#     menu_items={'Get Help': email_link_Help,
-#         'Report a bug': email_link_BUG,
-#         'About': "# Master project by Morten Vier Simensen"
-#     }
-#     )
-m = st.markdown("""
-    <style>
-    div.stButton > button:first-child {
-        background-color: rgb(204, 49, 49);
-    }
-    </style>""", unsafe_allow_html=True)
-st.title('Sodir Data Investigation')
 
-def make_pretty(styler):
-    styler.set_properties(subset = None, **{'color': 'red'})
-    return styler
-    
+
 class SODIR_feature:
-    m = st.markdown("""<style>
-        div.stButton > button:first-child {
-        background-color: rgb(204, 49, 49);
-        }
-        </style>""", unsafe_allow_html=True)
     def __init__(self):
+        def make_pretty(styler):
+            styler.set_properties(subset = None, **{'color': 'red'})
+            return styler
+    
         try:
             self.__fieldnames = get_field_list_inc_No_field_chosen()
         except Exception as e:
@@ -199,13 +173,27 @@ class SODIR_feature:
                         self.__res_forecast = self.__Curve_fitted__obj.get_curve_fitted_dfs()
                         
                         parent.plot_forecast(self.__res_forecast)
+email_address = "morten.viersi@gmail.com"
+email_subject_Help = "Get help with the SMIPPS application"
+email_body_Help = "Hi Morten, \n\n I need help with using the SMIPPS Application. I need help with the following: .........."
+email_subject_BUG = "Report a SMIPPS Bug"
+email_body_BUG = "Hi Morten, \n\n I'm sending you an email experiencing a bug while using the SMIPPS Application. I experienced the bug after performing the following steps .........."
+email_link_Help = f"mailto:{email_address}?subject={email_subject_Help}&body={email_body_Help}"
+email_link_BUG = f"mailto:{email_address}?subject={email_subject_BUG}&body={email_body_BUG}"
 
-
-
-
-
-
-
-
-
+st.set_page_config(
+    page_title="Smipps",
+    layout="wide",
+    page_icon=":wrench:",
+    menu_items={'Get Help': email_link_Help,
+    'Report a bug': email_link_BUG,
+    'About': "# Master project by Morten Vier Simensen"}
+    )
+m = st.markdown("""
+<style>
+div.stButton > button:first-child {
+    background-color: rgb(264, 49, 49);
+}
+</style>""", unsafe_allow_html=True)
+st.title('Sodir Data Investigation')
 NPD_DATA = SODIR_feature()
