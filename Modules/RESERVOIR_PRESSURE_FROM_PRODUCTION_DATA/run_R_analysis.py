@@ -21,6 +21,7 @@ class ReservoirPressureAnalysis():
     def updateParameterListfromTable(self, list2):
         list1 = ['Initial Reservoir Pressure [bara]', 'Reservoir Temperature [degree C]', 'Gas Molecular Weight [g/mol]', 'Initial Gas in Place [Sm3]']
         self.__parameters = (display.display_table_RESPRES(list1=list1, list2=list2, edible=True))
+        return self.__parameters
 
     def get_Sodir_data_Res_Pres(self):
         PRi = get.initial_reservoir_pressure(self.__field)

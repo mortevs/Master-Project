@@ -2,20 +2,25 @@ import streamlit as st, pages.GUI.GUI_functions as GUI, pandas as pd, numpy as n
 
 class Monte_Carlo_standAlone:
     def __init__(self):
-        on_MCSA_information = st.toggle("Show me information on how to use Monte Carlo Analysis", value=False, label_visibility="visible")
-        if on_MCSA_information:
-            st.write("""A Monte Carlo Analysis is run with the input data. Change the inputs by double pressing the cells. P1 should be less than P50 which should be 
-                     less than P99. 
-                    The rows should be addable. Number of rows in the table can be chosen from the dropdown menu below. For instance all the rows should be
-                     time [Hours] or cost [1E06 USD].
-                     Uncertainties will be run on each variable according to the probability distribution for that row, P1 (Min), P99 (Max),
-                     and P50 (ML) if applicable for the distribution chosen. They will then be added together to give a final/total probability distribution.
-                     A different probability distribution than the pert (default) can be considered. Other available distributions 
-                     are 'triangular', 'uniform', 'normal', 'lognormal' and 'exponential'. They can be chosen from a dropdown menu by double pressing the cell.
-                     The Monte Carlo Analysis Parameters can be adjusted to obtain a smoother output probability distribution
-                     according to the needs by adjusting the table below to the right. For most basic applications, the default values should be sufficient. 
-                     If needed, the number of random numbers (simulations) and number of bins can be adjusted. Higher numbers are more computational costly.
-                     """)
+        col1, col2 = st.columns(2)
+        with col1:
+            on_MCSA_information = st.toggle("Show me information on how to use Monte Carlo Analysis", value=False, label_visibility="visible")
+            if on_MCSA_information:
+                st.write("""A Monte Carlo Analysis is run with the input data. Change the inputs by double pressing the cells. P1 should be less than P50 which should be 
+                        less than P99. 
+                        The rows should be addable. Number of rows in the table can be chosen from the dropdown menu below. For instance all the rows should be
+                        time [Hours] or cost [1E06 USD].
+                        Uncertainties will be run on each variable according to the probability distribution for that row, P1 (Min), P99 (Max),
+                        and P50 (ML) if applicable for the distribution chosen. They will then be added together to give a final/total probability distribution.
+                        A different probability distribution than the pert (default) can be considered. Other available distributions 
+                        are 'triangular', 'uniform', 'normal', 'lognormal' and 'exponential'. They can be chosen from a dropdown menu by double pressing the cell.
+                        The Monte Carlo Analysis Parameters can be adjusted to obtain a smoother output probability distribution
+                        according to the needs by adjusting the table below to the right. For most basic applications, the default values should be sufficient. 
+                        If needed, the number of random numbers (simulations) and number of bins can be adjusted. Higher numbers are more computational costly.
+                        """)
+            default_message = st.warning("Default values/distributions below. Change to desired values and distributions")
+
+
         col18, col19 = st.columns(2)
         col16, col17 = st.columns(2)
         my_list = []
@@ -27,6 +32,22 @@ class Monte_Carlo_standAlone:
         with col18:
             st.markdown("**Uncertainty in variables and probability distribution**")
             self._edited_MC_table = row_table_obj.display_table()
+            from Data.DefaultData import default_MC_SA
+            if self._edited_MC_table['P1'].to_list() != default_MC_SA()[1]:
+                default_message.empty()
+            elif self._edited_MC_table['P50'].to_list() != default_MC_SA()[2]:
+                default_message.empty()
+            elif self._edited_MC_table['P99'].to_list() != default_MC_SA()[3]:
+                default_message.empty()
+            elif self._edited_MC_table['P Dist'].to_list() != ['pert (default)', 'pert (default)', 'pert (default)']:
+                default_message.empty()
+
+
+
+
+      
+
+
         with col19:
             st.markdown("**Monte Carlo Analysis parameters (optional optimization)**")
             self._Nr_random_num, self._Nr_bins = GUI.display_table_Monte_Carlo_param2()

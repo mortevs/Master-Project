@@ -6,33 +6,11 @@ from Data.dataProcessing import get_field_list_inc_No_field_chosen
 import math
 import pandas as pd
 from bisect import bisect_left
+from Data.DefaultData import default_FD_data
 
 
 class FIELD_DEVELOPMENT:
     def __init__(self):
-        email_address = "morten.viersi@gmail.com"
-        email_subject_Help = "Get help with the SMIPPS application"
-        email_body_Help = "Hi Morten, \n\n I need help with using the SMIPPS Application. I need help with the following: .........."
-        email_subject_BUG = "Report a SMIPPS Bug"
-        email_body_BUG = "Hi Morten, \n\n I'm sending you an email experiencing a bug while using the SMIPPS Application. I experienced the bug after performing the following steps .........."
-        email_link_Help = f"mailto:{email_address}?subject={email_subject_Help}&body={email_body_Help}"
-        email_link_BUG = f"mailto:{email_address}?subject={email_subject_BUG}&body={email_body_BUG}"
-
-        st.set_page_config(
-            page_title="Smipps",
-            layout="wide",
-            page_icon=":wrench:",
-            menu_items={'Get Help': email_link_Help,
-            'Report a bug': email_link_BUG,
-            'About': "# Master project by Morten Vier Simensen"
-        }
-            )
-        m = st.markdown("""
-        <style>
-        div.stButton > button:first-child {
-            background-color: rgb(264, 49, 49);
-        }
-        </style>""", unsafe_allow_html=True)
         st.title('Field Development')
         def make_pretty(styler):
             styler.set_properties(subset = None, **{'color': 'red'})
@@ -117,6 +95,8 @@ class FIELD_DEVELOPMENT:
         with col1:
             Analysis.updateFromDropdown(method = self._method, precision=self._precision)
             params = Analysis.updateParameterListfromTable()
+            if params != default_FD_data():
+                default_message.empty()
             Analysis.validate_parameters(params)
         if clear:
             Analysis.clear_output()
@@ -377,7 +357,28 @@ class FIELD_DEVELOPMENT:
 
 
 
+email_address = "morten.viersi@gmail.com"
+email_subject_Help = "Get help with the SMIPPS application"
+email_body_Help = "Hi Morten, \n\n I need help with using the SMIPPS Application. I need help with the following: .........."
+email_subject_BUG = "Report a SMIPPS Bug"
+email_body_BUG = "Hi Morten, \n\n I'm sending you an email experiencing a bug while using the SMIPPS Application. I experienced the bug after performing the following steps .........."
+email_link_Help = f"mailto:{email_address}?subject={email_subject_Help}&body={email_body_Help}"
+email_link_BUG = f"mailto:{email_address}?subject={email_subject_BUG}&body={email_body_BUG}"
 
+st.set_page_config(
+    page_title="Smipps",
+    layout="wide",
+    page_icon=":wrench:",
+    menu_items={'Get Help': email_link_Help,
+    'Report a bug': email_link_BUG,
+    'About': "# Master project by Morten Vier Simensen"}
+    )
+m = st.markdown("""
+<style>
+div.stButton > button:first-child {
+    background-color: rgb(264, 49, 49);
+}
+</style>""", unsafe_allow_html=True)
 field_development = FIELD_DEVELOPMENT()
 
 

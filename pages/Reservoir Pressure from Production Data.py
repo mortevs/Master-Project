@@ -53,7 +53,7 @@ class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA:
                 clear = st.button('Clear output', 'clear RESPRES', use_container_width=True)
             with col4:
                 SODIR_button = st.button('Get Sodir-data', 'get SODIR data into table', use_container_width=True)
-            default_message2 = st.warning("Default values below. Change to desired values")
+            default_message = st.warning("Default values below. Change to desired values")
         if SODIR_button and field == 'No field chosen':
             alert3 = st.warning('Choose a field')
             time.sleep(3.5)
@@ -70,7 +70,7 @@ class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA:
         with col1:
             if self.place_holder == 1:
                 from Data.DefaultData import defaultData_RP
-                RES_Analysis.updateParameterListfromTable(list2 = defaultData_RP())
+                parameters = RES_Analysis.updateParameterListfromTable(list2 = defaultData_RP())
 
             elif self.place_holder ==2:
                 PRi = 276 #reservoir pressure bara #default value
@@ -103,9 +103,10 @@ class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA:
 
         if clear:
             RES_Analysis.clear_output()
-
+        RES_Analysis.getParameters()
+        if parameters != defaultData_RP():
+            default_message.empty()
         RES_Analysis.plot()
-        #self.parent = parent
 email_address = "morten.viersi@gmail.com"
 email_subject_Help = "Get help with the SMIPPS application"
 email_body_Help = "Hi Morten, \n\n I need help with using the SMIPPS Application. I need help with the following: .........."
