@@ -437,6 +437,7 @@ def multi_plot_SODIR_forecast(fields, res, res_forecast, time_frame):
         date_format = '%m:%Y'
         period = "M"
     else:
+        res = [el[0:-1] for el in res] 
         date_format = '%Y'
         period = "Y"
 
@@ -489,9 +490,8 @@ def multi_plot_SODIR_forecast(fields, res, res_forecast, time_frame):
                     )
                 )
         except KeyError:
-            st.error("Cannot compare fields")
+            st.error("Can not compare fields")
 
-    # Plot res_forecast in red
     for i in range(len(res_forecast)):
         df = res_forecast[i]
         for column in df.columns:
@@ -511,7 +511,7 @@ def multi_plot_SODIR_forecast(fields, res, res_forecast, time_frame):
                     )
                 )
         except KeyError:
-            st.error("Cannot plot forecast fields")
+            st.error("Can not plot forecast fields")
 
     def create_layout_button(column):
         # Define the function to create a button

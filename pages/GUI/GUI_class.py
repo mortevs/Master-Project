@@ -539,7 +539,6 @@ class Monte_Carlo_standAlone:
             )
             return edited_table
 
-
 class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA:
     def __init__(self):
         m = st.markdown("""<style>
