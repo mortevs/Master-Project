@@ -1,156 +1,127 @@
-import pandas as pd 
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
-import time
-start_time=time.time()
-perm1=1e-13 #Permeability constants
-perm2=1e-17
-perm3=2e-14
-mu=1e-3 #Viscosity
-poro=0.2 #porosity
-c_t=1e-9 #total compressibiliy [1/Pa]
-p_r=2e+7 #initial pressure [Mpa]
-p_w=1e+7 #Well pressure [Mpa]
 
-    
-#calculations 
+class FlowSimulation:
+    def __init__(self, t, perm1=1e-13, perm2=1e-17, perm3=2e-14, mu=1e-3, poro=0.2, c_t=1e-9, p_r=2e+7, p_w=1e+7):
+        self.t = t
+        self.perm1 = perm1
+        self.perm2 = perm2
+        self.perm3 = perm3
+        self.mu = mu
+        self.poro = poro
+        self.c_t = c_t
+        self.p_r = p_r
+        self.p_w = p_w
 
-dx=1 #steplength 
-dy=1
-dt=1/2 #timelength set to half a second
-h=50 #reservoir height [m]
-l=200 #reservoir length [m]
+        self.dx = 1
+        self.dy = 1
+        self.dt = 1 / 2
+        self.h = 50
+        self.l = 200
 
-#creating the permeability matrix
-k=pd.DataFrame(np.zeros((h, l)))  
-k[0:20]=perm1 #Adding correct permeability to the layers
-k[20:30]=perm2
-k[30:50]=perm3
+        self.flowlist = []
+        self.k = self.create_permeability_matrix()
+        self.p = self.initialize_pressure_matrix()
 
-#creating initial pressure distribution matrix [t=0]
-def initialize(): 
-    p=pd.DataFrame(np.zeros((h, l))) #Pandas dataframe
-    p[p.columns[0:200]]=p_r #initial pressure
-    p[0][0:20]=p_w #boundary condition
-    p[0][30:50]=p_w #boundary condition
-    return p
-flowlist=[]
-#update flow gradient in horizontal direction 
-def update_gradient(p):
-    #Manipulating matrices
-    p2=p[p.columns[1:200]] #p shifted dx
-    p2 = p2.T.reset_index(drop=True).T #Resetting index, (needed to transpose since reset index resets rows)
-    p2.insert(loc=199, column=199, value=p[199]) #Adding end point value for forward difference
+    def create_permeability_matrix(self):
+        k = pd.DataFrame(np.zeros((self.h, self.l)))
+        k[0:20] = self.perm1
+        k[20:30] = self.perm2
+        k[30:50] = self.perm3
+        return k
 
-    #Calculating Pressure gradient:
-    p_der_x=(p2-p)/dx #Forward finite difference method
+    def initialize_pressure_matrix(self):
+        p = pd.DataFrame(np.zeros((self.h, self.l)))
+        p[p.columns[0:200]] = self.p_r
+        p.iloc[0, 0:20] = self.p_w
+        p.iloc[0, 30:50] = self.p_w
+        return p
 
-    #Calculating flow and manipulating matrices:
-    qx=p_der_x*(-k)/mu #Flow in horizontal direction
-    update_gradient.variable=qx #Saving flow as variable
-    qx2=qx[qx.columns[1:200]] #p shifted dx
-    qx2 = qx2.T.reset_index(drop=True).T #Resetting index, 
-    df = pd.DataFrame([0 for _ in range(50)]) #A column of zeros
-    qx2.insert(loc=199, column=199, value=df) #Inserting zero to end ponint for boundary condition
-    qx2 = qx2.T.reset_index(drop=True).T 
+    def update_gradient(self, p):
+        p2 = p[p.columns[1:200]].copy()
+        p2 = p2.T.reset_index(drop=True).T
+        p2.insert(loc=199, column=199, value=p[199])
 
-    #Calculating flow gradient:
-    qx_der_x=(qx2-qx)/dx #Backward finite difference method
-    qx_der_x.insert(loc=0, column=-1, value=df) #Inserting 0 for correct backward difference
-    qx_der_x = qx_der_x.T.reset_index(drop=True).T
-    qx_der_x=qx_der_x[qx_der_x.columns[0:200]] #Shifting the matrix for correct calculation
+        p_der_x = (p2 - p) / self.dx
 
-    Q = -qx[0].sum()
-    flowlist.append(Q)
-    #update_gradient.variable=flowlist
-    return qx_der_x
+        qx = p_der_x * (-self.k) / self.mu
+        qx2 = qx[qx.columns[1:200]].copy()
+        qx2 = qx2.T.reset_index(drop=True).T
+        df = pd.DataFrame([0 for _ in range(50)])
+        qx2.insert(loc=199, column=199, value=df)
+        qx2 = qx2.T.reset_index(drop=True).T
 
-#update flow gradient in vertical direction
-def update_gradient2(p):
-    #Manipulating matrices:
-    py2=(p[1:50]).reset_index(drop=True)
-    py2=py2.append(p[49:50]) #Adding end point value for forward difference
+        qx_der_x = (qx2 - qx) / self.dx
+        qx_der_x.insert(loc=0, column=-1, value=df)
+        qx_der_x = qx_der_x.T.reset_index(drop=True).T
+        qx_der_x = qx_der_x[qx_der_x.columns[0:200]]
 
-    #Calculating pressure gradient
-    p_der_y=(py2-p)/dy #Forward difference method
+        Q = -qx[0].sum()
+        self.flowlist.append(Q)
 
-    #Calculating flow and manipulating matrices:
-    qy=p_der_y*-k/mu #Flow in vertical direction
-    update_gradient2.variable=qy #saving flow as variable
-    qy2=qy[1:50] #qy shifted dy
-    qy2=qy2.reset_index(drop=True) 
-    df = pd.DataFrame(np.zeros((1, 200)))#Zero matrix
-    qy2=qy2.append(df) #Adding zero for boundary condidion
-    qy2=qy2.reset_index(drop=True)
+        return qx_der_x
 
-    #Calculating flow gradient:
-    qx_der_y=(qy2-qy)/dy #Backward difference 
-    qx_der_y=df.append(qx_der_y) #Adding zero for boundary condition
-    qx_der_y = qx_der_y.reset_index(drop=True)
-    qx_der_y=qx_der_y[0:50] #Shifting matrix for correct backward difference
-    return qx_der_y
+    def update_gradient2(self, p):
+        py2 = pd.concat([p[1:50].reset_index(drop=True), p[49:50].reset_index(drop=True)], ignore_index=True)
 
-#Calculate pressure distribution matrix at time t [s]
-def calculate_pressure(t):
-    p=initialize()
-    for i in range(1,t+1):
-        qx_der_x=update_gradient(p) #Fetching dq/dx
-        qx_der_y=update_gradient2(p) #Fetching dq/dy
+        p_der_y = (py2 - p) / self.dy
 
-        p+=-dt/(poro*c_t)*(qx_der_x+qx_der_y) #Main equation
-    return p
+        qy = p_der_y * -self.k / self.mu
+        qy2 = qy[1:50].copy()
+        qy2 = qy2.reset_index(drop=True)
+        df = pd.DataFrame(np.zeros((1, 200)))
+        qy2 = pd.concat([qy2, df], ignore_index=True)
 
-# def calculate_flow(t):
-#     for i in range(1,t+1): 
-#         qx = update_gradient.variable
-#         #print(qx)
-#         Q = -qx.sum(columns(0))
-#         #print(Q)
-#     return Q 
+        qx_der_y = (qy2 - qy) / self.dy
+        qx_der_y = pd.concat([df, qx_der_y], ignore_index=True)
+        qx_der_y = qx_der_y[0:50]
 
-#plotting the pressure distribution matrix at time t [s]
-def plot_pressure(t):
+        return qx_der_y
 
-    p=calculate_pressure(t)
-    p = p.reindex(index=p.index[::-1]) #need to reverse rows for plotting
-    plt.imshow(p, origin="lower", cmap="jet", extent = (0, 200, 50, 0), aspect=3)
-    plt.xlabel('Distance from well [m]')
-    plt.ylabel('Depth [m]')
-    plt.title('Pressure [MPa], Time: '+ str(t/(3600*2)) + ' hour(s)')
-    cbar = plt.colorbar()
-    #cbar.set_ticks(['10', '11','12','13','14','15','16','17','18','19','20'])
+    def calculate_pressure(self):
+        p = self.p.copy()
+        for _ in range(0, self.t - 1):
+            qx_der_x = self.update_gradient(p)
+            qx_der_y = self.update_gradient2(p)
+            p += -self.dt / (self.poro * self.c_t) * (qx_der_x + qx_der_y)
+        return p
 
-    #For plotting flow arrays
-    U=update_gradient.variable #Fetching horizontal flow
-    V=update_gradient2.variable #Fetching vertical flow
-    U=U.iloc[:, ::20] #Point every ten meters in x-direction
-    U=U.iloc[::4, :] #Point every four meters in y-direction
-    V=V.iloc[:, ::20]
-    V=V.iloc[::4, :]
-    x,y = np.meshgrid(np.arange(0,200,20),np.arange(0,50,4)) #Creating grid for vectors 
-    plt.quiver(x,y, U, -V, width=0.002, headwidth=4, scale=None) #Plotting vectors and rescaling
-    plt.show()
+    def get_pressure_plot(self):
+        p = self.calculate_pressure()
+        p = p.reindex(index=p.index[::-1])
+        fig, ax = plt.subplots()
+        cax = ax.imshow(p, origin="lower", cmap="jet", extent=(0, 200, 50, 0), aspect=3)
+        ax.set_xlabel('Distance from well [m]')
+        ax.set_ylabel('Depth [m]')
+        ax.set_title(f'Pressure [MPa], Time: {self.t / (3600 * 2)} hour(s)')
+        fig.colorbar(cax)
 
-    #Flow into the well
-def plot_flow(t):  
-    t=np.linspace(0, t*1/2, t)
-    Q=np.array(flowlist)
-    plt.plot(t, Q)
-    plt.yscale('log',base = 10)
-    plt.xscale('log',base = 10)
-    plt.grid()
-    plt.title('Flow into the well ')
-    plt.xlabel('Time [s]')
-    plt.ylabel('Flow [m3/s]')
-    plt.show()
+        U = self.update_gradient(self.p)
+        V = self.update_gradient2(self.p)
+        U = U.iloc[:, ::20]
+        U = U.iloc[::4, :]
+        V = V.iloc[:, ::20]
+        V = V.iloc[::4, :]
+        x, y = np.meshgrid(np.arange(0, 200, 20), np.arange(0, 50, 4))
+        ax.quiver(x, y, U, -V, width=0.002, headwidth=4, scale=None)
+        
+        return fig
 
-def run(t):
-    plot_pressure(t*3600*2)
+    def get_flow_plot(self):
+        t = np.linspace(0, self.t * 1/2, self.t)
+        Q = np.array(self.flowlist)
+        fig, ax = plt.subplots()
+        ax.plot(t, Q)
+        ax.set_yscale('log', base=10)
+        ax.set_xscale('log', base=10)
+        ax.grid()
+        ax.set_title('Flow into the well')
+        ax.set_xlabel('Time [s]')
+        ax.set_ylabel('Flow [m³/s]')
+        
+        return fig
 
-    #calling on the plot pressure function as a function of the calculated pressure at time t.
-    #because dt is 0.5, we need to double the time
-    #In this partical case 1 hour is the chosen simulation time
-     #calculate_pressure(3600*2*24*4)
-     #print(time.time()-start_time) #Prints running time
-     #plot_flow(3600*2*24*4) #plotting log-log flow vs time 4 days
-      #print(sum(flowlist)) #cumulative produciton 
+
+
+

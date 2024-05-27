@@ -1,4 +1,5 @@
 import streamlit as st, pages.GUI.GUI_functions as GUI, pandas as pd, numpy as np
+from Data.DefaultData import probability_distributions
 
 class Monte_Carlo_standAlone:
     def __init__(self):
@@ -60,7 +61,7 @@ class Monte_Carlo_standAlone:
                 list_of_arrays = RandomNumbers_with_Distribution_consideration(df = self._edited_MC_table, size = self._Nr_random_num)
                 results_array = np.sum(list_of_arrays, axis=0)
                 from Modules.MONTE_CARLO.Monte_carlo_standAlone import Monte_Carlo_Simulation
-                fig_pdf, fig_cdf, table, std = Monte_Carlo_Simulation(self._Nr_bins, results_array, self._Nr_random_num)
+                fig_pdf, fig_cdf, table, std = Monte_Carlo_Simulation(self._Nr_bins, results_array, self._Nr_random_num, title_xaxis="addable input")
                 with colR:
                     st.plotly_chart(fig_pdf, use_container_width=True)
                     st.dataframe(table, hide_index=True, use_container_width=True)
@@ -111,7 +112,6 @@ class Monte_Carlo_standAlone:
                 'P Dist' : [p_dists[0] for el in list1]
             })
         def display_table(self):
-            from Data.DefaultData import probability_distributions
             p_dists = probability_distributions()
             edited_table = st.data_editor(
                 self.__df_table,

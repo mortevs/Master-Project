@@ -1,12 +1,9 @@
-import pandas as pd
-import numpy as np
+import pandas as pd, numpy as np, Equations.DryGasFlowEquations as DGFE, streamlit as st
 from Equations.ZfacStanding import ZfacStanding
 from Equations.pWfMinEstimation import pWfMinEstimation
-import Equations.DryGasFlowEquations as DGFE
 from Equations.MBgastank_PR import MBgastank_PR
 from Equations.RF import RF
 from scipy.optimize import fsolve
-import streamlit as st
 
 def IPROnly(qFieldTarget: float, PRi: float, abandonmentRate: float, TR:float, gasMolecularWeight: float, C_R: float, n:float, N_temp: float, NWellsPerTemplate: float, upTime: int, C_t: float, S:float, C_FL:float, C_PL:float, P_sep: float, IGIP: float, build_up: int) -> pd.DataFrame:
     """

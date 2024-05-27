@@ -105,7 +105,7 @@ def default_MC():
 
 def default_MC_params():
     list1 = ['Nr of Random Samples', 'Nr Bins', 'Nr production profiles']
-    list2 = [50000,25, 25] 
+    list2 = [100000,20, 20] 
     return list1, list2
 
 def default_MC_params2():
@@ -122,3 +122,21 @@ def default_MC_SA():
 
 def probability_distributions():
     return ['pert (default)', 'triangular', 'uniform', 'normal', 'lognormal', 'exponential'] 
+
+def default_network_of_wells():
+    PR1 = 90
+    PR2 = 160
+    C_R1 = 52
+    C_R2 = 40
+    n1 = 0.8
+    n2 = 0.75
+    S1 = 0.13
+    S2 = 0.11
+    C_t1 = 7680
+    C_t2 = 8600
+    C_W1 = 8673
+    C_W2 = 7563
+    C_PIPELINE = 14080
+    Psep = 28.6
+    names = ["PR1", "PR2", "C_R1", "C_R2", "n1", "n2", "S1", "S2", "C_t1", "C_t2", "C_W1", "C_W2", "C_PIPELINE", "Psep"]
+    return [names, [PR1, PR2, C_R1, C_R2, n1, n2, S1, S2, C_t1, C_t2, C_W1, C_W2, C_PIPELINE, Psep]]

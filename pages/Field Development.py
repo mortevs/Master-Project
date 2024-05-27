@@ -230,7 +230,7 @@ class FIELD_DEVELOPMENT:
                 Max Wells Drilled p/year and number of Wells per template. Template cost and well cost is then
                   estimated with well cost and template cost variables in the CAPEX table above. Changes to the Nr Wells and Nr Templates
                   column in the editable table above are not considered by the grid search optimization, well ands templates needs to be
-                  default distributed (as we are optimizing on number of wells, a cost distibution must be assumed).
+                  default distributed (as we are optimizing on number of wells, a cost distribution must be assumed).
                   """
                 st.warning(w_string)
 

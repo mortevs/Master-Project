@@ -38,7 +38,7 @@ def RandomNumbers_with_Distribution_consideration(df, size):
         rand_variables.append(var)
     return rand_variables
 
-def Monte_Carlo_Simulation(bins, results, Nr_random):
+def Monte_Carlo_Simulation(bins, results, Nr_random, title_xaxis = 'NPV [1E06 USD]'):
     nr_bins = bins
     bins = np.linspace(results.min(),results.max(),nr_bins)
     counts = np.histogram(results,bins)[0]
@@ -47,7 +47,7 @@ def Monte_Carlo_Simulation(bins, results, Nr_random):
 
     fig_pdf = go.Figure()
     fig_pdf.add_trace(go.Scatter(x=bin_for_plotting, y=pdf, mode='lines', name='pdf'))
-    fig_pdf.update_layout(title='PDF', xaxis_title='NPV [1E06 USD]', yaxis_title='frequency', showlegend=True)
+    fig_pdf.update_layout(title='PDF', xaxis_title=title_xaxis, yaxis_title='frequency', showlegend=True)
     
     # Calculate CDF
     cdf = np.cumsum(pdf)
@@ -57,7 +57,7 @@ def Monte_Carlo_Simulation(bins, results, Nr_random):
     # Create CDF plot
     fig_cdf = go.Figure()
     fig_cdf.add_trace(go.Scatter(x=bins_cdfplot, y=invcdf, mode='lines', name='ccdf'))
-    fig_cdf.update_layout(title='CCPF', xaxis_title='NPV [1E06 USD]', yaxis_title='Complementary cumulative probability distribution', showlegend=True)
+    fig_cdf.update_layout(title='CCPF', xaxis_title=title_xaxis, yaxis_title='Complementary cumulative probability distribution', showlegend=True)
 
     
     table = pd.DataFrame({'Variable':['P90','P50','P10'],

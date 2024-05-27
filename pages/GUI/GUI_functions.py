@@ -108,7 +108,7 @@ def multi_plot_PR(dfs, addAll = True, addProduced = False, time_frame = "Yearly"
     
     )
     st.plotly_chart(fig, use_container_width=True)
-def multi_plot(dfs, addAll=True, addProduced=False, num=None, comp = False):
+def multi_plot(dfs, addAll=True, addProduced=False, num=None, comp=False):
     fig = go.Figure()
     axis_titles = {
         'Field Rates [Sm3/d]': ('Year', 'Sm3/d'),
@@ -138,19 +138,7 @@ def multi_plot(dfs, addAll=True, addProduced=False, num=None, comp = False):
         'OilSm3perDay': ('Year', 'Sm3/d'),
         'CondensateSm3perDay': ('Year', 'Sm3/d'), 
         'OilEquivalentsSm3perDay': ('Year', 'Sm3/d'),  
-        'WaterSm3perDay': ('Year', 'Sm3/d'),
-        #'GasSm3Yearly': ('Year', 'Sm3'),
-        #'NGLSm3Yearly': ('Year', 'Sm3'),
-        #'OilSm3Yearly': ('Year', 'Sm3'),
-        #'CondensateSm3Yearly': ('Year', 'Sm3'),
-        #'OilEquivalentsSm3Yearly': ('Year', 'Sm3'),
-        #'WaterSm3Yearly': ('Year', 'Sm3'),
-        #'GasSm3Monthly': ('Month:Year', 'Sm3'),
-        #'NGLSm3Monthly': ('Month:Year', 'Sm3'),
-        #'OilSm3Monthly': ('Month:Year', 'Sm3'),
-        #'CondensateSm3Monthly': ('Month:Year', 'Sm3'),
-        #'OilEquivalentsSm3Monthly': ('Month:Year', 'Sm3'),
-        #'WaterSm3Monthly': ('Month:Year', 'Sm3'),
+        'WaterSm3perDay': ('Year', 'Sm3/d')
     }
 
     columns_to_plot = []
@@ -179,11 +167,10 @@ def multi_plot(dfs, addAll=True, addProduced=False, num=None, comp = False):
                     go.Scatter(
                         x=df.index,
                         y=df[column],
-                        #name=column,
-                        mode = 'lines',
-                        name = f"Production Profile {num} - {column}",
+                        mode='lines',
+                        name=f"Production Profile {num} - {column}",
                         showlegend=True,
-                        visible='legendonly' if not addAll and column != df.columns[0] else True  # Change visibility here
+                        visible='legendonly' if not addAll and column != columns_to_plot[0] else True  # Change visibility here
                     )
                 )
         except KeyError as e:
@@ -191,40 +178,37 @@ def multi_plot(dfs, addAll=True, addProduced=False, num=None, comp = False):
 
     button_all = dict(label=all_label,
                       method='update',
-                      args=[{'visible': [True] * len(columns_to_plot),
+                      args=[{'visible': [True] * len(fig.data),
                              'title': all_label,
                              'showlegend': True}])
 
     def create_layout_button(column):
+        visibility = [column in trace.name for trace in fig.data]
         return dict(label=column,
                     method='update',
-                    args=[{'visible': [column == col for col in columns_to_plot],
+                    args=[{'visible': visibility,
                            'title': column,
                            'showlegend': True},
                           {'xaxis': {'title': axis_titles[column][0]}, 'yaxis': {'title': axis_titles[column][1]}}])
 
     all_buttons = ([button_all] * addAll) + [create_layout_button(column) for column in columns_to_plot]
 
-    # Add buttons for all columns in the dataframe
-    all_buttons += [create_layout_button(column) for column in df.columns if column not in columns_to_plot]
-
     fig.update_layout(
         updatemenus=[go.layout.Updatemenu(
-            active=0 if addAll else columns_to_plot.index(columns_to_plot[0]),  # Change active button here
+            active=0 if addAll else columns_to_plot.index(columns_to_plot[0]), 
             buttons=all_buttons
-        )
-        ],
-        showlegend=True,  # Change showlegend here
-        xaxis_title="Year",  # X-axis title
-        yaxis_title="Sm3/d",  # Y-axis title
-        height=450,
-        
+        )],
+        showlegend=True, 
+        xaxis_title="Year", 
+        yaxis_title="Sm3/d",
+        height=450
     )
-    # Modify legend entries for the initially active option
+
     active_column = list(columns_to_plot)[0]
     for trace in fig.data:
         if active_column not in trace.name:
             trace.showlegend = False
+
     st.plotly_chart(fig, use_container_width=True)
 def multi_plot_SODIR(dfs, time_frame):
     if time_frame == "Monthly":
