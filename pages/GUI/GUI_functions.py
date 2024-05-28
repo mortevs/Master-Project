@@ -174,7 +174,7 @@ def multi_plot(dfs, addAll=True, addProduced=False, num=None, comp=False):
                     )
                 )
         except KeyError as e:
-            st.warning("Due to name differences, not all columns can be compared in the same plot")
+            st.warning("Due to methodology differences, not all sub-calculations can be compared")
 
     button_all = dict(label=all_label,
                       method='update',

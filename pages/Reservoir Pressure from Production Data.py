@@ -2,6 +2,8 @@ import streamlit as st
 import pages.GUI.GUI_functions as GUI
 import time
 from Data.dataProcessing import get_field_list_inc_No_field_chosen
+from Data.DefaultData import defaultData_RP
+
 
 class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA:
     def __init__(self):
@@ -65,11 +67,11 @@ class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA:
             alert3.empty()
 
         elif SODIR_button and field != 'No field chosen':
+            parameters = []
             self.place_holder = 2
 
         with col1:
             if self.place_holder == 1:
-                from Data.DefaultData import defaultData_RP
                 parameters = RES_Analysis.updateParameterListfromTable(list2 = defaultData_RP())
 
             elif self.place_holder ==2:

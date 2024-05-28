@@ -44,10 +44,12 @@ class FIELD_DEVELOPMENT:
             st.write(
                     """Each resulting Production Profile contains a dropdown menu.
                     From the dropdown menu sub-calculations for the present production profile can be displayed.
-                    These sub-calculations include the estimated yearly gas of take, cumulative gas of take,
+                    For the Nodal method, these sub-calculations include the estimated yearly gas of take, cumulative gas of take,
                     recovery factor, Z-factor, reservoir pressure, rates per well, bottomhole pressure, wellhead pressure,
                     template pressure, PLEM pressure, seperator pressure, rates per template, choke pressure,
-                    ratio of template pressure to wellhead pressure, and the production potential.""")
+                    ratio of template pressure to wellhead pressure, and the production potential. For the IPR method the sub-calculations that can 
+                    be displayed are Qwelltarget, reservoir pressure, z-factor, minimum bottom-hole pressure, potential rates per well, qfield target, 
+                    well production rates, yearly gas offtake, cumulative gas offtake, recovery factor, and bottom-hole pressure. """)
             st.write("""The <Compare Profiles> button will create a new plot, where all the current production profiles are compared in the same plot.""")
 
             st.write("""
