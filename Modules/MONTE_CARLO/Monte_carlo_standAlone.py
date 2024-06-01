@@ -30,7 +30,7 @@ def RandomNumbers_with_Distribution_consideration(df, size):
     for i in range(rows):
         func = (function_map[df.iloc[i]['P Dist']])
         func_var = df[dist_dict[df.iloc[i]['P Dist']]].loc[i].to_list()
-        if df.iloc[i]['P Dist'] == 'normal' or df.iloc[i]['P Dist'] == 'lognormal':
+        if df.iloc[i]['P Dist'] == 'normal':
             func_var = calculate_mean_std_from_p1_p99(*func_var)
         elif df.iloc[i]['P Dist'] == 'exponential':
             func_var = calculate_scale_from_p1_p99(*func_var)

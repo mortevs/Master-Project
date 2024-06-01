@@ -286,13 +286,10 @@ class FIELD_DEVELOPMENT:
             if UC:
                 prodProfiles_to_Tornado = dry_gas_NPV.Tornado_production_profiles(self.__edited_uncertainity_table, minROA=self.__minROA)
                 initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax, NPV_OPEXmax, NPV_OPEXmin = dry_gas_NPV.getNPVsforTornado(dfMC = self.__edited_uncertainity_table, NPV_edited_df=self.__edited_df, prod_profiles= prodProfiles_to_Tornado)
-                st.write(NPV_OPEXmax)
-                st.write(NPV_OPEXmin)
-
                 GUI.tornadoPlot(initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax, Gas_Price, IGIP_input, LNG_plant_per_Sm3, NPV_OPEXmax, NPV_OPEXmin, opex_cost=OPEX_variable)
                 GUI.tornadoPlotSensitivity(NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax, NPV_OPEXmax, NPV_OPEXmin)
                 from Modules.MONTE_CARLO.Monte_carlo_standAlone import RandomNumbers_with_Distribution_consideration
-                GP_array, IGIP_array, LNG_array = RandomNumbers_with_Distribution_consideration(df = self.__edited_uncertainity_table, size = self._Nr_random_num)
+                GP_array, IGIP_array, LNG_array, OPEX_array = RandomNumbers_with_Distribution_consideration(df = self.__edited_uncertainity_table, size = self._Nr_random_num)
                 IGIP_P1 = self.__edited_uncertainity_table['P1'][1]
                 IGIP_P99 = self.__edited_uncertainity_table['P99'][1]
                 IGIP_smart_array = np.linspace(IGIP_P1, IGIP_P99, self._Nr_Production_profiles)
@@ -320,8 +317,8 @@ class FIELD_DEVELOPMENT:
                 pp_MC_pre_defined_dict = dry_gas_NPV.Monte_Carlo_production_profiles(self.__minROA, IGIP_smart_array)
                 PP_MC_assigned_array = np.array(([np.array(pp_MC_pre_defined_dict.get(key)) for key in closest_IGIP_array]), dtype=object)
                 results = [dry_gas_NPV.NPV_calculation_Monte_Carlo(df=self.__edited_df, gas_price=gas_price,
-                                                   LNG_p_vari=LNG_p_vari, pp=pp)
-                                                for gas_price, LNG_p_vari, pp in zip(GP_array, LNG_array, PP_MC_assigned_array)]
+                                                   LNG_p_vari=LNG_p_vari, pp=pp, Opex_vari = opexx)
+                                                for gas_price, LNG_p_vari, pp, opexx in zip(GP_array, LNG_array, PP_MC_assigned_array, OPEX_array)]
 
                 results_array = np.array(results)
                 from Modules.MONTE_CARLO.Monte_carlo_standAlone import Monte_Carlo_Simulation

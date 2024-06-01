@@ -583,7 +583,7 @@ class NPV_dry_gas(NPVAnalysis):
             st.error("Error: Invalid method or precision:", self._method, self._precision)
         return pp_MC_dict
 
-    def NPV_calculation_Monte_Carlo(self, df, gas_price, LNG_p_vari, pp):
+    def NPV_calculation_Monte_Carlo(self, df, gas_price, LNG_p_vari, pp, Opex_vari):
             yearly_gas_offtake = [0 for i in range (self._CAPEX_period_prior)] + [(pp[i-1]+pp[i])/2 * self._uptime for i in range(1, len(pp))]
             end_prod = len(yearly_gas_offtake)
             revenue = [offtake/(1000000) * gas_price for offtake in yearly_gas_offtake]
@@ -596,10 +596,12 @@ class NPV_dry_gas(NPVAnalysis):
             TEMPLATES = [element * self._temp_cost for element in templ_list]
             LNG_p = df['LNG Plant [1E6 USD]'].to_list()
             LNG_v = df['LNG Vessels [1E6 USD]'].to_list()
+            OPEX = df['OPEX [1E6 USD]']
+            OPEX = [element * Opex_vari / self._OPEX_cost for element in OPEX]
             LNG_p = np.array([element / sum(LNG_p) if sum(LNG_p) != 0 else 0 for element in LNG_p]) * self._plateau_rate * LNG_p_vari / 1e6
             LNG_v = np.array([element / sum(LNG_v) if sum(LNG_v) != 0 else 0 for element in LNG_v]) * (math.ceil(self._plateau_rate*self._uptime/((86000000*22))))*self._LNG_cost_per_vessel
             TOTAL_CAPEX = [sum(x) for x in zip(DRILLEX, df['Pipeline & Umbilicals [1E6 USD]'], TEMPLATES, LNG_p, LNG_v)] #'TOTAL CAPEX [1E6 USD]'
-            CASH_FLOW = [sum(x) for x in zip(revenue, np.negative(TOTAL_CAPEX), np.negative(df['OPEX [1E6 USD]']))] #'Cash Flow [1E6 USD]'
+            CASH_FLOW = [sum(x) for x in zip(revenue, np.negative(TOTAL_CAPEX), np.negative(OPEX))] #'Cash Flow [1E6 USD]'
             DISCOUNTED_CASH_FLOW =  [cf/(1+self._discount_rate/100)**year for cf, year in zip(CASH_FLOW, years)] #'Discounted Cash Flow [1E6 USD]'        
             NPV_list=[]
             for k in range(self._CAPEX_period_prior, len(DISCOUNTED_CASH_FLOW)):
