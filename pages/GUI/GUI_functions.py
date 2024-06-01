@@ -1,5 +1,6 @@
 import pandas as pd, plotly.graph_objects as go, streamlit as st
 import plotly.graph_objects as go
+import numpy as np
 def multi_plot_PR(dfs, addAll = True, addProduced = False, time_frame = "Yearly"):
     if time_frame == "Monthly":
         date_format = '%m:%Y'
@@ -806,13 +807,13 @@ def columnDisplay1(list1:list):
     return selected_option1
 
 def tornadoPlotSensitivity(NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax, NPV_OPEXmax, NPV_OPEXmin):
-    gas_price_sensitivity = NPVgaspricemax - NPVgaspricemin
-    LNG_plant_sensitivity = LNGPlantMin-LNGPlantMax 
-    IGIP_sensitivity = NPV_IGIPmax - NPV_IGIPmin
-    OPEX_sensitivity = NPV_OPEXmin-NPV_OPEXmax
+    gas_price_sensitivity = np.abs(NPVgaspricemax - NPVgaspricemin)
+    LNG_plant_sensitivity = np.abs(LNGPlantMin-LNGPlantMax)
+    IGIP_sensitivity = np.abs(NPV_IGIPmax - NPV_IGIPmin)
+    OPEX_sensitivity = np.abs(NPV_OPEXmin-NPV_OPEXmax)
 
     sensitivities = [round(gas_price_sensitivity, 2),round(LNG_plant_sensitivity,2), round(IGIP_sensitivity,2), round(OPEX_sensitivity,2)]
-    labels = ['Gas Price [USD/Sm3]', 'LNG Plant [USD/Sm3/d]', 'IGIP [Sm3]']
+    labels = ['Gas Price [USD/Sm3]', 'LNG Plant [USD/Sm3/d]', 'IGIP [Sm3]', 'OPEX [1E6 USD]']
     fig = go.Figure()
     fig.add_trace(
         go.Bar(

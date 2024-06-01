@@ -540,7 +540,6 @@ class NPV_dry_gas(NPVAnalysis):
             OPEX = [element * opex_cost / self._OPEX_cost for element in OPEX]
             TOTAL_CAPEX = [sum(x) for x in zip(DRILLEX, df['Pipeline & Umbilicals [1E6 USD]'], TEMPLATES, LNG_p, LNG_v)] #'TOTAL CAPEX [1E6 USD]'
             CASH_FLOW = [sum(x) for x in zip(revenue, np.negative(TOTAL_CAPEX), np.negative(OPEX))] #'Cash Flow [1E6 USD]'
-            
             DISCOUNTED_CASH_FLOW =  [cf/(1+self._discount_rate/100)**year for cf, year in zip(CASH_FLOW, years)] #'Discounted Cash Flow [1E6 USD]'        
             NPV_list=[]
             for k in range(self._CAPEX_period_prior, len(DISCOUNTED_CASH_FLOW)):
@@ -568,7 +567,6 @@ class NPV_dry_gas(NPVAnalysis):
         NPV_IGIPmax=self.NPV_calculation_Tornado(df = NPV_edited_df, gas_price = self._Gas_Price, LNG_p_vari = self._LNG_plant_per_Sm3, yGofftake = maxIGIPyGofftake, opex_cost=self._OPEX_cost)
         NPV_OPEXmin=self.NPV_calculation_Tornado(df = NPV_edited_df, gas_price = self._Gas_Price, LNG_p_vari = self._LNG_plant_per_Sm3, yGofftake = IGIPyGofftake, opex_cost=self._minOPEX)
         NPV_OPEXmax=self.NPV_calculation_Tornado(df = NPV_edited_df, gas_price = self._Gas_Price, LNG_p_vari = self._LNG_plant_per_Sm3, yGofftake = IGIPyGofftake, opex_cost=self._maxOPEX)
-        
         return initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax, NPV_OPEXmin, NPV_OPEXmax
     
     def Monte_Carlo_production_profiles(self, minROA, IGIP_array):
