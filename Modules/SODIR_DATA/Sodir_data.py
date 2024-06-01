@@ -108,8 +108,8 @@ class Sodir_prod():
     def append_field(self, item) -> str:
         SessionState.append(id = self.__session_id, key = 'field', value = item)
 
-    def append_polyPlot(self, item) -> str:
-        SessionState.append(id = self.__session_id, key = 'polyPlot', value = item)
+    def store_polyPlot(self, item) -> str:
+        SessionState.store_one(id = self.__session_id, key = 'polyPlot', value = item)
         
 class PolygonPlotter:
     def __init__(self, wkt_str):
@@ -188,8 +188,8 @@ def wlb_plot_production(fig, df, field):
         )
         return fig
     except Exception as e:
-        st.warning("No wells are categorized under wlbStatus as PRODUCING for this field")
-
+        #st.warning("No wells are categorized under wlbStatus as PRODUCING for this field")
+        return fig
 def wlb_plot_injection(fig, df, field):
     try:
         df[['Longitude', 'Latitude']] = df['wlbPointGeometryWKT'].str.strip('POINT ()').str.split(expand=True)
@@ -213,8 +213,8 @@ def wlb_plot_injection(fig, df, field):
         )
         return fig
     except Exception as e:
-        st.warning("No wells are categorized under wlbStatus as INJECTING for this field") 
-
+        #st.warning("No wells are categorized under wlbStatus as INJECTING for this field") 
+        return fig
 def wlb_plot_closed(fig, df, field):
     try:
         df[['Longitude', 'Latitude']] = df['wlbPointGeometryWKT'].str.strip('POINT ()').str.split(expand=True)
@@ -243,8 +243,8 @@ def wlb_plot_closed(fig, df, field):
 
         return fig
     except Exception as e:
-        st.warning("No wells are categorized under wlbStatus as CLOSED for this field") 
-
+        #st.warning("No wells are categorized under wlbStatus as CLOSED for this field") 
+        return fig
 def wlb_plot_PA(fig, df, field):
     try:
         df[['Longitude', 'Latitude']] = df['wlbPointGeometryWKT'].str.strip('POINT ()').str.split(expand=True)
@@ -269,8 +269,8 @@ def wlb_plot_PA(fig, df, field):
 
         return fig
     except Exception as e:
-        st.warning("No wells are categorized under wlbStatus as P&A for this field") 
-
+        #st.warning("No wells are categorized under wlbStatus as P&A for this field") 
+        return fig
 def wlb_plot_Plugged(fig, df, field):
     try:
         df[['Longitude', 'Latitude']] = df['wlbPointGeometryWKT'].str.strip('POINT ()').str.split(expand=True)
@@ -294,22 +294,37 @@ def wlb_plot_Plugged(fig, df, field):
         )
         return fig
     except Exception as e:
-        st.warning("No wells are categorized under wlbStatus as PLUGGED for this field") 
-
+        #st.warning("No wells are categorized under wlbStatus as PLUGGED for this field") 
+        return fig
 def makePolyPlot(field):
     fig = go.Figure()
     import Data.getData as get
     wkt_str = get.polygon_coordinates(field)
     polygon_plotter = PolygonPlotter(wkt_str)
     try:
-        updated_fig = wlb_plot_production(polygon_plotter.fig, get.producing_wlb(field), field)
-        updated_fig = wlb_plot_injection(polygon_plotter.fig, get.injecting_wlb(field), field) 
-        updated_fig = wlb_plot_closed(polygon_plotter.fig, get.closed_wlb(field), field)   
-        updated_fig = wlb_plot_PA(polygon_plotter.fig, get.PA_wlb(field), field)
-        updated_fig = wlb_plot_Plugged(polygon_plotter.fig, get.plugged_wlb(field), field)   
+        try:
+            updated_fig = wlb_plot_production(polygon_plotter.fig, get.producing_wlb(field), field)
+        except:
+            pass
+        try:
+            updated_fig = wlb_plot_injection(polygon_plotter.fig, get.injecting_wlb(field), field)
+        except:
+            pass
+        try:
+            updated_fig = wlb_plot_closed(polygon_plotter.fig, get.closed_wlb(field), field)
+        except:
+            pass
+        try:
+            updated_fig = wlb_plot_PA(polygon_plotter.fig, get.PA_wlb(field), field)
+        except:
+            pass
+        try:
+            updated_fig = wlb_plot_Plugged(polygon_plotter.fig, get.plugged_wlb(field), field)
+        except:
+            pass
         return updated_fig
     except:
-        pass
+        return polygon_plotter.fig
    
 def plotPolyPlot(fig):
     st.plotly_chart(fig, use_container_width=True)

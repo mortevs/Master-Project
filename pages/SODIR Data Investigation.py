@@ -93,10 +93,11 @@ class SODIR_feature:
             alert4.empty()
         elif poly_button and self.__field != 'No field chosen':
             from Modules.SODIR_DATA.Sodir_data import makePolyPlot
-            sodir_obj.append_polyPlot(makePolyPlot(self.__field))
+            sodir_obj.store_polyPlot(makePolyPlot(self.__field))
 
         from Modules.SODIR_DATA.Sodir_data import plotPolyPlot
         polyFig = sodir_obj.getPolyPlot()
+        st.write(len(polyFig))
         if len(polyFig) == 0:
             pass
         else:

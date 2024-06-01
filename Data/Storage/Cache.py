@@ -59,6 +59,14 @@ class SessionState:
         current_list = getattr(session_state, key, [])
         current_list.append(value)     
         setattr(session_state, key, current_list)
+    
+    def store_one(id, key, value):
+        if not hasattr(st, '_global_session_states'):
+            st._global_session_states = {}
+        session_state = st._global_session_states.get(id)
+        current_list = []
+        current_list.append(value)     
+        setattr(session_state, key, current_list)
 
 def delete_files():
     files_to_delete = [
