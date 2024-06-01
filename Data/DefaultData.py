@@ -92,7 +92,7 @@ def default_Optimization_table(f_variables):
     nr_temps =f_variables[7]
     wpertemp = f_variables[8]
     list1 = ['Plateau rate [Sm3/d]', 'Nr Wells', 'Rate of Abandonment [Sm3/d]']
-    list2 = [10000000,wpertemp, 3e6] 
+    list2 = [10000000,wpertemp, 1e6] 
     list3 = [40000000,wpertemp*nr_temps*2, None] 
     list4 = [4,None,None] 
     return list1,list2,list3,list4
@@ -105,7 +105,7 @@ def default_MC():
 
 def default_MC_params():
     list1 = ['Nr of Random Samples', 'Nr Bins', 'Nr production profiles']
-    list2 = [100000,30, 20] 
+    list2 = [100000,25, 20] 
     return list1, list2
 
 def default_MC_params2():

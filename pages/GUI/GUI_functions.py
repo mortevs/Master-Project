@@ -816,7 +816,7 @@ def tornadoPlotSensitivity(NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlant
 
 
     sensitivities = [round(gas_price_sensitivity, 2),round(LNG_plant_sensitivity,2), round(IGIP_sensitivity,2), round(OPEX_sensitivity,2), round(well_sensitivity,2), round(PU_sensitivity,2), round(temp_sensitivity,2), round(carrier_sensitivity,2)]
-    labels = ['Gas Price [USD/Sm3]', 'LNG Plant [USD/Sm3/d]', 'IGIP [Sm3]', 'OPEX [1E6 USD]', 'Well Cost [1E6 USD]', 'P&U Cost  [1E6 USD]', 'Template Cost [1E6 USD]', 'LNG Carrier cost [1E6 USD]']
+    labels = ['Gas Price', 'LNG Plant', 'IGIP', 'OPEX', 'Well Cost', 'P&U Cost', 'Template Cost', 'LNG Carrier cost']
     fig = go.Figure()
     fig.add_trace(
         go.Bar(
@@ -858,7 +858,7 @@ def tornadoPlotSensitivity(NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlant
     st.plotly_chart(fig, use_container_width=True)
 
 def tornadoPlot(initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax, Gas_Price, IGIP_input, LNG_plant_per_Sm3, NPV_OPEXmax, NPV_OPEXmin, opex_cost, NPV_Wellmax, NPV_Wellmin, NPV_PUmax, NPV_PUmin, NPV_tempmax, NPV_tempmin, NPV_Carriermax, NPV_Carriermin, well_cost, PU_cost, temp_cost, LNG_carrier):
-    labels = ['Gas Price [USD/Sm3]', 'LNG Plant [USD/Sm3/d]', 'IGIP [Sm3]', 'OPEX [1E6 USD]', 'Well Cost [1E6 USD]', 'P&U Cost  [1E6 USD]', 'Template Cost [1E6 USD]', 'LNG Carrier cost [1E6 USD]']
+    labels = ['Gas Price', 'LNG Plant', 'IGIP', 'OPEX', 'Well Cost', 'P&U Cost', 'Template Cost', 'LNG Carrier cost']
     
     
     min_values = [round(NPVgaspricemin,2), round(LNGPlantMax,2), round(NPV_IGIPmin,2), round(NPV_OPEXmax, 2), round(NPV_Wellmax, 2), round(NPV_PUmax, 2), round(NPV_tempmax, 2), round(NPV_Carriermax, 2)]

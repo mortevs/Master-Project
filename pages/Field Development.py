@@ -289,6 +289,7 @@ class FIELD_DEVELOPMENT:
                 
                 GUI.tornadoPlot(initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax, Gas_Price, IGIP_input, LNG_plant_per_Sm3, NPV_OPEXmax, NPV_OPEXmin, OPEX_variable, NPV_Wellmax, NPV_Wellmin, NPV_PUmax, NPV_PUmin, NPV_tempmax, NPV_tempmin, NPV_Carriermax, NPV_Carriermin, well_cost, PU_cost, temp_cost, LNG_carrier)
                 GUI.tornadoPlotSensitivity(NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax, NPV_OPEXmax, NPV_OPEXmin, NPV_Wellmax, NPV_Wellmin, NPV_PUmax, NPV_PUmin, NPV_tempmax, NPV_tempmin, NPV_Carriermax, NPV_Carriermin,)
+                wait_msg = st.warning("Monte Carlo simulation running. Have some patience.")
                 from Modules.MONTE_CARLO.Monte_carlo_standAlone import RandomNumbers_with_Distribution_consideration
                 GP_array, IGIP_array, LNG_array, OPEX_array, wellcost_array, PUCost_array, tempcost_array, vesselcost_array = RandomNumbers_with_Distribution_consideration(df = self.__edited_uncertainity_table, size = self._Nr_random_num)
                 IGIP_P1 = self.__edited_uncertainity_table['P1'][1]
@@ -323,7 +324,6 @@ class FIELD_DEVELOPMENT:
 
                 results_array = np.array(results)
                 from Modules.MONTE_CARLO.Monte_carlo_standAlone import Monte_Carlo_Simulation
-                time7 = time.time()
                 fig_pdf, fig_cdf, table, std = Monte_Carlo_Simulation(self._Nr_bins, results_array, self._Nr_random_num)
                 col20, col21 = st.columns(2)
                 with col20:
@@ -332,16 +332,19 @@ class FIELD_DEVELOPMENT:
                     st.write("std:", round(std,1))
                 with col21:
                     st.plotly_chart(fig_cdf, use_container_width=True)
+                wait_msg.empty()
                 st.warning("""
                            Nr production profiles (20 by default) are simulated for IGIPs between P1 and P99 IGIP with fixed spacing. 
                            A random IGIP number is chosen between P1 and P99 Nr random Samples times (100 000 times by default).
                            Instead of simulating 100 000 production profiles, the simulated production profile generated for the IGIP closest to the random IGIP is used.
                            This is an approximation, because generating 100 000 production profiles would be too computational costly. If the IGIP sensitivity
                            is low, this approximation should be fine. Alternatively, Nr production profiles can be increased. 
-                            NOTE that optimized number of templates and plateau rate are not automaticly used. If you would like to
+                            NOTE that optimized number of templates and plateau rate are not automatically used. If you would like to
                             use the optimized variables for the Monte Carlo Analyis, you would have to generate a new production profile with the optimized
-                            variables that were found. All NPVs found in the Monte Carlo Analysis are found for the optimized rate of abandonment for those variables(assuming it occurs above the
-                            minimum Rate of Abandonment treshhold specified above).
+                            variables that were found. All NPVs found in the Monte Carlo Analysis are found for the optimized rate of abandonment for those variables (assuming it occurs above the
+                            minimum Rate of Abandonment treshhold specified above). As the gas price variable, OPEX, and the other variables are randomly chosen (following the distribution), the 
+                           optimum abandonment rate changes. Therefore, an analysis done to find the optimum abandonmentrate, so that it is always the highest NPV for all
+                           configurations that are considered. 
                             The Monte Carlo Analysis considers the editable NPV table above. Any changes to the editable table
                            will be considered in the Monte Carlo analysis, as the fractions with time from the cost distribution is considered for all variables).
                     """)
