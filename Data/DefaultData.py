@@ -105,7 +105,7 @@ def default_MC():
 
 def default_MC_params():
     list1 = ['Nr of Random Samples', 'Nr Bins', 'Nr production profiles']
-    list2 = [100000,20, 20] 
+    list2 = [100000,30, 20] 
     return list1, list2
 
 def default_MC_params2():

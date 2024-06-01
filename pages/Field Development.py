@@ -334,15 +334,16 @@ class FIELD_DEVELOPMENT:
                     st.plotly_chart(fig_cdf, use_container_width=True)
                 st.warning("""
                            Nr production profiles (20 by default) are simulated for IGIPs between P1 and P99 IGIP with fixed spacing. 
-                           A random IGIP number is chosen between P1 and P99 Nr random Samples times ( 100 000 times by default).
-                           Instead of simulating 100 000 production profiles, the predefined production profile generated for the IGIP closest to the random IGIP is used.
-                           This is an approximation, because generating 100 000 production profiles would be too computational costly. 
+                           A random IGIP number is chosen between P1 and P99 Nr random Samples times (100 000 times by default).
+                           Instead of simulating 100 000 production profiles, the simulated production profile generated for the IGIP closest to the random IGIP is used.
+                           This is an approximation, because generating 100 000 production profiles would be too computational costly. If the IGIP sensitivity
+                           is low, this approximation should be fine. Alternatively, Nr production profiles can be increased. 
                             NOTE that optimized number of templates and plateau rate are not automaticly used. If you would like to
                             use the optimized variables for the Monte Carlo Analyis, you would have to generate a new production profile with the optimized
-                            variables that were found. The optimized rate of abandonment (assuming it occurs above the
-                            minimum Rate of Abandonment treshhold specified above) is considered in the Monte Carlo Analysis.
+                            variables that were found. All NPVs found in the Monte Carlo Analysis are found for the optimized rate of abandonment for those variables(assuming it occurs above the
+                            minimum Rate of Abandonment treshhold specified above).
                             The Monte Carlo Analysis considers the editable NPV table above. Any changes to the editable table
-                           will be considered in the Monte Carlo analysis.
+                           will be considered in the Monte Carlo analysis, as the fractions with time from the cost distribution is considered for all variables).
                     """)
 
 
