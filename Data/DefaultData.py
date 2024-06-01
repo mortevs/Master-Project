@@ -98,9 +98,9 @@ def default_Optimization_table(f_variables):
     return list1,list2,list3,list4
 
 def default_MC():
-    list1 = ['Gas Price [USD/Sm3]', 'IGIP [1E9 Sm3]', 'LNG Plant [USD/Sm3/d]']    
-    list2 = [0.05,250, 100] 
-    list3 = [0.15,300, 220]
+    list1 = ['Gas Price [USD/Sm3]', 'IGIP [1E9 Sm3]', 'LNG Plant [USD/Sm3/d]', 'OPEX [1E6 USD]']    
+    list2 = [0.05,250, 100, 150] 
+    list3 = [0.15,300, 220, 250]
     return list1, list2, list3 
 
 def default_MC_params():

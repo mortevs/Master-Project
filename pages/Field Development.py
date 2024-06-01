@@ -271,8 +271,8 @@ class FIELD_DEVELOPMENT:
 
             with col16:
                 st.markdown("**Uncertainty in variables**")
-                Gas_Price, IGIP_input, LNG_plant_per_Sm3 = dry_gas_NPV.get_inital_MC_variables()
-                self.__edited_uncertainity_table = GUI.display_uncertainty_table(Gas_Price, IGIP_input, LNG_plant_per_Sm3)
+                Gas_Price, IGIP_input, LNG_plant_per_Sm3, OPEX_variable = dry_gas_NPV.get_inital_MC_variables()
+                self.__edited_uncertainity_table = GUI.display_uncertainty_table(Gas_Price, IGIP_input, LNG_plant_per_Sm3, OPEX_variable)
 
                 #edited_df = self.__edited_df, prod_profiles = prodProfiles_to_NPV, i = i)
 
@@ -285,39 +285,30 @@ class FIELD_DEVELOPMENT:
 
             if UC:
                 prodProfiles_to_Tornado = dry_gas_NPV.Tornado_production_profiles(self.__edited_uncertainity_table, minROA=self.__minROA)
-                initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax = dry_gas_NPV.getNPVsforTornado(dfMC = self.__edited_uncertainity_table, NPV_edited_df=self.__edited_df, prod_profiles= prodProfiles_to_Tornado)
-                #st.write( NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax)
-                GUI.tornadoPlot(initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax, Gas_Price, IGIP_input, LNG_plant_per_Sm3)
-                GUI.tornadoPlotSensitivity(NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax)
+                initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax, NPV_OPEXmax, NPV_OPEXmin = dry_gas_NPV.getNPVsforTornado(dfMC = self.__edited_uncertainity_table, NPV_edited_df=self.__edited_df, prod_profiles= prodProfiles_to_Tornado)
+                st.write(NPV_OPEXmax)
+                st.write(NPV_OPEXmin)
+
+                GUI.tornadoPlot(initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax, Gas_Price, IGIP_input, LNG_plant_per_Sm3, NPV_OPEXmax, NPV_OPEXmin, opex_cost=OPEX_variable)
+                GUI.tornadoPlotSensitivity(NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax, NPV_OPEXmax, NPV_OPEXmin)
                 from Modules.MONTE_CARLO.Monte_carlo_standAlone import RandomNumbers_with_Distribution_consideration
                 GP_array, IGIP_array, LNG_array = RandomNumbers_with_Distribution_consideration(df = self.__edited_uncertainity_table, size = self._Nr_random_num)
                 IGIP_P1 = self.__edited_uncertainity_table['P1'][1]
                 IGIP_P99 = self.__edited_uncertainity_table['P99'][1]
                 IGIP_smart_array = np.linspace(IGIP_P1, IGIP_P99, self._Nr_Production_profiles)
                 def find_closest_numbers(a_list, b_list):
-                    # Function to find the closest numbers in a_list for each element in b_list
                     def closest_number(target):
-                        # Use binary search to find the position to insert the target in a_list
                         pos = bisect_left(a_list, target)
-
-                        # If the position is at the start of a_list, the closest number must be the first element
                         if pos == 0:
                             return a_list[0]
-                        # If the position is at the end of a_list, the closest number must be the last element
                         if pos == len(a_list):
                             return a_list[-1]
-
-                        # Check the closest element between the element at pos and pos - 1
                         before = a_list[pos - 1]
                         after = a_list[pos]
-
-                        # Return the closest number
                         if abs(after - target) < abs(before - target):
                             return after
                         else:
                             return before
-
-                    # Find the closest numbers for each element in b_list
                     closest_numbers = []
 
                     for b in b_list:
@@ -368,6 +359,7 @@ email_link_Help = f"mailto:{email_address}?subject={email_subject_Help}&body={em
 email_link_BUG = f"mailto:{email_address}?subject={email_subject_BUG}&body={email_body_BUG}"
 
 st.set_page_config(
+    
     page_title="Smipps",
     layout="wide",
     page_icon=":wrench:",

@@ -721,9 +721,9 @@ def create_uncertainty_table(list1, list2,list3, list4, p_dists):
     )
     return edited_df
 
-def display_uncertainty_table(Gas_Price, IGIP_input, LNG_plant_per_Sm3):    
+def display_uncertainty_table(Gas_Price, IGIP_input, LNG_plant_per_Sm3, OPEX_variable):    
     from Data.DefaultData import default_MC, probability_distributions
-    list3 = [Gas_Price, IGIP_input/1e9, LNG_plant_per_Sm3]
+    list3 = [Gas_Price, IGIP_input/1e9, LNG_plant_per_Sm3, OPEX_variable]
     list1, list2, list4 = default_MC()
     p_dists = probability_distributions() 
     edited_df = create_uncertainty_table(list1, list2, list3, list4, p_dists)
@@ -805,12 +805,13 @@ def columnDisplay1(list1:list):
 
     return selected_option1
 
-def tornadoPlotSensitivity(NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax):
+def tornadoPlotSensitivity(NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax, NPV_OPEXmax, NPV_OPEXmin):
     gas_price_sensitivity = NPVgaspricemax - NPVgaspricemin
     LNG_plant_sensitivity = LNGPlantMin-LNGPlantMax 
     IGIP_sensitivity = NPV_IGIPmax - NPV_IGIPmin
+    OPEX_sensitivity = NPV_OPEXmin-NPV_OPEXmax
 
-    sensitivities = [round(gas_price_sensitivity, 2),round(LNG_plant_sensitivity,2), round(IGIP_sensitivity,2)]
+    sensitivities = [round(gas_price_sensitivity, 2),round(LNG_plant_sensitivity,2), round(IGIP_sensitivity,2), round(OPEX_sensitivity,2)]
     labels = ['Gas Price [USD/Sm3]', 'LNG Plant [USD/Sm3/d]', 'IGIP [Sm3]']
     fig = go.Figure()
     fig.add_trace(
@@ -819,7 +820,7 @@ def tornadoPlotSensitivity(NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlant
             x=sensitivities,
             orientation='h',  # horizontal bars
             marker=dict(
-                color=['blue', 'orange', 'red'],
+                color=['blue', 'orange', 'red', 'green'],
                 opacity=0.7
             ),
             text=sensitivities,  
@@ -852,18 +853,15 @@ def tornadoPlotSensitivity(NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlant
     )
     st.plotly_chart(fig, use_container_width=True)
 
-def tornadoPlot(initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax, Gas_Price, IGIP_input, LNG_plant_per_Sm3):
-    # Variable labels
-    labels = ['Gas Price [USD/Sm3]', 'LNG Plant [USD/Sm3/d]', 'IGIP [Sm3]']
+def tornadoPlot(initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax, Gas_Price, IGIP_input, LNG_plant_per_Sm3, NPV_OPEXmax, NPV_OPEXmin, opex_cost):
+    labels = ['Gas Price [USD/Sm3]', 'LNG Plant [USD/Sm3/d]', 'IGIP [Sm3]', 'OPEX [1E6 USD]']
     
     
-    min_values = [round(NPVgaspricemin, 2), round(LNGPlantMax, 2), round(NPV_IGIPmin, 2)]
-    max_values = [round(NPVgaspricemax,2), round(LNGPlantMin,2), round(NPV_IGIPmax,2)]
+    min_values = [round(NPVgaspricemin, 2), round(LNGPlantMax, 2), round(NPV_IGIPmin, 2), round(NPV_OPEXmin, 2)]
+    max_values = [round(NPVgaspricemax,2), round(LNGPlantMin,2), round(NPV_IGIPmax,2), round(NPV_OPEXmax, 2)]
     
-    # Create the plot
     fig = go.Figure()
     
-    # Add left bars (from initial NPV to min values)
     for i, label in enumerate(labels):
         fig.add_trace(
             go.Bar(
@@ -884,7 +882,6 @@ def tornadoPlot(initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPla
             )
         )
     
-    # Add right bars (from initial NPV to max values)
     for i, label in enumerate(labels):
         fig.add_trace(
             go.Bar(
@@ -943,4 +940,4 @@ def tornadoPlot(initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPla
 
     # Display the plot
     st.plotly_chart(fig, use_container_width=True)
-    st.markdown(f'Initial NPV with optimized rate of abandonment = {initial_NPV} 1E6 USD with gas price = {Gas_Price} USD/Sm3, IGIP = {IGIP_input/1e9} 1E9 Sm3, LNG plant = {LNG_plant_per_Sm3} USD/Sm3/d')
+    st.markdown(f'Base case NPV (with optimized rate of abandonment) = {initial_NPV} 1E6 USD with gas price = {Gas_Price} USD/Sm3, IGIP = {IGIP_input/1e9} 1E9 Sm3, LNG plant = {LNG_plant_per_Sm3} USD/Sm3/d  OPEX = {opex_cost} 1E6 USD')
