@@ -271,8 +271,8 @@ class FIELD_DEVELOPMENT:
 
             with col16:
                 st.markdown("**Uncertainty in variables**")
-                Gas_Price, IGIP_input, LNG_plant_per_Sm3, OPEX_variable = dry_gas_NPV.get_inital_MC_variables()
-                self.__edited_uncertainity_table = GUI.display_uncertainty_table(Gas_Price, IGIP_input, LNG_plant_per_Sm3, OPEX_variable)
+                Gas_Price, IGIP_input, LNG_plant_per_Sm3, OPEX_variable, well_cost, PU_cost, temp_cost, LNG_carrier  = dry_gas_NPV.get_inital_MC_variables()
+                self.__edited_uncertainity_table = GUI.display_uncertainty_table(Gas_Price, IGIP_input, LNG_plant_per_Sm3, OPEX_variable, well_cost, PU_cost, temp_cost, LNG_carrier)
 
                 #edited_df = self.__edited_df, prod_profiles = prodProfiles_to_NPV, i = i)
 
@@ -285,11 +285,12 @@ class FIELD_DEVELOPMENT:
 
             if UC:
                 prodProfiles_to_Tornado = dry_gas_NPV.Tornado_production_profiles(self.__edited_uncertainity_table, minROA=self.__minROA)
-                initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax, NPV_OPEXmax, NPV_OPEXmin = dry_gas_NPV.getNPVsforTornado(dfMC = self.__edited_uncertainity_table, NPV_edited_df=self.__edited_df, prod_profiles= prodProfiles_to_Tornado)
-                GUI.tornadoPlot(initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax, Gas_Price, IGIP_input, LNG_plant_per_Sm3, NPV_OPEXmax, NPV_OPEXmin, opex_cost=OPEX_variable)
-                GUI.tornadoPlotSensitivity(NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax, NPV_OPEXmax, NPV_OPEXmin)
+                initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax, NPV_OPEXmax, NPV_OPEXmin, NPV_Wellmax, NPV_Wellmin, NPV_PUmax, NPV_PUmin, NPV_tempmax, NPV_tempmin, NPV_Carriermax, NPV_Carriermin = dry_gas_NPV.getNPVsforTornado(dfMC = self.__edited_uncertainity_table, NPV_edited_df=self.__edited_df, prod_profiles= prodProfiles_to_Tornado)
+                
+                GUI.tornadoPlot(initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax, Gas_Price, IGIP_input, LNG_plant_per_Sm3, NPV_OPEXmax, NPV_OPEXmin, OPEX_variable, NPV_Wellmax, NPV_Wellmin, NPV_PUmax, NPV_PUmin, NPV_tempmax, NPV_tempmin, NPV_Carriermax, NPV_Carriermin, well_cost, PU_cost, temp_cost, LNG_carrier)
+                GUI.tornadoPlotSensitivity(NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax, NPV_OPEXmax, NPV_OPEXmin, NPV_Wellmax, NPV_Wellmin, NPV_PUmax, NPV_PUmin, NPV_tempmax, NPV_tempmin, NPV_Carriermax, NPV_Carriermin,)
                 from Modules.MONTE_CARLO.Monte_carlo_standAlone import RandomNumbers_with_Distribution_consideration
-                GP_array, IGIP_array, LNG_array, OPEX_array = RandomNumbers_with_Distribution_consideration(df = self.__edited_uncertainity_table, size = self._Nr_random_num)
+                GP_array, IGIP_array, LNG_array, OPEX_array, wellcost_array, PUCost_array, tempcost_array, vesselcost_array = RandomNumbers_with_Distribution_consideration(df = self.__edited_uncertainity_table, size = self._Nr_random_num)
                 IGIP_P1 = self.__edited_uncertainity_table['P1'][1]
                 IGIP_P99 = self.__edited_uncertainity_table['P99'][1]
                 IGIP_smart_array = np.linspace(IGIP_P1, IGIP_P99, self._Nr_Production_profiles)
@@ -316,9 +317,9 @@ class FIELD_DEVELOPMENT:
                 closest_IGIP_array = find_closest_numbers(IGIP_smart_array, IGIP_array)
                 pp_MC_pre_defined_dict = dry_gas_NPV.Monte_Carlo_production_profiles(self.__minROA, IGIP_smart_array)
                 PP_MC_assigned_array = np.array(([np.array(pp_MC_pre_defined_dict.get(key)) for key in closest_IGIP_array]), dtype=object)
-                results = [dry_gas_NPV.NPV_calculation_Monte_Carlo(df=self.__edited_df, gas_price=gas_price,
-                                                   LNG_p_vari=LNG_p_vari, pp=pp, Opex_vari = opexx)
-                                                for gas_price, LNG_p_vari, pp, opexx in zip(GP_array, LNG_array, PP_MC_assigned_array, OPEX_array)]
+                results = [dry_gas_NPV.NPV_calculation_Tornado(df=self.__edited_df, gas_price=gas_price,
+                                                   LNG_p_vari=LNG_p_vari, yGofftake=pp, opex_cost = opexx, well_cost= wc, PU_cost= puc, temp_cost= tempc, carrier_cost=vesc)
+                                                for gas_price, LNG_p_vari, pp, opexx, wc, puc, tempc, vesc in zip(GP_array, LNG_array, PP_MC_assigned_array, OPEX_array, wellcost_array, PUCost_array, tempcost_array, vesselcost_array)]
 
                 results_array = np.array(results)
                 from Modules.MONTE_CARLO.Monte_carlo_standAlone import Monte_Carlo_Simulation
@@ -331,11 +332,11 @@ class FIELD_DEVELOPMENT:
                     st.write("std:", round(std,1))
                 with col21:
                     st.plotly_chart(fig_cdf, use_container_width=True)
-                st.warning("""A number (Nr production profiles) of predefined production profiles are created for IGIP values covering the IGIP interval from P1 to P99
-                           (Nr production profiles (25 points by default) are genereated  between P1 and P99 IGIP with fixed spacing). 
-                           A random IGIP number is chosen between P1 and P99 Nr random Samples times ( 50 000 times by default).
-                           Instead of creating 50 000 production profiles, the predefined production profile generated for the IGIP closest to the random IGIP is used.
-                           This is an approximation, because generating 50 000 production profiles would be too computational costly. 
+                st.warning("""
+                           Nr production profiles (20 by default) are simulated for IGIPs between P1 and P99 IGIP with fixed spacing. 
+                           A random IGIP number is chosen between P1 and P99 Nr random Samples times ( 100 000 times by default).
+                           Instead of simulating 100 000 production profiles, the predefined production profile generated for the IGIP closest to the random IGIP is used.
+                           This is an approximation, because generating 100 000 production profiles would be too computational costly. 
                             NOTE that optimized number of templates and plateau rate are not automaticly used. If you would like to
                             use the optimized variables for the Monte Carlo Analyis, you would have to generate a new production profile with the optimized
                             variables that were found. The optimized rate of abandonment (assuming it occurs above the

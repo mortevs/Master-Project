@@ -722,9 +722,9 @@ def create_uncertainty_table(list1, list2,list3, list4, p_dists):
     )
     return edited_df
 
-def display_uncertainty_table(Gas_Price, IGIP_input, LNG_plant_per_Sm3, OPEX_variable):    
+def display_uncertainty_table(Gas_Price, IGIP_input, LNG_plant_per_Sm3, OPEX_variable, well_cost, PU_cost, temp_cost, LNG_carrier):    
     from Data.DefaultData import default_MC, probability_distributions
-    list3 = [Gas_Price, IGIP_input/1e9, LNG_plant_per_Sm3, OPEX_variable]
+    list3 = [Gas_Price, IGIP_input/1e9, LNG_plant_per_Sm3, OPEX_variable, well_cost, PU_cost, temp_cost, LNG_carrier]
     list1, list2, list4 = default_MC()
     p_dists = probability_distributions() 
     edited_df = create_uncertainty_table(list1, list2, list3, list4, p_dists)
@@ -753,22 +753,19 @@ def display_table_Monte_Carlo_param2():
     return edited_df['Value']
 
 def validate_uncertainty_table(df):
+    for index, row in df.iterrows():
+        P1 = row["P1"]
+        P50 = row["P50"]
+        P99 = row["P99"]
+        input_name = row["Input"]
+        
+        if P1 >= P50:
+            st.error(f"Uncertainty table is not correct for '{input_name}': P1 must be less than P50.")
+            st.stop()
+        if P50 >= P99:
+            st.error(f"Uncertainty table is not correct for '{input_name}': P50 must be less than P99.")
+            st.stop()
     
-    P1GasPrice = df["P1"][0]
-    P50GasPrice = df["P50"][0]
-    P99GasPrice =df["P99"][0]
-    
-    P1IGIP =df["P1"][1]
-    P50IGIP =df["P50"][1]
-    P99IGIP = df["P99"][1]
-    
-    P1LNGPlant =df["P1"][2]
-    P50LNGPlant =df["P50"][2]
-    P99LNGPlant = df["P99"][2]
-
-    if P1GasPrice >= P50GasPrice or P50GasPrice>=P99GasPrice or P1IGIP >= P50IGIP or P50IGIP>=P99IGIP or P1LNGPlant >= P50LNGPlant or P50LNGPlant>=P99LNGPlant :
-        st.error("Uncertainty table is not correct, P1 must be less than P50 which must be less than P99 ")
-        st.stop()
         
 def dropdown(label:str = ' ', options: list = None, index:int = 0, labelVisibility: str ='collapsed') ->str:
     selected_option = st.selectbox(label, options, index, label_visibility=labelVisibility)
@@ -806,14 +803,20 @@ def columnDisplay1(list1:list):
 
     return selected_option1
 
-def tornadoPlotSensitivity(NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax, NPV_OPEXmax, NPV_OPEXmin):
+def tornadoPlotSensitivity(NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax, NPV_OPEXmax, NPV_OPEXmin, NPV_Wellmax, NPV_Wellmin, NPV_PUmax, NPV_PUmin, NPV_tempmax, NPV_tempmin, NPV_Carriermax, NPV_Carriermin):
     gas_price_sensitivity = np.abs(NPVgaspricemax - NPVgaspricemin)
     LNG_plant_sensitivity = np.abs(LNGPlantMin-LNGPlantMax)
     IGIP_sensitivity = np.abs(NPV_IGIPmax - NPV_IGIPmin)
     OPEX_sensitivity = np.abs(NPV_OPEXmin-NPV_OPEXmax)
 
-    sensitivities = [round(gas_price_sensitivity, 2),round(LNG_plant_sensitivity,2), round(IGIP_sensitivity,2), round(OPEX_sensitivity,2)]
-    labels = ['Gas Price [USD/Sm3]', 'LNG Plant [USD/Sm3/d]', 'IGIP [Sm3]', 'OPEX [1E6 USD]']
+    well_sensitivity = np.abs(NPV_Wellmin-NPV_Wellmax)
+    PU_sensitivity = np.abs(NPV_PUmin-NPV_PUmax)
+    temp_sensitivity = np.abs(NPV_tempmin-NPV_tempmax)
+    carrier_sensitivity = np.abs(NPV_Carriermin-NPV_Carriermax)
+
+
+    sensitivities = [round(gas_price_sensitivity, 2),round(LNG_plant_sensitivity,2), round(IGIP_sensitivity,2), round(OPEX_sensitivity,2), round(well_sensitivity,2), round(PU_sensitivity,2), round(temp_sensitivity,2), round(carrier_sensitivity,2)]
+    labels = ['Gas Price [USD/Sm3]', 'LNG Plant [USD/Sm3/d]', 'IGIP [Sm3]', 'OPEX [1E6 USD]', 'Well Cost [1E6 USD]', 'P&U Cost  [1E6 USD]', 'Template Cost [1E6 USD]', 'LNG Carrier cost [1E6 USD]']
     fig = go.Figure()
     fig.add_trace(
         go.Bar(
@@ -821,7 +824,7 @@ def tornadoPlotSensitivity(NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlant
             x=sensitivities,
             orientation='h',  # horizontal bars
             marker=dict(
-                color=['blue', 'orange', 'red', 'green'],
+                color=['blue', 'orange', 'red', 'green', 'yellow', 'pink', 'lime', 'skyblue'],
                 opacity=0.7
             ),
             text=sensitivities,  
@@ -854,12 +857,12 @@ def tornadoPlotSensitivity(NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlant
     )
     st.plotly_chart(fig, use_container_width=True)
 
-def tornadoPlot(initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax, Gas_Price, IGIP_input, LNG_plant_per_Sm3, NPV_OPEXmax, NPV_OPEXmin, opex_cost):
-    labels = ['Gas Price [USD/Sm3]', 'LNG Plant [USD/Sm3/d]', 'IGIP [Sm3]', 'OPEX [1E6 USD]']
+def tornadoPlot(initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax, Gas_Price, IGIP_input, LNG_plant_per_Sm3, NPV_OPEXmax, NPV_OPEXmin, opex_cost, NPV_Wellmax, NPV_Wellmin, NPV_PUmax, NPV_PUmin, NPV_tempmax, NPV_tempmin, NPV_Carriermax, NPV_Carriermin, well_cost, PU_cost, temp_cost, LNG_carrier):
+    labels = ['Gas Price [USD/Sm3]', 'LNG Plant [USD/Sm3/d]', 'IGIP [Sm3]', 'OPEX [1E6 USD]', 'Well Cost [1E6 USD]', 'P&U Cost  [1E6 USD]', 'Template Cost [1E6 USD]', 'LNG Carrier cost [1E6 USD]']
     
     
-    min_values = [round(NPVgaspricemin, 2), round(LNGPlantMax, 2), round(NPV_IGIPmin, 2), round(NPV_OPEXmin, 2)]
-    max_values = [round(NPVgaspricemax,2), round(LNGPlantMin,2), round(NPV_IGIPmax,2), round(NPV_OPEXmax, 2)]
+    min_values = [round(NPVgaspricemin,2), round(LNGPlantMax,2), round(NPV_IGIPmin,2), round(NPV_OPEXmax, 2), round(NPV_Wellmax, 2), round(NPV_PUmax, 2), round(NPV_tempmax, 2), round(NPV_Carriermax, 2)]
+    max_values = [round(NPVgaspricemax, 2), round(LNGPlantMin, 2), round(NPV_IGIPmax, 2), round(NPV_OPEXmin, 2), round(NPV_Wellmin, 2), round(NPV_PUmin, 2), round(NPV_tempmin, 2), round(NPV_Carriermin, 2)]
     
     fig = go.Figure()
     

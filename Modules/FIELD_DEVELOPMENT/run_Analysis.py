@@ -467,7 +467,7 @@ class NPV_dry_gas(NPVAnalysis):
     
     def get_inital_MC_variables(self):
         self.__IGIP_input = self.__field_variables[15]
-        return self._Gas_Price, self.__IGIP_input, self._LNG_plant_per_Sm3, self._OPEX_cost
+        return self._Gas_Price, self.__IGIP_input, self._LNG_plant_per_Sm3, self._OPEX_cost, self._Well_Cost, self._p_u, self._temp_cost, self._LNG_cost_per_vessel
     
     def grid_production_profiles(self, rates, minROA, W):
         self.__minROA = minROA
@@ -520,7 +520,7 @@ class NPV_dry_gas(NPVAnalysis):
                 st.error("Error, method and precision is:", self._method, self._precision)   
         return pp__tornado_list
 
-    def NPV_calculation_Tornado(self, df, gas_price, LNG_p_vari, yGofftake, opex_cost):
+    def NPV_calculation_Tornado(self, df, gas_price, LNG_p_vari, yGofftake, opex_cost, well_cost, PU_cost, temp_cost, carrier_cost):
             yearly_gas_offtake = [0 for i in range (self._CAPEX_period_prior)] + [(yGofftake[i-1]+yGofftake[i])/2 * self._uptime for i in range(1, len(yGofftake))]
             end_prod = len(yearly_gas_offtake)
             revenue = [offtake/(1000000) * gas_price for offtake in yearly_gas_offtake]
@@ -530,15 +530,20 @@ class NPV_dry_gas(NPVAnalysis):
             
             well_list = df['Nr Wells'].to_list()
             templ_list = df['Nr Templates'].to_list()
-            DRILLEX = [element * self._Well_Cost for element in well_list]   #DRILLEX [1E6 USD]
-            TEMPLATES = [element * self._temp_cost for element in templ_list]
+            DRILLEX = [element * well_cost for element in well_list]   #DRILLEX [1E6 USD]
+            TEMPLATES = [element * temp_cost for element in templ_list]
             LNG_p = df['LNG Plant [1E6 USD]'].to_list()
             LNG_v = df['LNG Vessels [1E6 USD]'].to_list()
             LNG_p = np.array([element / sum(LNG_p) if sum(LNG_p) != 0 else 0 for element in LNG_p]) * self._plateau_rate * LNG_p_vari / 1e6
-            LNG_v = np.array([element / sum(LNG_v) if sum(LNG_v) != 0 else 0 for element in LNG_v]) * (math.ceil(self._plateau_rate*self._uptime/((86000000*22))))*self._LNG_cost_per_vessel
+            LNG_v = np.array([element / sum(LNG_v) if sum(LNG_v) != 0 else 0 for element in LNG_v]) * (math.ceil(self._plateau_rate*self._uptime/((86000000*22))))*carrier_cost
             OPEX = df['OPEX [1E6 USD]']
             OPEX = [element * opex_cost / self._OPEX_cost for element in OPEX]
-            TOTAL_CAPEX = [sum(x) for x in zip(DRILLEX, df['Pipeline & Umbilicals [1E6 USD]'], TEMPLATES, LNG_p, LNG_v)] #'TOTAL CAPEX [1E6 USD]'
+            
+
+            PU = df['Pipeline & Umbilicals [1E6 USD]']
+            PU = np.array([element / sum(PU) if sum(PU) != 0 else 0 for element in PU]) * PU_cost
+
+            TOTAL_CAPEX = [sum(x) for x in zip(DRILLEX, PU, TEMPLATES, LNG_p, LNG_v)] #'TOTAL CAPEX [1E6 USD]'
             CASH_FLOW = [sum(x) for x in zip(revenue, np.negative(TOTAL_CAPEX), np.negative(OPEX))] #'Cash Flow [1E6 USD]'
             DISCOUNTED_CASH_FLOW =  [cf/(1+self._discount_rate/100)**year for cf, year in zip(CASH_FLOW, years)] #'Discounted Cash Flow [1E6 USD]'        
             NPV_list=[]
@@ -555,19 +560,51 @@ class NPV_dry_gas(NPVAnalysis):
         self._maxLNGPlant = dfMC["P99"][2]
         self._minOPEX =dfMC["P1"][3]
         self._maxOPEX = dfMC["P99"][3]
+
+        self._minOPEX =dfMC["P1"][3]
+        self._maxOPEX = dfMC["P99"][3]
+
+        self._minWell_ =dfMC["P1"][4]
+        self._maxWell_ = dfMC["P99"][4]
+
+        self._minPU_ =dfMC["P1"][5]
+        self._maxPU_ = dfMC["P99"][5]
+
+        self._minTemp_ =dfMC["P1"][6]
+        self._maxTemp_ = dfMC["P99"][6]
+
+        self._minCarrier_ =dfMC["P1"][7]
+        self._maxCarrier_ = dfMC["P99"][7]
+
+
+
         IGIPyGofftake = prod_profiles[0]
-        initial_NPV=self.NPV_calculation_Tornado(df = NPV_edited_df, gas_price = self._Gas_Price, LNG_p_vari = self._LNG_plant_per_Sm3, yGofftake = IGIPyGofftake, opex_cost=self._OPEX_cost)
+        initial_NPV=self.NPV_calculation_Tornado(df = NPV_edited_df, gas_price = self._Gas_Price, LNG_p_vari = self._LNG_plant_per_Sm3, yGofftake = IGIPyGofftake, opex_cost=self._OPEX_cost,  well_cost = self._Well_Cost, PU_cost = self._p_u, temp_cost = self._temp_cost, carrier_cost = self._LNG_cost_per_vessel)
         minIGIPyGofftake = prod_profiles[1]
         maxIGIPyGofftake = prod_profiles[2]
-        NPVgaspricemin=self.NPV_calculation_Tornado(df = NPV_edited_df, gas_price = self._minGasPrice, LNG_p_vari = self._LNG_plant_per_Sm3, yGofftake = IGIPyGofftake, opex_cost=self._OPEX_cost)
-        NPVgaspricemax=self.NPV_calculation_Tornado(df = NPV_edited_df, gas_price = self._maxGasPrice, LNG_p_vari = self._LNG_plant_per_Sm3, yGofftake = IGIPyGofftake, opex_cost=self._OPEX_cost)
-        LNGPlantMin=self.NPV_calculation_Tornado(df = NPV_edited_df, gas_price = self._Gas_Price, LNG_p_vari = self._minLNGPlant, yGofftake = IGIPyGofftake, opex_cost=self._OPEX_cost)
-        LNGPlantMax=self.NPV_calculation_Tornado(df = NPV_edited_df, gas_price = self._Gas_Price, LNG_p_vari = self._maxLNGPlant, yGofftake = IGIPyGofftake, opex_cost=self._OPEX_cost)
-        NPV_IGIPmin=self.NPV_calculation_Tornado(df = NPV_edited_df, gas_price = self._Gas_Price, LNG_p_vari = self._LNG_plant_per_Sm3, yGofftake = minIGIPyGofftake, opex_cost=self._OPEX_cost)
-        NPV_IGIPmax=self.NPV_calculation_Tornado(df = NPV_edited_df, gas_price = self._Gas_Price, LNG_p_vari = self._LNG_plant_per_Sm3, yGofftake = maxIGIPyGofftake, opex_cost=self._OPEX_cost)
-        NPV_OPEXmin=self.NPV_calculation_Tornado(df = NPV_edited_df, gas_price = self._Gas_Price, LNG_p_vari = self._LNG_plant_per_Sm3, yGofftake = IGIPyGofftake, opex_cost=self._minOPEX)
-        NPV_OPEXmax=self.NPV_calculation_Tornado(df = NPV_edited_df, gas_price = self._Gas_Price, LNG_p_vari = self._LNG_plant_per_Sm3, yGofftake = IGIPyGofftake, opex_cost=self._maxOPEX)
-        return initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax, NPV_OPEXmin, NPV_OPEXmax
+        NPVgaspricemin=self.NPV_calculation_Tornado(df = NPV_edited_df, gas_price = self._minGasPrice, LNG_p_vari = self._LNG_plant_per_Sm3, yGofftake = IGIPyGofftake, opex_cost=self._OPEX_cost, well_cost = self._Well_Cost, PU_cost = self._p_u, temp_cost = self._temp_cost, carrier_cost = self._LNG_cost_per_vessel)
+        NPVgaspricemax=self.NPV_calculation_Tornado(df = NPV_edited_df, gas_price = self._maxGasPrice, LNG_p_vari = self._LNG_plant_per_Sm3, yGofftake = IGIPyGofftake, opex_cost=self._OPEX_cost, well_cost = self._Well_Cost, PU_cost = self._p_u, temp_cost = self._temp_cost, carrier_cost = self._LNG_cost_per_vessel)
+        LNGPlantMin=self.NPV_calculation_Tornado(df = NPV_edited_df, gas_price = self._Gas_Price, LNG_p_vari = self._minLNGPlant, yGofftake = IGIPyGofftake, opex_cost=self._OPEX_cost, well_cost = self._Well_Cost, PU_cost = self._p_u, temp_cost = self._temp_cost, carrier_cost = self._LNG_cost_per_vessel)
+        LNGPlantMax=self.NPV_calculation_Tornado(df = NPV_edited_df, gas_price = self._Gas_Price, LNG_p_vari = self._maxLNGPlant, yGofftake = IGIPyGofftake, opex_cost=self._OPEX_cost, well_cost = self._Well_Cost, PU_cost = self._p_u, temp_cost = self._temp_cost, carrier_cost = self._LNG_cost_per_vessel)
+        NPV_IGIPmin=self.NPV_calculation_Tornado(df = NPV_edited_df, gas_price = self._Gas_Price, LNG_p_vari = self._LNG_plant_per_Sm3, yGofftake = minIGIPyGofftake, opex_cost=self._OPEX_cost, well_cost = self._Well_Cost, PU_cost = self._p_u, temp_cost = self._temp_cost, carrier_cost = self._LNG_cost_per_vessel)
+        NPV_IGIPmax=self.NPV_calculation_Tornado(df = NPV_edited_df, gas_price = self._Gas_Price, LNG_p_vari = self._LNG_plant_per_Sm3, yGofftake = maxIGIPyGofftake, opex_cost=self._OPEX_cost, well_cost = self._Well_Cost, PU_cost = self._p_u, temp_cost = self._temp_cost, carrier_cost = self._LNG_cost_per_vessel)
+        NPV_OPEXmin=self.NPV_calculation_Tornado(df = NPV_edited_df, gas_price = self._Gas_Price, LNG_p_vari = self._LNG_plant_per_Sm3, yGofftake = IGIPyGofftake, opex_cost=self._minOPEX, well_cost = self._Well_Cost, PU_cost = self._p_u, temp_cost = self._temp_cost, carrier_cost = self._LNG_cost_per_vessel)
+        NPV_OPEXmax=self.NPV_calculation_Tornado(df = NPV_edited_df, gas_price = self._Gas_Price, LNG_p_vari = self._LNG_plant_per_Sm3, yGofftake = IGIPyGofftake, opex_cost=self._maxOPEX, well_cost = self._Well_Cost, PU_cost = self._p_u, temp_cost = self._temp_cost, carrier_cost = self._LNG_cost_per_vessel)
+        
+        NPV_Wellmax=self.NPV_calculation_Tornado(df = NPV_edited_df, gas_price = self._Gas_Price, LNG_p_vari = self._LNG_plant_per_Sm3, yGofftake = IGIPyGofftake, opex_cost=self._OPEX_cost, well_cost = self._maxWell_, PU_cost = self._p_u, temp_cost = self._temp_cost, carrier_cost = self._LNG_cost_per_vessel)
+        NPV_Wellmin=self.NPV_calculation_Tornado(df = NPV_edited_df, gas_price = self._Gas_Price, LNG_p_vari = self._LNG_plant_per_Sm3, yGofftake = IGIPyGofftake, opex_cost=self._OPEX_cost, well_cost = self._minWell_, PU_cost = self._p_u, temp_cost = self._temp_cost, carrier_cost = self._LNG_cost_per_vessel)
+
+        NPV_PUmax=self.NPV_calculation_Tornado(df = NPV_edited_df, gas_price = self._Gas_Price, LNG_p_vari = self._LNG_plant_per_Sm3, yGofftake = IGIPyGofftake, opex_cost=self._OPEX_cost, well_cost = self._Well_Cost, PU_cost = self._maxPU_, temp_cost = self._temp_cost, carrier_cost = self._LNG_cost_per_vessel)
+        NPV_PUmin=self.NPV_calculation_Tornado(df = NPV_edited_df, gas_price = self._Gas_Price, LNG_p_vari = self._LNG_plant_per_Sm3, yGofftake = IGIPyGofftake, opex_cost=self._OPEX_cost, well_cost = self._Well_Cost, PU_cost = self._minPU_, temp_cost = self._temp_cost, carrier_cost = self._LNG_cost_per_vessel)
+
+        NPV_tempmax=self.NPV_calculation_Tornado(df = NPV_edited_df, gas_price = self._Gas_Price, LNG_p_vari = self._LNG_plant_per_Sm3, yGofftake = IGIPyGofftake, opex_cost=self._OPEX_cost, well_cost = self._Well_Cost, PU_cost = self._p_u, temp_cost = self._maxTemp_, carrier_cost = self._LNG_cost_per_vessel)
+        NPV_tempmin=self.NPV_calculation_Tornado(df = NPV_edited_df, gas_price = self._Gas_Price, LNG_p_vari = self._LNG_plant_per_Sm3, yGofftake = IGIPyGofftake, opex_cost=self._OPEX_cost, well_cost = self._Well_Cost, PU_cost = self._p_u, temp_cost = self._minTemp_, carrier_cost = self._LNG_cost_per_vessel)
+
+        NPV_Carriermax=self.NPV_calculation_Tornado(df = NPV_edited_df, gas_price = self._Gas_Price, LNG_p_vari = self._LNG_plant_per_Sm3, yGofftake = IGIPyGofftake, opex_cost=self._OPEX_cost, well_cost = self._Well_Cost, PU_cost = self._p_u, temp_cost = self._temp_cost, carrier_cost = self._maxCarrier_)
+        NPV_Carriermin=self.NPV_calculation_Tornado(df = NPV_edited_df, gas_price = self._Gas_Price, LNG_p_vari = self._LNG_plant_per_Sm3, yGofftake = IGIPyGofftake, opex_cost=self._OPEX_cost, well_cost = self._Well_Cost, PU_cost = self._p_u, temp_cost = self._temp_cost, carrier_cost = self._minCarrier_)
+
+        
+        return initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax, NPV_OPEXmax, NPV_OPEXmin, NPV_Wellmax, NPV_Wellmin, NPV_PUmax, NPV_PUmin, NPV_tempmax, NPV_tempmin, NPV_Carriermax, NPV_Carriermin
     
     def Monte_Carlo_production_profiles(self, minROA, IGIP_array):
         stepping_field_variables = self.getParameters()[self._opt].copy()
@@ -583,7 +620,7 @@ class NPV_dry_gas(NPVAnalysis):
             st.error("Error: Invalid method or precision:", self._method, self._precision)
         return pp_MC_dict
 
-    def NPV_calculation_Monte_Carlo(self, df, gas_price, LNG_p_vari, pp, Opex_vari):
+    def NPV_calculation_Monte_Carlo(self, df, gas_price, LNG_p_vari, pp, Opex_vari,  well_cost, PU_cost, temp_cost, carrier_cost):
             yearly_gas_offtake = [0 for i in range (self._CAPEX_period_prior)] + [(pp[i-1]+pp[i])/2 * self._uptime for i in range(1, len(pp))]
             end_prod = len(yearly_gas_offtake)
             revenue = [offtake/(1000000) * gas_price for offtake in yearly_gas_offtake]
