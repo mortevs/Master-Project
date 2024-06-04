@@ -1,6 +1,5 @@
 import streamlit as st
 import pages.GUI.GUI_functions as GUI
-import time
 import numpy as np
 from Data.dataProcessing import get_field_list_inc_No_field_chosen
 import math
@@ -282,7 +281,6 @@ class FIELD_DEVELOPMENT:
                 self._Nr_random_num, self._Nr_bins, self._Nr_Production_profiles = GUI.display_table_Monte_Carlo_param()
             with col18:
                 UC = st.button(label = "Run uncertainity Analysis", use_container_width=True)
-
             if UC:
                 prodProfiles_to_Tornado = dry_gas_NPV.Tornado_production_profiles(self.__edited_uncertainity_table, minROA=self.__minROA)
                 initial_NPV, NPVgaspricemin, NPVgaspricemax, LNGPlantMin, LNGPlantMax, NPV_IGIPmin, NPV_IGIPmax, NPV_OPEXmax, NPV_OPEXmin, NPV_Wellmax, NPV_Wellmin, NPV_PUmax, NPV_PUmin, NPV_tempmax, NPV_tempmin, NPV_Carriermax, NPV_Carriermin = dry_gas_NPV.getNPVsforTornado(dfMC = self.__edited_uncertainity_table, NPV_edited_df=self.__edited_df, prod_profiles= prodProfiles_to_Tornado)
@@ -318,18 +316,17 @@ class FIELD_DEVELOPMENT:
                 closest_IGIP_array = find_closest_numbers(IGIP_smart_array, IGIP_array)
                 pp_MC_pre_defined_dict = dry_gas_NPV.Monte_Carlo_production_profiles(self.__minROA, IGIP_smart_array)
                 PP_MC_assigned_array = np.array(([np.array(pp_MC_pre_defined_dict.get(key)) for key in closest_IGIP_array]), dtype=object)
-                results = [dry_gas_NPV.NPV_calculation_Tornado(df=self.__edited_df, gas_price=gas_price,
+                results = [dry_gas_NPV.NPV_calculation_Uncertainty(df=self.__edited_df, gas_price=gas_price,
                                                    LNG_p_vari=LNG_p_vari, yGofftake=pp, opex_cost = opexx, well_cost= wc, PU_cost= puc, temp_cost= tempc, carrier_cost=vesc)
                                                 for gas_price, LNG_p_vari, pp, opexx, wc, puc, tempc, vesc in zip(GP_array, LNG_array, PP_MC_assigned_array, OPEX_array, wellcost_array, PUCost_array, tempcost_array, vesselcost_array)]
 
                 results_array = np.array(results)
                 from Modules.MONTE_CARLO.Monte_carlo_standAlone import Monte_Carlo_Simulation
-                fig_pdf, fig_cdf, table, std = Monte_Carlo_Simulation(self._Nr_bins, results_array, self._Nr_random_num)
+                fig_pdf, fig_cdf, table = Monte_Carlo_Simulation(self._Nr_bins, results_array, self._Nr_random_num)
                 col20, col21 = st.columns(2)
                 with col20:
                     st.plotly_chart(fig_pdf, use_container_width=True)
                     st.dataframe(table, hide_index=True, use_container_width=True)
-                    st.write("std:", round(std,1))
                 with col21:
                     st.plotly_chart(fig_cdf, use_container_width=True)
                 wait_msg.empty()

@@ -16,16 +16,20 @@ def calculate_mean_std_from_p1_p99(p1_value, p99_value):
     mean = p1_value - z1 * std_dev
     return [mean, std_dev]
 
-def calculate_scale_from_p1_p99(p1_value, p99_value):
+def calculate_scale_from_p1_p50_p99(p1_value, p50_value, p99_value):
     q1 = stats.expon.ppf(0.01)
+    q50 = stats.expon.ppf(0.50)
     q99 = stats.expon.ppf(0.99)
-    scale = (p99_value - p1_value) / (q99 - q1)
-    return [scale]
+    scale_from_p1 = p1_value / q1
+    scale_from_p50 = p50_value / q50
+    scale_from_p99 = p99_value / q99    
+    scale = np.mean([scale_from_p1, scale_from_p50, scale_from_p99])
+    return scale
 
 def RandomNumbers_with_Distribution_consideration(df, size):
     rows = len(df.index)
     function_map = {'uniform': np.random.uniform, 'normal': np.random.normal, 'pert (default)': pert_distribution, 'normal': np.random.normal, 'lognormal' : np.random.lognormal, 'triangular' : np.random.triangular, 'exponential': np.random.exponential}
-    dist_dict = {'uniform': ['P1', 'P99'], 'pert (default)' : ['P1', 'P50', 'P99'], 'triangular' : ['P1', 'P50', 'P99'], 'normal': ['P1', 'P99'], 'lognormal': ['P1', 'P99'], 'exponential': ['P1', 'P99']}
+    dist_dict = {'uniform': ['P1', 'P99'], 'pert (default)' : ['P1', 'P50', 'P99'], 'triangular' : ['P1', 'P50', 'P99'], 'normal': ['P1', 'P99'], 'exponential': ['P1', 'P50', 'P99']}
     rand_variables = []
     for i in range(rows):
         func = (function_map[df.iloc[i]['P Dist']])
@@ -33,7 +37,7 @@ def RandomNumbers_with_Distribution_consideration(df, size):
         if df.iloc[i]['P Dist'] == 'normal':
             func_var = calculate_mean_std_from_p1_p99(*func_var)
         elif df.iloc[i]['P Dist'] == 'exponential':
-            func_var = calculate_scale_from_p1_p99(*func_var)
+            func_var = calculate_scale_from_p1_p50_p99(*func_var)
         var = func(*func_var, size = size)
         rand_variables.append(var)
     return rand_variables
@@ -60,11 +64,12 @@ def Monte_Carlo_Simulation(bins, results, Nr_random, title_xaxis = 'NPV [1E06 US
     fig_cdf.update_layout(title='CCPF', xaxis_title=title_xaxis, yaxis_title='Complementary cumulative probability distribution', showlegend=True)
 
     
-    table = pd.DataFrame({'Variable':['P90','P50','P10'],
-    'Value':[np.percentile(results,10),np.percentile(results,50),np.percentile(results,90)]})
-    std = np.std(results)
+    std = round(np.std(results),2)
+    mean = round(np.mean(results),2)
+    table = pd.DataFrame({'Variable':['P90','P50','P10', 'Mean', 'Std'],
+    'Value':[round(np.percentile(results,10),2),round(np.percentile(results,50),2),round(np.percentile(results,90),2), mean, std]})
 
-    return fig_pdf, fig_cdf, table, std
+    return fig_pdf, fig_cdf, table
         
 class uncertainity_table():
     def __init__(self, df_table):

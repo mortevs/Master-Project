@@ -97,7 +97,6 @@ class SODIR_feature:
 
         from Modules.SODIR_DATA.Sodir_data import plotPolyPlot
         polyFig = sodir_obj.getPolyPlot()
-        st.write(len(polyFig))
         if len(polyFig) == 0:
             pass
         else:

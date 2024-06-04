@@ -61,11 +61,10 @@ class Monte_Carlo_standAlone:
                 list_of_arrays = RandomNumbers_with_Distribution_consideration(df = self._edited_MC_table, size = self._Nr_random_num)
                 results_array = np.sum(list_of_arrays, axis=0)
                 from Modules.MONTE_CARLO.Monte_carlo_standAlone import Monte_Carlo_Simulation
-                fig_pdf, fig_cdf, table, std = Monte_Carlo_Simulation(self._Nr_bins, results_array, self._Nr_random_num, title_xaxis="addable input")
+                fig_pdf, fig_cdf, table = Monte_Carlo_Simulation(self._Nr_bins, results_array, self._Nr_random_num, title_xaxis="addable input")
                 with colR:
                     st.plotly_chart(fig_pdf, use_container_width=True)
                     st.dataframe(table, hide_index=True, use_container_width=True)
-                    st.write("std:", round(std,1))
                 with colR2:
                     st.plotly_chart(fig_cdf, use_container_width=True)
 
