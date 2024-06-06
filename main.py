@@ -3,7 +3,7 @@ if __name__ == "__main__":
     import streamlit as st
 
     st.set_page_config(
-        page_title="Smipps",
+        page_title="Old-Smipps",
         page_icon="🖩",
         layout="wide"
      )
