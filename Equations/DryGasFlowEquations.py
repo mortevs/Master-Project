@@ -1,3 +1,5 @@
+import math, warnings
+
 def IPRqg(C_R: float, n:float, p_R:float, p_wf:float) -> float:
     """
     Returns gas rate bottomhole. 
@@ -34,7 +36,6 @@ def IPR_PR(C_R:float, n:float, p_wf:float, q_g:float) -> float:
     return P_R
 
 def Tubingqg(C_T:float, s:float, p1:float, p2:float) -> float:
-    import math
     """
     Returns gas rate tubingline.
     C_T = tubing coefficient [sm3/bar],
@@ -56,17 +57,14 @@ def Tubingp1(C_T:float, s:float, p2:float, q_g:float) -> float:
     Tubingp1 = (math.e)**(s/2)*(p2**2+(q_g/C_T)**2)**0.5
     return Tubingp1
 
-def Tubingp2(C_T:float, s:float, p1:float, q_g:float) -> float:
-    import math
-    import warnings
+def Tubingp2(C_T:float, s:float, p1:float, q_g:float) -> float:    
     """
     Returns pressure downstream tubingline (moving with stream from 1 to 2). 
     C_T = tubing coefficient [sm3/bar],
     p1 = pressure upstream the tube [bar],
     s = tubing elevation coefficient.
     """
-    import warnings
-    warnings.filterwarnings("ignore", message="invalid value encountered in sqrt") #tryging to root negative root number warning
+    #warnings.filterwarnings("ignore", message="invalid value encountered in sqrt") #tryging to root negative root number warning
     Tubingp2 = (p1**2/math.e**s-(q_g/C_T)**2)**0.5 
     return Tubingp2
 

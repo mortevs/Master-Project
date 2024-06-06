@@ -1,9 +1,8 @@
-if __name__ == "__main__":
-    from GUI.GUI_class import GUI
-    import streamlit as st
-
+from pages.GUI.main_page import main_page_GUI
+if __name__ == "__main__":    
+    main_page_GUI()
     st.set_page_config(
-        page_title="Old-Smipps",
+        page_title="Smipps",
         page_icon="🖩",
         layout="wide"
      )
@@ -14,4 +13,3 @@ if __name__ == "__main__":
     
 
 
-    

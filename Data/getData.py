@@ -9,7 +9,14 @@ from Data.Storage.Cache import delete_files
 import Data.Storage.Cache as c
 data_storage_folder = os.path.join(os.getcwd(), 'Data', 'Storage')
 
-def ZiptoDF(zipname='fldArea.zip', zipFileUrl='https://factpages.npd.no/downloads/csv/fldArea.zip'):
+def swap_columns(df, col1, col2):
+    col_list = list(df.columns)
+    x, y = col_list.index(col1), col_list.index(col2)
+    col_list[y], col_list[x] = col_list[x], col_list[y]
+    df = df[col_list]
+    return df
+
+def ZiptoDF(zipname='fldArea.zip', zipFileUrl='https://factpages.sodir.no/downloads/csv/fldArea.zip'):
     zip_file_path = os.path.join(data_storage_folder, zipname)
     if os.path.exists(zip_file_path):
         zf = zipfile.ZipFile(zip_file_path)
@@ -19,7 +26,7 @@ def ZiptoDF(zipname='fldArea.zip', zipFileUrl='https://factpages.npd.no/download
             wget.download(zipFileUrl, out=zip_file_path)            
             zf = zipfile.ZipFile(zip_file_path)
         else:
-            st.write(f'Failed to get data from NPD, status code: {response.status_code}')
+            st.write(f'Failed to get data from sodir, status code: {response.status_code}')
     df = pd.read_csv(zf.open(zf.namelist()[0]), low_memory=False)
     zf.close()
     return df
@@ -36,33 +43,52 @@ def polygon_coordinates(fieldName):
     return fldAreaGeometryWKT
 
 def wlbPoint_field_sorted(fieldName):
-    p = c.CacheDF(df = ZiptoDF(zipname = 'wlbPoint.zip', zipFileUrl = 'https://factpages.npd.no/downloads/csv/wlbPoint.zip'), key = 'wlbPoint')
+    p = c.CacheDF(df = ZiptoDF(zipname = 'wlbPoint.zip', zipFileUrl = 'https://factpages.sodir.no/downloads/csv/wlbPoint.zip'), key = 'wlbPoint')
     p.drop(p[p['wlbField'] != fieldName].index, inplace=True)
     return p
 
 def producing_wlb(fieldName):
     p = wlbPoint_field_sorted(fieldName)
     p.drop(p[p['wlbStatus'] != 'PRODUCING'].index, inplace=True)
+    p = swap_columns(p, "wlbNpdidWellbore", "wlbWellboreName")
+    p = p.astype(str)
+   
     return p
 
 def injecting_wlb(fieldName):
     p = wlbPoint_field_sorted(fieldName)
     p.drop(p[p['wlbStatus'] != 'INJECTING'].index, inplace=True)
+    p = swap_columns(p, "wlbNpdidWellbore", "wlbWellboreName")
+    p = p.astype(str)
+
     return p
 
 def PA_wlb(fieldName):
     p = wlbPoint_field_sorted(fieldName)
     p.drop(p[p['wlbStatus'] != 'P&A'].index, inplace=True)
+    p = swap_columns(p, "wlbNpdidWellbore", "wlbWellboreName")
+    p = p.astype(str)
     return p
 
 def closed_wlb(fieldName):
     p = wlbPoint_field_sorted(fieldName)
     p.drop(p[p['wlbStatus'] != 'CLOSED'].index, inplace=True)
+    p = swap_columns(p, "wlbNpdidWellbore", "wlbWellboreName")
+    p = p.astype(str)
+    return p
+
+def plugged_wlb(fieldName):
+    p = wlbPoint_field_sorted(fieldName)
+    p.drop(p[p['wlbStatus'] != 'PLUGGED'].index, inplace=True)
+    p = swap_columns(p, "wlbNpdidWellbore", "wlbWellboreName")
+    p = p.astype(str)
     return p
 
 def junked_wlb(fieldName):
     p = wlbPoint_field_sorted(fieldName)
-    p.drop(p[p['wlbStatus'] != 'junked'].index, inplace=True)
+    p.drop(p[p['wlbStatus'] != 'JUNKED'].index, inplace=True)
+    p.set_index("WlbWellboreName", drop = True, inplace = True)
+
     return p
 
 def CSVProductionMonthly(fieldName: str):
@@ -95,7 +121,7 @@ def CSVProductionYearly(field: str):
             data_to_store = c.csvURLtoDF(csvURL)
             p = c.CacheDF(df = data_to_store, key = 'yearlyProduction')
         else:
-            st.write(f'Failed to get NPD data using digitaliseringsdirektoratets API, status code: {response.status_code}')
+            st.write(f'Failed to get SODIR data from Data.Norge, status code: {response.status_code}')
     p.drop(p[p['prfInformationCarrier'] != field.upper()].index, inplace=True)
     gas = p['prfPrdGasNetBillSm3'].tolist()
     NGL = p['prfPrdNGLNetMillSm3'].tolist()
@@ -115,7 +141,7 @@ def CSVProducedYears(fieldName: str) -> list:
             data_to_store = c.csvURLtoDF(csvURL)
             p = c.CacheDF(df = data_to_store, key = 'yearlyProduction')
         else:
-            st.write(f'Failed to get NPD data using digitaliseringsdirektoratets API, status code: {response.status_code}')
+            st.write(f'Failed to get SODIR data from Data.Norge, status code: {response.status_code}')
     p.drop(p[p['prfInformationCarrier'] != fieldName.upper()].index, inplace=True)
     years = p['prfYear'].tolist()
     return years
@@ -138,8 +164,8 @@ def CSVProducedMonths(fieldName: str) -> list:
 
 def deleteAndLoadNewDataFromNPD():
     zipfile_URLs = [
-        'https://factpages.npd.no/downloads/csv/fldArea.zip',
-        'https://factpages.npd.no/downloads/csv/wlbPoint.zip', 
+        'https://factpages.sodir.no/downloads/csv/fldArea.zip',
+        'https://factpages.sodir.no/downloads/csv/wlbPoint.zip', 
         'https://hotell.difi.no/download/npd/field/reserves?download',
         'https://hotell.difi.no/download/npd/field/production-monthly-by-field',
         'https://hotell.difi.no/download/npd/field/production-yearly-by-field'
@@ -149,9 +175,9 @@ def deleteAndLoadNewDataFromNPD():
         if all(status == 200 for status in response_list):
             delete_files()
             ZiptoDF()
-            ZiptoDF(zipname = 'wlbPoint.zip', zipFileUrl = 'https://factpages.npd.no/downloads/csv/wlbPoint.zip')
+            ZiptoDF(zipname = 'wlbPoint.zip', zipFileUrl = 'https://factpages.sodir.no/downloads/csv/wlbPoint.zip')
         else:
-            raise Exception("Not all NPD resources are available. Visit NPD for further information.")
+            raise Exception("Not all Sodir resources are available. Visit Sodir/Data.Norge for further information.")
     except requests.exceptions.RequestException as e:
         my = st.warning(f"Request error: {e}")
         time.sleep(5)
@@ -171,14 +197,14 @@ def CSV_reserves():
             data_to_store = c.csvURLtoDF(csvURL)
             p = c.CacheDF(df = data_to_store, key = 'reserves')
         else:
-            st.warning(f'Failed to get NPD data using digitaliseringsdirektoratets resources, status code: {response.status_code}')
+            st.write(f'Failed to get SODIR data from Data.Norge, status code: {response.status_code}')
     return p
 
 def Temp(fieldName):
     if c.checkKeyinDict('wlbPoint'):
         p = c.CacheDF(df = None, key = 'wlbPoint')
     else:
-        data_to_store = ZiptoDF(zipname = 'wlbPoint.zip', zipFileUrl = 'https://factpages.npd.no/downloads/csv/wlbPoint.zip')
+        data_to_store = ZiptoDF(zipname = 'wlbPoint.zip', zipFileUrl = 'https://factpages.sodir.no/downloads/csv/wlbPoint.zip')
         p = c.CacheDF(df = data_to_store, key = 'wlbPoint')
     p.drop(p[p['wlbField'] != fieldName.upper()].index, inplace=True)
     mean_temp = p["wlbBottomHoleTemperature"].mean()
