@@ -152,7 +152,7 @@ class FIELD_DEVELOPMENT:
 
                         Keep in mind that the number of wells (Number of templates and wells per template) will affect the production profile, in addition to
                         having a cost per well. To study how the number of wells affect the NPV, generate for instance two production profiles,
-                        with different nummber of templates. Switch from the drop-down option mentioned above between 2 and 1 to see the NPV difference.
+                        with different number of templates. Switch from the drop-down option mentioned above between 2 and 1 to see the NPV difference.
                         """
 
                        )
