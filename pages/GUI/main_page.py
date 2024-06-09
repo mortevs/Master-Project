@@ -27,6 +27,22 @@ class main_page_GUI:
         }
         </style>""", unsafe_allow_html=True)
         col1, col2, col3, col4, col5 = st.columns(5)
+        def write_timestamp_to_file(timestamp):
+            data_dir = "Data"
+            try:
+                with open(os.path.join(data_dir, "timestamp.txt"), "w") as file:
+                    file.write(str(timestamp))
+            except:
+                pass
+        def read_timestamp_from_file():
+            data_dir = "Data"
+            timestamp_file = os.path.join(data_dir, "timestamp.txt")
+            if os.path.exists(timestamp_file):
+                with open(timestamp_file, "r") as file:
+                    timestamp = file.read()
+                    return timestamp
+            else:
+                return "NA"
 
         with col5:
             load = st.button('Load New Data from Sodir',  'sodir')
@@ -37,12 +53,16 @@ class main_page_GUI:
             alert00 = st.warning('Data downloaded from Sodir ' + timestamp)
             time.sleep(5)
             alert00.empty()
-            SessionState.store_one("main", "timestamp", timestamp)
-            #self._old_timestamp = SessionState.get("main")
+            write_timestamp_to_file(timestamp)
+            #SessionState.store_one("main", "timestamp", timestamp)
+
         with col4:
-            stamp = SessionState.get("main").timestamp
-            mym = "Data last downloaded:" + str(stamp)
-            st.write(mym)
+            try:
+                stamp = read_timestamp_from_file()
+                mym = "Data last downloaded:" + str(stamp)
+                st.write(mym)
+            except:
+                pass
         st.title('Simulation and Modeling of Integrated Petroleum Production Systems')
         st.write(" ")
         st.write(" ")
