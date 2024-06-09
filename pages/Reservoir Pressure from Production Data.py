@@ -22,7 +22,7 @@ class RESERVOIR_PRESSURE_FROM_PRODUCTION_DATA:
                      monthly or yearly production rates from Sodir using the dropdownmenu below on the left side""")
 
             st.write(""" Choose production data from an NCS-field from the dropdown menu below, or upload data in csv format with
-                     column 0 - date (year/ year-month), column 2 - gas produced in 1E06 Sm3""")
+                     column 0 - date (year/ year-month), column 1 - gas produced in 1E06 Sm3""")
 
             st.write("""Click <Run Analysis> to estimate the reservoir pressure for a field chosen, or for the uploaded data.
                       The numbers in the table below on the right side will be used for the estimation. The user can change these numbers before
