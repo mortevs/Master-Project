@@ -57,7 +57,7 @@ class main_page_GUI:
             alert00 = st.warning('Data downloaded from Sodir ' + str(new_time_utc_str))
             time.sleep(5)
             alert00.empty()
-            write_timestamp_to_file(timestamp)
+            write_timestamp_to_file(new_time_utc_str)
             #SessionState.store_one("main", "timestamp", timestamp)
 
         with col4:
