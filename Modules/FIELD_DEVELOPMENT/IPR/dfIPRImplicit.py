@@ -68,7 +68,7 @@ def IPROnly(qFieldTarget: float, PRi: float, abandonmentRate: float, TR:float, g
                 df[7][i]= df.iloc[i, 6]              
             df[9][i] = (df.iloc[i-1, 7] + df.iloc[i, 7])/2 * upTime #yearly gas offtake calculated with trapezoidal rule
             df[10][i] = df.iloc[i-1, 10] + df.iloc[i, 9] #cumulative gas offtake    
-            return x - MBgastank_PR(PRi, Zi, ZfacStanding(x, TR, gasMolecularWeight), RF(df[10][i], IGIP )) #using previous years Z, (assumes small changes in Z from year to year) 
+            return x - MBgastank_PR(PRi, Zi, ZfacStanding(x, TR, gasMolecularWeight), RF(df[10][i], IGIP )) 
         sol = fsolve(f, pWfMin, df)
         df[2][i] = sol  #PR 
         #Updating calculations to the solution found
