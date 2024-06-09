@@ -51,9 +51,9 @@ class main_page_GUI:
             from Data.getData import deleteAndLoadNewDataFromNPD
             deleteAndLoadNewDataFromNPD()
             timestamp = time.ctime()
-            timestamp_datetime = datetime.datetime.strptime(timestamp_str, '%b %d %H:%M:%S %Y')
+            timestamp_datetime = datetime.datetime.strptime(timestamp, '%a %b %d %H:%M:%S %Y')
             new_time_utc = timestamp_datetime + datetime.timedelta(hours=2)
-            new_time_utc_str = new_time_utc.strftime('%b %d %H:%M:%S %Y')
+            new_time_utc_str = new_time_utc.strftime('%a %b %d %H:%M:%S %Y')
             alert00 = st.warning('Data downloaded from Sodir ' + str(new_time_utc_str))
             time.sleep(5)
             alert00.empty()
