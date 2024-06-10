@@ -64,11 +64,9 @@ class SessionState:
         if not hasattr(st, '_global_session_states'):
             st._global_session_states = {}
         session_state = st._global_session_states.get(id)
-        if session_state is None:
-            session_state = SessionState()  # Initialize new SessionState
-        setattr(session_state, key, value)  # Set the value for the given key
-        st._global_session_states[id] = session_state
-
+        current_list = []
+        current_list.append(value)     
+        setattr(session_state, key, current_list)
 
 def delete_files():
     files_to_delete = [
