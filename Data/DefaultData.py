@@ -121,7 +121,7 @@ def default_MC_SA():
     return list1, list2, list3, list4
 
 def probability_distributions():
-    return ['pert (default)', 'triangular', 'uniform', 'normal', 'exponential'] 
+    return ['pert (default)', 'triangular', 'uniform', 'normal'] 
 
 def default_network_of_wells():
     PR1 = 90
