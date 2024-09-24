@@ -39,8 +39,9 @@ class SODIR_feature:
         col4, col5  = st.columns(2)
         with col4:
             self.__field = GUI.dropdown(label = 'Choose a field', options = self.__fieldnames, labelVisibility="visible")
+            self.__company = GUI.dropdown(label = 'Or choose a company', options = self.__fieldnames, labelVisibility="visible")
         with col5:
-            self.__time = GUI.dropdown(label = 'Time frame of interest', options = ['Yearly', 'Monthly'], labelVisibility="visible")
+            self.__time = GUI.dropdown(label = 'Time frame of interest', options = ['Monthly', 'Yearly'], labelVisibility="visible")
         colA, colB, colC = st.columns(3)
         with colC:
             align = GUI.dropdown(label = 'Compare fields alignment', options = ['Compare from production startup', 'Compare by dates'], labelVisibility="visible")
@@ -105,27 +106,34 @@ class SODIR_feature:
             if self.__field == "No field chosen":
                 st.error("No field chosen")
             else:
-                st.dataframe(get.producing_wlb(self.__field).style.pipe(make_pretty), hide_index=True, use_container_width=True)
+              #  st.dataframe(get.producing_wlb(self.__field).style.pipe(make_pretty), hide_index=True, use_container_width=True)
+                st.dataframe(get.producing_wlb(self.__field), hide_index=True, use_container_width=True)
+
 
         show_more_inj = st.toggle(label = ("Show me more information about the injection wells on  "+ self.__field))
         if show_more_inj:
             if self.__field == "No field chosen":
                 st.error("No field chosen")
             else:
-                st.dataframe(get.injecting_wlb(self.__field).style.pipe(make_pretty), hide_index=True, use_container_width=True)
+                #st.dataframe(get.injecting_wlb(self.__field).style.pipe(make_pretty), hide_index=True, use_container_width=True)
+                st.dataframe(get.injecting_wlb(self.__field), hide_index=True, use_container_width=True)
 
         show_more_closed = st.toggle(label = ("Show me more information about the closed wells on  "+ self.__field))
         if show_more_closed:
             if self.__field == "No field chosen":
                 st.error("No field chosen")
             else:
-                st.dataframe(get.closed_wlb(self.__field).style.pipe(make_pretty), hide_index=True, use_container_width=True)
+                #st.dataframe(get.closed_wlb(self.__field).style.pipe(make_pretty), hide_index=True, use_container_width=True)
+                st.dataframe(get.closed_wlb(self.__field), hide_index=True, use_container_width=True)
+                
         show_more_PA = st.toggle(label = ("Show me more information about the P&A wells on  "+ self.__field))
         if show_more_PA:
             if self.__field == "No field chosen":
                 st.error("No field chosen")
             else:
-                st.dataframe(get.PA_wlb(self.__field).style.pipe(make_pretty), hide_index=True, use_container_width=True)
+                #st.dataframe(get.PA_wlb(self.__field).style.pipe(make_pretty), hide_index=True, use_container_width=True)
+                st.dataframe(get.PA_wlb(self.__field), hide_index=True, use_container_width=True)
+                
         show_more_PLUGGED = st.toggle(label = ("Show me more information about the plugged wells on  "+ self.__field))
         if show_more_PLUGGED:
             if self.__field == "No field chosen":

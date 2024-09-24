@@ -54,7 +54,7 @@ def multi_plot_PR(dfs, addAll = True, addProduced = False, time_frame = "Yearly"
                         y = df[column],
                         name = column,
                         mode = 'lines',
-                        visible = 'legendonly' if not addAll and column != df.columns[0] else True  # Change visibility here
+                        visible = 'legendonly' if not addAll and column != df.columns[4] else True  # Change visibility here
                     )
                 )
         except Exception as e:
@@ -66,7 +66,7 @@ def multi_plot_PR(dfs, addAll = True, addProduced = False, time_frame = "Yearly"
                             y = df[column],
                             name = column,
                             mode = 'lines',
-                            visible = 'legendonly' if not addAll and column != df.columns[0] else True  # Change visibility here
+                            visible = 'legendonly' if not addAll and column != df.columns[4] else True  # Change visibility here
                         )
                     )
             except Exception:
@@ -94,7 +94,7 @@ def multi_plot_PR(dfs, addAll = True, addProduced = False, time_frame = "Yearly"
 
     fig.update_layout(
         updatemenus=[go.layout.Updatemenu(
-            active = 0 if addAll else columns_to_plot.index(columns_to_plot[0]),  # Change active button here
+            active = 4 if addAll else columns_to_plot.index(columns_to_plot[0]),  # Change active button here
             buttons = all_buttons
             )
         ],
@@ -196,7 +196,7 @@ def multi_plot(dfs, addAll=True, addProduced=False, num=None, comp=False):
 
     fig.update_layout(
         updatemenus=[go.layout.Updatemenu(
-            active=0 if addAll else columns_to_plot.index(columns_to_plot[0]), 
+            active=4 if addAll else columns_to_plot.index(columns_to_plot[0]), 
             buttons=all_buttons
         )],
         showlegend=True, 
@@ -267,7 +267,7 @@ def multi_plot_SODIR(dfs, time_frame):
                     go.Scatter(
                         x = pd.to_datetime(df.index, format=date_format).to_period(period).to_timestamp(period),
                         y=df[column],
-                        visible='legendonly' if column != df.columns[0] else True,
+                        visible='legendonly' if column != df.columns[4] else True,
                         showlegend=False,
                         mode = 'lines'
                     )
@@ -287,7 +287,7 @@ def multi_plot_SODIR(dfs, time_frame):
 
     fig.update_layout(
         updatemenus=[go.layout.Updatemenu(
-            active=0,  # Change active button here
+            active=4,  # Change active button here
             buttons=all_buttons
         )
         ],
@@ -351,7 +351,7 @@ def multi_plot_SODIR_compare(dfs, fields, res, comp_align, time_frame):
                             y=df[column],
                             mode = 'lines',
                             name = f"{fields[i]} - {column}",
-                            visible='legendonly' if column != df.columns[0] else True,
+                            visible='legendonly' if column != df.columns[4] else True,
                             showlegend=True,
                         )
                     )
@@ -371,7 +371,7 @@ def multi_plot_SODIR_compare(dfs, fields, res, comp_align, time_frame):
                             x=df.index,
                             y=df[column],
                             name = f"{fields[i]} - {column}",
-                            visible='legendonly' if column != df.columns[0] else True,
+                            visible='legendonly' if column != df.columns[4] else True,
                             showlegend=True,
                             mode = 'lines'
                         )
@@ -403,7 +403,7 @@ def multi_plot_SODIR_compare(dfs, fields, res, comp_align, time_frame):
 
     fig.update_layout(
         updatemenus=[go.layout.Updatemenu(
-            active=0,  # Change active button here
+            active=4,  # Change active button here
             buttons=all_buttons)],
         xaxis_title="Date",  
         yaxis_title="Sm3", 
@@ -470,7 +470,7 @@ def multi_plot_SODIR_forecast(fields, res, res_forecast, time_frame):
                         y=df[column],
                         mode='lines',
                         name=f"{fields[i]} - {column}",
-                        visible='legendonly' if column != df.columns[0] else True,
+                        visible='legendonly' if column != df.columns[4] else True,
                         showlegend=True,
                     )
                 )
@@ -491,7 +491,7 @@ def multi_plot_SODIR_forecast(fields, res, res_forecast, time_frame):
                         mode='lines',
                         name=f"{fields[i]} - {column} (Forecast)",
                         line=dict(color='red', dash = 'dash'),
-                        visible='legendonly' if column != df.columns[0] else True,
+                        visible='legendonly' if column != df.columns[4] else True,
                         showlegend=True,
                     )
                 )
@@ -521,7 +521,7 @@ def multi_plot_SODIR_forecast(fields, res, res_forecast, time_frame):
 
     fig.update_layout(
         updatemenus=[go.layout.Updatemenu(
-            active=0,  # Change active button here
+            active=4,  # Change active button here
             buttons=all_buttons)],
         xaxis_title="Date",  
         yaxis_title="Sm3", 
