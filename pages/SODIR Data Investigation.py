@@ -2,6 +2,8 @@ import streamlit as st
 import pages.GUI.GUI_functions as GUI
 import Data.getData as get
 from Data.dataProcessing import get_field_list_inc_No_field_chosen
+from Data.dataProcessing import get_company_list
+
 
 
 class SODIR_feature:
@@ -12,10 +14,14 @@ class SODIR_feature:
     
         try:
             self.__fieldnames = get_field_list_inc_No_field_chosen()
+            self._companynames = get_company_list()
+            st.write(self._companynames)
+            st.write("hei")
         except Exception as e:
             st.write(e)
-            st.warning("could not get list of fieldnames from SODIR")
+            st.warning("could not get list of fieldnames/Company names from SODIR")
             self.__fieldnames = ["None"]
+            self._companynames = ['None']
         on_information = st.toggle("Show me information on how to use the SODIR data feature", value=False, label_visibility="visible")
         if on_information:
             st.write(""" Choose a field from the NCS from the dropdown menu below. Choose a timeframe (yearly or montly) from the second
