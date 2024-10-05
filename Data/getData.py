@@ -32,15 +32,31 @@ def ZiptoDF(zipname='fldArea.zip', zipFileUrl='https://factpages.sodir.no/downlo
     return df
 
 def CompanyNames():
-    # fldData = c.CacheDF(df=ZiptoDF(), key='fldArea')
-    # st.write(fld)
-    # #field_names = list(fldData['fldName'])
-    # comps = ["AkerBP"]
+    if c.checkKeyCached('ownerships'):
+        p = c.CacheDF(df = None, key ='ownerships')  
+    else:
+        csvURL = 'https://factpages.sodir.no/public?/Factpages/external/tableview/field_licensee_hst&rs:Command=Render&rc:Toolbar=false&rc:Parameters=f&IpAddress=not_used&CultureCode=nb-no&rs:Format=CSV&Top100=false'
+        response = requests.get(csvURL)
+        if response.status_code == 200:
+            data_to_store = c.commaCSVURLtoDF(csvURL)
+            p = c.CacheDF(df = data_to_store, key ='ownerships')  
+        else:
+            st.write(f'Failed to get Ownership data, status code: {response.status_code}')
+    return set(p[ 'cmpLongName'])
 
-    #need to implement here a code that finds the company names. might need to consider
-    #to download an additional data set from somewhere. 
-    comps = ["Aker BP"]
-    return comps
+def licenseData():
+    if c.checkKeyCached('ownerships'):
+        p = c.CacheDF(df = None, key ='ownerships')  
+    else:
+        csvURL = 'https://factpages.sodir.no/public?/Factpages/external/tableview/field_licensee_hst&rs:Command=Render&rc:Toolbar=false&rc:Parameters=f&IpAddress=not_used&CultureCode=nb-no&rs:Format=CSV&Top100=false'
+        response = requests.get(csvURL)
+        if response.status_code == 200:
+            data_to_store = c.commaCSVURLtoDF(csvURL)
+            p = c.CacheDF(df = data_to_store, key ='ownerships')  
+        else:
+            st.write(f'Failed to get Ownership data, status code: {response.status_code}')
+    return p
+
 
 def fieldNames():
     fldData = c.CacheDF(df=ZiptoDF(), key='fldArea')
@@ -102,7 +118,7 @@ def junked_wlb(fieldName):
 
     return p
 
-def Ownerships():
+def Ownerships(company):
     if c.checkKeyCached('ownerships'):
         p = c.CacheDF(df = None, key ='ownerships')  
     else:
@@ -113,8 +129,8 @@ def Ownerships():
             p = c.CacheDF(df = data_to_store, key ='ownerships')  
         else:
             st.write(f'Failed to get Ownership data, status code: {response.status_code}')
-    st.write(p)
     return None
+
 
 def CSVProductionMonthly(fieldName: str):
     if c.checkKeyCached('monthlyProduction'):
@@ -195,7 +211,6 @@ def deleteAndLoadNewDataFromNPD():
         'https://factpages.sodir.no/public?/Factpages/external/tableview/field_production_yearly&rs:Command=Render&rc:Toolbar=false&rc:Parameters=f&IpAddress=not_used&CultureCode=nb-no&rs:Format=CSV&Top100=false',
         'https://factpages.sodir.no/public?/Factpages/external/tableview/field_production_monthly&rs:Command=Render&rc:Toolbar=false&rc:Parameters=f&IpAddress=not_used&CultureCode=nb-no&rs:Format=CSV&Top100=false',  
         'https://factpages.sodir.no/public?/Factpages/external/tableview/field_licensee_hst&rs:Command=Render&rc:Toolbar=false&rc:Parameters=f&IpAddress=not_used&CultureCode=nb-no&rs:Format=CSV&Top100=false',
-
     ]  
     try:
         response_list = [requests.get(url).status_code for url in zipfile_URLs]

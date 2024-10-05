@@ -1,8 +1,8 @@
 import streamlit as st
 import pages.GUI.GUI_functions as GUI
 import Data.getData as get
-from Data.dataProcessing import get_field_list_inc_No_field_chosen
-from Data.dataProcessing import get_company_list
+from Data.dataProcessing import get_field_list_inc_No_field_chosen, get_all_company_list
+import time as t
 
 
 
@@ -14,9 +14,7 @@ class SODIR_feature:
     
         try:
             self.__fieldnames = get_field_list_inc_No_field_chosen()
-            self._companynames = get_company_list()
-            st.write(self._companynames)
-            st.write("hei")
+            self._companynames = get_all_company_list()
         except Exception as e:
             st.write(e)
             st.warning("could not get list of fieldnames/Company names from SODIR")
@@ -45,16 +43,18 @@ class SODIR_feature:
         col4, col5  = st.columns(2)
         with col4:
             self.__field = GUI.dropdown(label = 'Choose a field', options = self.__fieldnames, labelVisibility="visible")
-            self.__company = GUI.dropdown(label = 'Or choose a company', options = self.__fieldnames, labelVisibility="visible")
+            self.__company = GUI.dropdown(label = 'Or choose a company', options = self._companynames, labelVisibility="visible")
         with col5:
             self.__time = GUI.dropdown(label = 'Time frame of interest', options = ['Monthly', 'Yearly'], labelVisibility="visible")
         colA, colB, colC = st.columns(3)
         with colC:
             align = GUI.dropdown(label = 'Compare fields alignment', options = ['Compare from production startup', 'Compare by dates'], labelVisibility="visible")
-        sodir_obj.updateFromDropDown(fieldName = self.__field, time = self.__time, align = align)
-        col6, col7 = st.columns(2)
+        sodir_obj.updateFromDropDown(fieldName = self.__field, time = self.__time, align = align, company = self.__company)
+        col6, colmid, col7  = st.columns(3)
         with col6:
-            run = st.button('Show Produced Volumes', 'Show produced volumes', use_container_width=True)
+            run = st.button('Show Produced Field Volumes', 'Show produced volumes', use_container_width=True)
+        with colmid:
+            runCompany = st.button('Show Produced Company Volumes', 'Show produced company vol', use_container_width=True)
         with col7:
             comp = st.button('Compare Fields', 'Compare', use_container_width=True)
         col8, col9 = st.columns(2)
@@ -63,8 +63,12 @@ class SODIR_feature:
         with col9:
             clear =  st.button('Clear Output', 'clear sodir', use_container_width=True)
         if run and self.__field == 'No field chosen':
-            import time as t
             alert3 = st.warning('Choose a field first')
+            t.sleep(1.5)
+            alert3.empty()
+        
+        elif runCompany and self.__company == 'No company chosen':
+            alert3 = st.warning('Choose a field/company first')
             t.sleep(1.5)
             alert3.empty()
 
@@ -75,6 +79,17 @@ class SODIR_feature:
         elif run and self.__time == 'Monthly':
             result = sodir_obj.runM()
             sodir_obj.append_result(result)
+        
+        elif runCompany and self.__time == 'Yearly':
+            result = sodir_obj.runCompanyY()
+            sodir_obj.append_result(result)
+
+        elif runCompany and self.__time == 'Monthly':
+            result = sodir_obj.runCompanyM()
+            sodir_obj.append_result(result)
+
+
+        
 
         if clear:
             sodir_obj.clear_output()

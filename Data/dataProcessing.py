@@ -1,6 +1,7 @@
 import Data.getData as get
 import streamlit as st
 from pandas import DataFrame
+import pandas as pd
 
 def get_field_list_inc_No_field_chosen():
     fieldnames = get.fieldNames()
@@ -16,9 +17,24 @@ def get_field_list_inc_No_field_chosen():
     fieldnames.insert(0, 'No field chosen')
     return fieldnames
 
-def get_company_list():
+def get_all_company_list():
     comps = get.CompanyNames()
-    return comps
+    comps_list = sorted(list(comps))
+    comps_list.insert(0, 'No company chosen')
+    return comps_list
+
+def get_company_production(company):
+    df = get.licenseData()
+    fieldNames = get.fieldNames()
+    st.write(df)
+    
+
+
+    return ['Aker BP']
+
+
+
+
 
                
 # def estimatedReservoirPressure(TVD: float) -> float:
