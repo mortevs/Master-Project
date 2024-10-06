@@ -99,8 +99,8 @@ def default_Optimization_table(f_variables):
 
 def default_MC():
     list1 = ['Gas Price [USD/Sm3]', 'IGIP [1E9 Sm3]', 'LNG Plant [USD/Sm3/d]', 'OPEX [1E6 USD]', 'Well Cost [1E6 USD]', 'Pipe & Umbilical [1E6 USD]', 'Template cost [1E6 USD]', 'Cost per LNG Carrier [1E6 USD]']
-    list2 = [0.05,250, 100, 150, 80, 400, 10, 150] 
-    list3 = [0.15,300, 220, 250, 120, 600, 30, 250]
+    list2 = [0.05,250.0, 100.0, 150.0, 80.0, 400.0, 10.0, 150.0] 
+    list3 = [0.15,300.0, 220.0, 250.0, 120.0, 600.0, 30.0, 250.0]
     return list1, list2, list3 
 
 def default_MC_params():
@@ -115,13 +115,13 @@ def default_MC_params2():
 
 def default_MC_SA():
     list1 = ['Time 1 [Hours]', 'Time 2 [Hours]', 'Time 3 [Hours]']    
-    list2 = [13,39, 11] 
-    list3 = [17, 44, 13]
-    list4 = [25,64, 22]
+    list2 = [13.0,39.0, 11.0] 
+    list3 = [17.0, 44.0, 13.0]
+    list4 = [25.0,64.0, 22.0]
     return list1, list2, list3, list4
 
 def probability_distributions():
-    return ['pert (default)', 'triangular', 'uniform', 'normal', 'exponential'] 
+    return ['pert (default)', 'triangular', 'uniform', 'normal'] 
 
 def default_network_of_wells():
     PR1 = 90

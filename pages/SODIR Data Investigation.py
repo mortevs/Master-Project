@@ -20,21 +20,19 @@ class SODIR_feature:
         if on_information:
             st.write(""" Choose a field from the NCS from the dropdown menu below. Choose a timeframe (yearly or montly) from the second
                      dropdown menu. Now press Plot production profile to display the produced volumes. By default, the gas volumes are
-                     visualized, but from the plots dropdown menu the user can choose to display NGL, oil, condendsate, Oil equivilants and
-                     water volumes produced instead.""")
+                     visualized, but from the plots dropdown menu the user can choose to display NGL, oil, condendsate, Oil equivilants,
+                     water volumes, cumulative volumes and the gas rate.""")
             st.write(""" To compare fields follow these steps: Step 1 - Choose a field, Step 2 - Press Plot production profile, Step 3 -
                      choose a new field, Step 4 - press Plot production profile again, Step 5 - press Compare fields. Keep the same timeframe,
                      dont change between years and months when comparing multiple fields. Compare year with year or month by month, not year with month, it will
                      result in poor comparisons.
                      """)
-            st.write("""Be aware that comparisons are made with reference from the fields produced volumes x number of years/months from startup, NOT the dates.
-                     Comparisons between different field where one plot is displayed with regard to monthly produced
-                     volumes, and the other yearly produced volumes, will result in poor comparisons. The compared fields should be
-                     compared with the same timeframe""")
-
             st.write(""" Click clear output to remove all the plots and start over again""")
 
-            st.write("""" Click Plot reservoir area to plot a polygon of the reservor area with the production wells marked""")
+            st.write(""" Click Plot reservoir area to plot a polygon of the reservor area with the wells for the chosen field.
+                     The wells can be toggled on and off. By default the closed, and pluggend and abandonend are not shown.
+                     To use the forecast functionality, you must first choose a field and click show produced volumes. These data will then be used in 
+                     the forecast analysis. Multiple fields can be forecasted at the same time. """)
 
         from Modules.SODIR_DATA.Sodir_data import Sodir_prod
         sodir_obj = Sodir_prod(parent = SODIR_feature, session_id='sodir_prod', field = 'No field chosen')

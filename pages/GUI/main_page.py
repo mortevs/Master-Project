@@ -1,5 +1,7 @@
 import streamlit as st, time, os
-
+from Data.Storage.Cache import SessionState
+import datetime
+    
 class main_page_GUI:
     def __init__(self):
         email_address = "morten.viersi@gmail.com"
@@ -26,15 +28,45 @@ class main_page_GUI:
         }
         </style>""", unsafe_allow_html=True)
         col1, col2, col3, col4, col5 = st.columns(5)
+        def write_timestamp_to_file(timestamp):
+            data_dir = "Data"
+            try:
+                with open(os.path.join(data_dir, "timestamp.txt"), "w") as file:
+                    file.write(str(timestamp))
+            except:
+                pass
+        def read_timestamp_from_file():
+            data_dir = "Data"
+            timestamp_file = os.path.join(data_dir, "timestamp.txt")
+            if os.path.exists(timestamp_file):
+                with open(timestamp_file, "r") as file:
+                    timestamp = file.read()
+                    return timestamp
+            else:
+                return "NA"
+
         with col5:
             load = st.button('Load New Data from Sodir',  'sodir')
         if load:
             from Data.getData import deleteAndLoadNewDataFromNPD
             deleteAndLoadNewDataFromNPD()
             timestamp = time.ctime()
-            alert00 = st.warning('Data downloaded from Sodir ' + timestamp)
+            timestamp_datetime = datetime.datetime.strptime(timestamp, '%a %b %d %H:%M:%S %Y')
+            new_time_utc = timestamp_datetime + datetime.timedelta(hours=2)
+            new_time_utc_str = new_time_utc.strftime('%a %b %d %H:%M:%S %Y')
+            alert00 = st.warning('Data downloaded from Sodir ' + str(new_time_utc_str))
             time.sleep(5)
             alert00.empty()
+            write_timestamp_to_file(new_time_utc_str)
+            #SessionState.store_one("main", "timestamp", timestamp)
+
+        with col4:
+            try:
+                stamp = read_timestamp_from_file()
+                mym = "Data last downloaded:" + stamp
+                st.write(mym)
+            except:
+                pass
         st.title('Simulation and Modeling of Integrated Petroleum Production Systems')
         st.write(" ")
         st.write(" ")
@@ -51,21 +83,20 @@ class main_page_GUI:
                         before being used in the application. The data includes field, well and production data. The data is stored
                         in the application. The button in the top right corner <Load New Data from Sodir> deletes the stored data, and fetches the latest data
                         at Sodir. Sodir data are updated every night. During this time, Sodir's services and portals are unavailable, and the user will not be able
-                        fetch data.""")
-                st.write("""The application has several features available through different pages. The user can navigate between the pages in the menu to the left. The features per December 2023 are Field Development,
-                            Reservoir Pressure From Production Data, and SODIR Data Investigation. The user can switch back and forth among the pages. The resulting plots
-                            will be stored/cached while the application is running.""")
+                        collect new data.""")
+                st.write("""The application has several features available through different pages. The user can navigate between the pages in the menu to the left. The features per June 2024 are Field Development,
+                            Monte Carlo, Reservoir Pressure From Production Data, and SODIR Data Investigation.""")
 
-                st.write("""The field development feature can be used for estimating production profiles for dry-gas fields.
-                            The reservoir pressure from production data feature can be used for estimating the decline in pressure for a dry-gas reservoir when the produced gas rates are known.
-                            The Sodir data feature can be used for NCS field investigation. The feature offers a service that lets you compare production volumes
-                            from different fields and plot the reservoir area (polygon) with well locations.""")
+                st.write("""The field development page can be used for estimating production profiles, NPV analysis, field optimization and uncertainity analysis for dry-gas fields.
+                            The Monte Carlo page can be utilized for obtaining aggregated variable distributions, with applications predominantly within time and cost planning.
+                         The reservoir pressure from production data page can be used for estimating the decline in pressure for a dry-gas reservoir.
+                            The Sodir data feature can be used for NCS field investigation. The page allows for comparing production volumes
+                            from different fields, investegate reservoir area with well locations, and forecast rates based on linear regression.""")
 
             if on_more_about:
                 st.write("""Integrated petroleum production systems are typically modeled and simulated using Excel spread-
-                        sheets, or specialized software. As part of my specialization and master project the following application was made in an attempt to
-                        make a platform for computational routines for the Simulation and Modeling of Integrated Petroleum Production Systems.The
-                        web-application has been built in Python, utilizing the Streamlit library. The application is free for everyone to use.
+                        sheets, or specialized software. As part of my specialization and master project a platform for performing computational routines for the simulation and modeling of integrated petroleum production systems was developed
+                         to streamline this process. The web-application has been built in Python, utilizing the Streamlit library. The application is free for everyone to use.
                         See the report for more information.
                         """)
             st.write(" ")
