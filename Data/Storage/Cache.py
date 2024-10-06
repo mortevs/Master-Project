@@ -3,6 +3,12 @@ data_storage_folder = os.path.join(os.getcwd(), 'Data', 'Storage')
 cacheDF = {}
 
 def csvURLtoDF(csvURL: str) ->pd.DataFrame:
+    df = pd.read_csv(csvURL, sep=",", encoding='utf-8', low_memory=False)
+    return df
+def commaCSVURLtoDF(csvURL: str) ->pd.DataFrame:
+    df = pd.read_csv(csvURL, sep=",", encoding='utf-8', low_memory=False)
+    return df
+def OLDcsvURLtoDF(csvURL: str) ->pd.DataFrame:
     df = pd.read_csv((csvURL), sep = ";", low_memory=False)
     return df
 
@@ -11,13 +17,14 @@ def CacheDF(df, key):
         return loadDict(key)
     else:
         dumpDict(df, key)
+
         return loadDict(key)
         
-def checkKeyCached(key):
-        if key in cacheDF:
-            return True
-        else:
-            return False
+# def checkKeyCached(key): #this code did not work as intended as is outdated
+#         if key in cacheDF:
+#             return True
+#         else:
+#             return False
     
 def dumpDict(data, name):
     with shelve.open(os.path.join(data_storage_folder, 'savedDictionary')) as d:
@@ -67,6 +74,7 @@ class SessionState:
         current_list = []
         current_list.append(value)     
         setattr(session_state, key, current_list)
+
 
 def delete_files():
     files_to_delete = [

@@ -1,6 +1,8 @@
 import Data.getData as get
 import streamlit as st
 from pandas import DataFrame
+import pandas as pd
+from datetime import datetime
 
 def get_field_list_inc_No_field_chosen():
     fieldnames = get.fieldNames()
@@ -15,6 +17,26 @@ def get_field_list_inc_No_field_chosen():
     locale_aware_sort(fieldnames)
     fieldnames.insert(0, 'No field chosen')
     return fieldnames
+
+def get_all_company_list():
+    comps = get.CompanyNames()
+    comps_list = sorted(list(comps))
+    comps_list.insert(0, 'No company chosen')
+    return comps_list
+
+def company_licences(company):
+    df = get.licenseData()
+    comp_df = df[df['cmpLongName'].isin([company])]
+    comp_df['fldLicenseeFrom'] = pd.to_datetime(comp_df['fldLicenseeFrom'], format='%d.%m.%Y')
+    result = comp_df.groupby('fldName').apply(
+        lambda x: x.loc[x['fldLicenseeFrom'].idxmax(), 'fldCompanyShare']
+    ).to_dict()
+    return result
+
+
+
+
+
                
 # def estimatedReservoirPressure(TVD: float) -> float:
 #     """
@@ -96,7 +118,9 @@ def monthly_produced_DF(field: str, df: DataFrame) ->DataFrame:
     df = df.assign(Watercut=(100*df["WaterSm3Monthly"]/(df["WaterSm3Monthly"] + df['OilSm3Monthly'] + df['CondensateSm3Monthly'] + df['NGLSm3Monthly'])))
     return df
 
-def addProducedYears(field: str, df: DataFrame, adjustLength=True) -> DataFrame:
+import pandas as pd
+
+def addProducedYears(field: str, df: pd.DataFrame, adjustLength=True) -> pd.DataFrame:
     try:
         sY = min(get.CSVProducedYears(field))
         years = [sY]
@@ -106,14 +130,24 @@ def addProducedYears(field: str, df: DataFrame, adjustLength=True) -> DataFrame:
             while len(years) < len(df.iloc[:, 0]):
                 years.append(sY + i)
                 i += 1
-
-        df.index = years
+        
+        date_format = '%Y'
+        period = "Y"
+        df.index = pd.to_datetime(years, format=date_format).to_period(period).to_timestamp(period)
         return df
+
     except Exception as e:
-        st.warning(f"Field has likely not produced anything yet. Could not get the produced years due to the following error: {e}.")
+        st.warning(f"Field has not produced anything yet. Could not get the produced years due to the following error: {e}.")
         return df
 
-def addProducedMonths(field: str, df: DataFrame) -> DataFrame:
+def check_addProducedYears(field: str) -> DataFrame:
+    try:
+        sY = min(get.CSVProducedYears(field))
+        return True
+    except Exception as e:
+        return False
+
+def addProducedMonthsOLD(field: str, df: DataFrame) -> DataFrame:
     try:
         dates = []
         years, months = get.CSVProducedMonths(field)
@@ -126,6 +160,17 @@ def addProducedMonths(field: str, df: DataFrame) -> DataFrame:
     except Exception as e:
         st.warning(f"Field has likely not produced anything yet. Could not get the produced year-months due to the following error: {e}.")
         return df
+
+def addProducedMonths(field: str, df: pd.DataFrame) -> pd.DataFrame:
+    try:
+        years, months = get.CSVProducedMonths(field)
+        dates = [datetime.strptime(f"{month}:{year}", "%m:%Y") for year, month in zip(years, months)]
+        df.index = pd.to_datetime(dates).to_period('M').to_timestamp('M')
+        return df
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return df
+
 
 
 

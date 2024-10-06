@@ -31,6 +31,33 @@ def ZiptoDF(zipname='fldArea.zip', zipFileUrl='https://factpages.sodir.no/downlo
     zf.close()
     return df
 
+def CompanyNames():
+    if c.checkKeyinDict('ownerships'):
+        p = c.CacheDF(df = None, key ='ownerships')  
+    else:
+        csvURL = 'https://factpages.sodir.no/public?/Factpages/external/tableview/field_licensee_hst&rs:Command=Render&rc:Toolbar=false&rc:Parameters=f&IpAddress=not_used&CultureCode=nb-no&rs:Format=CSV&Top100=false'
+        response = requests.get(csvURL)
+        if response.status_code == 200:
+            data_to_store = c.commaCSVURLtoDF(csvURL)
+            p = c.CacheDF(df = data_to_store, key ='ownerships')  
+        else:
+            st.write(f'Failed to get Ownership data, status code: {response.status_code}')
+    return set(p[ 'cmpLongName'])
+
+def licenseData():
+    if c.checkKeyinDict('ownerships'):
+        p = c.CacheDF(df = None, key ='ownerships')  
+    else:
+        csvURL = 'https://factpages.sodir.no/public?/Factpages/external/tableview/field_licensee_hst&rs:Command=Render&rc:Toolbar=false&rc:Parameters=f&IpAddress=not_used&CultureCode=nb-no&rs:Format=CSV&Top100=false'
+        response = requests.get(csvURL)
+        if response.status_code == 200:
+            data_to_store = c.commaCSVURLtoDF(csvURL)
+            p = c.CacheDF(df = data_to_store, key ='ownerships')  
+        else:
+            st.write(f'Failed to get Ownership data, status code: {response.status_code}')
+    return p
+
+
 def fieldNames():
     fldData = c.CacheDF(df=ZiptoDF(), key='fldArea')
     field_names = list(fldData['fldName'])
@@ -91,17 +118,32 @@ def junked_wlb(fieldName):
 
     return p
 
+def Ownerships(company):
+    if c.checkKeyinDict('ownerships'):
+        p = c.CacheDF(df = None, key ='ownerships')  
+    else:
+        csvURL = 'https://factpages.sodir.no/public?/Factpages/external/tableview/field_licensee_hst&rs:Command=Render&rc:Toolbar=false&rc:Parameters=f&IpAddress=not_used&CultureCode=nb-no&rs:Format=CSV&Top100=false'
+        response = requests.get(csvURL)
+        if response.status_code == 200:
+            data_to_store = c.csvURLtoDF(csvURL)
+            p = c.CacheDF(df = data_to_store, key ='ownerships')  
+        else:
+            st.write(f'Failed to get Ownership data, status code: {response.status_code}')
+    return None
+
+
 def CSVProductionMonthly(fieldName: str):
-    if c.checkKeyCached('monthlyProduction'):
+    if c.checkKeyinDict('monthlyProduction'):
         p = c.CacheDF(df = None, key ='monthlyProduction')  
     else:
-        csvURL = 'https://hotell.difi.no/download/npd/field/production-monthly-by-field'
+        st.write("no")
+        csvURL = 'https://factpages.sodir.no/public?/Factpages/external/tableview/field_production_monthly&rs:Command=Render&rc:Toolbar=false&rc:Parameters=f&IpAddress=not_used&CultureCode=nb-no&rs:Format=CSV&Top100=false'
         response = requests.get(csvURL)
         if response.status_code == 200:
             data_to_store = c.csvURLtoDF(csvURL)
             p = c.CacheDF(df = data_to_store, key ='monthlyProduction')  
         else:
-            st.write(f'Failed to get NPD data using digitaliseringsdirektoratets API, status code: {response.status_code}')
+            st.write(f'Failed to get production data, status code: {response.status_code}')
     p.drop(p[p['prfInformationCarrier'] != fieldName.upper()].index, inplace=True)
     gas = p['prfPrdGasNetBillSm3'].tolist()
     NGL = p['prfPrdNGLNetMillSm3'].tolist()
@@ -115,7 +157,7 @@ def CSVProductionYearly(field: str):
     if c.checkKeyinDict('yearlyProduction'):
         p = c.CacheDF(df = None, key = 'yearlyProduction')
     else:
-        csvURL = 'https://hotell.difi.no/download/npd/field/production-yearly-by-field'
+        csvURL = 'https://factpages.sodir.no/public?/Factpages/external/tableview/field_production_yearly&rs:Command=Render&rc:Toolbar=false&rc:Parameters=f&IpAddress=not_used&CultureCode=nb-no&rs:Format=CSV&Top100=false'
         response = requests.get(csvURL)
         if response.status_code == 200:
             data_to_store = c.csvURLtoDF(csvURL)
@@ -135,13 +177,13 @@ def CSVProducedYears(fieldName: str) -> list:
     if c.checkKeyinDict('yearlyProduction'):
         p = c.CacheDF(df = None, key = 'yearlyProduction')
     else:
-        csvURL = 'https://hotell.difi.no/download/npd/field/production-yearly-by-field'
+        csvURL = 'https://factpages.sodir.no/public?/Factpages/external/tableview/field_production_yearly&rs:Command=Render&rc:Toolbar=false&rc:Parameters=f&IpAddress=not_used&CultureCode=nb-no&rs:Format=CSV&Top100=false'
         response = requests.get(csvURL)
         if response.status_code == 200:
             data_to_store = c.csvURLtoDF(csvURL)
             p = c.CacheDF(df = data_to_store, key = 'yearlyProduction')
         else:
-            st.write(f'Failed to get SODIR data from Data.Norge, status code: {response.status_code}')
+            st.write(f'Failed to get production data, status code: {response.status_code}')
     p.drop(p[p['prfInformationCarrier'] != fieldName.upper()].index, inplace=True)
     years = p['prfYear'].tolist()
     return years
@@ -150,13 +192,13 @@ def CSVProducedMonths(fieldName: str) -> list:
     if c.checkKeyinDict('monthlyProduction'):
         p = c.CacheDF(df = None, key = 'monthlyProduction')
     else:
-        csvURL = 'https://hotell.difi.no/download/npd/field/production-monthly-by-field'
+        csvURL = 'https://factpages.sodir.no/public?/Factpages/external/tableview/field_production_monthly&rs:Command=Render&rc:Toolbar=false&rc:Parameters=f&IpAddress=not_used&CultureCode=nb-no&rs:Format=CSV&Top100=false'
         response = requests.get(csvURL)
         if response.status_code == 200:
             data_to_store = c.csvURLtoDF(csvURL)
             p = c.CacheDF(df = data_to_store, key = 'monthlyProduction')
         else:
-            st.write(f'Failed to get NPD data using digitaliseringsdirektoratets API, status code: {response.status_code}')
+            st.write(f'Failed to get Sodir data, status code: {response.status_code}')
     p.drop(p[p['prfInformationCarrier'] != fieldName.upper()].index, inplace=True)
     years = p['prfYear'].tolist()
     months = p['prfMonth'].tolist()
@@ -165,10 +207,11 @@ def CSVProducedMonths(fieldName: str) -> list:
 def deleteAndLoadNewDataFromNPD():
     zipfile_URLs = [
         'https://factpages.sodir.no/downloads/csv/fldArea.zip',
-        'https://factpages.sodir.no/downloads/csv/wlbPoint.zip', 
-        'https://hotell.difi.no/download/npd/field/reserves?download',
-        'https://hotell.difi.no/download/npd/field/production-monthly-by-field',
-        'https://hotell.difi.no/download/npd/field/production-yearly-by-field'
+        'https://factpages.sodir.no/downloads/csv/wlbPoint.zip',
+        'https://factpages.sodir.no/public?/Factpages/external/tableview/field_reserves&rs:Command=Render&rc:Toolbar=false&rc:Parameters=f&IpAddress=not_used&CultureCode=nb-no&rs:Format=CSV&Top100=false',
+        'https://factpages.sodir.no/public?/Factpages/external/tableview/field_production_yearly&rs:Command=Render&rc:Toolbar=false&rc:Parameters=f&IpAddress=not_used&CultureCode=nb-no&rs:Format=CSV&Top100=false',
+        'https://factpages.sodir.no/public?/Factpages/external/tableview/field_production_monthly&rs:Command=Render&rc:Toolbar=false&rc:Parameters=f&IpAddress=not_used&CultureCode=nb-no&rs:Format=CSV&Top100=false',  
+        'https://factpages.sodir.no/public?/Factpages/external/tableview/field_licensee_hst&rs:Command=Render&rc:Toolbar=false&rc:Parameters=f&IpAddress=not_used&CultureCode=nb-no&rs:Format=CSV&Top100=false',
     ]  
     try:
         response_list = [requests.get(url).status_code for url in zipfile_URLs]
@@ -176,6 +219,7 @@ def deleteAndLoadNewDataFromNPD():
             delete_files()
             ZiptoDF()
             ZiptoDF(zipname = 'wlbPoint.zip', zipFileUrl = 'https://factpages.sodir.no/downloads/csv/wlbPoint.zip')
+            return True
         else:
             raise Exception("Not all Sodir resources are available. Visit Sodir/Data.Norge for further information.")
     except requests.exceptions.RequestException as e:
@@ -186,18 +230,19 @@ def deleteAndLoadNewDataFromNPD():
         my2 = st.warning(f"Error: {e}")
         time.sleep(5)
         my2.empty()
+    return False
 
 def CSV_reserves():
     if c.checkKeyinDict('reserves'):
         p = c.CacheDF(df = None, key = 'reserves')
     else:
-        csvURL = 'https://hotell.difi.no/download/npd/field/reserves?download'
+        csvURL = 'https://factpages.sodir.no/public?/Factpages/external/tableview/field_reserves&rs:Command=Render&rc:Toolbar=false&rc:Parameters=f&IpAddress=not_used&CultureCode=nb-no&rs:Format=CSV&Top100=false'
         response = requests.get(csvURL)
         if response.status_code == 200:
             data_to_store = c.csvURLtoDF(csvURL)
             p = c.CacheDF(df = data_to_store, key = 'reserves')
         else:
-            st.write(f'Failed to get SODIR data from Data.Norge, status code: {response.status_code}')
+            st.write(f'Failed to get SODIR data, status code: {response.status_code}')
     return p
 
 def Temp(fieldName):
