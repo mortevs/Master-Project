@@ -78,8 +78,9 @@ class Sodir_prod():
         for key in company_licences:
             if dP.check_addProducedYears(key):
                 df = dP.monthly_produced_DF(key, df = pd.DataFrame())
-                df = dP.addProducedMonths2(key, df)    
+                df = dP.addProducedMonths(key, df)
                 company_production[key] = df.mul(company_licences[key]/100) #need to multiply license in, and i need to have license with time
+                st.write(key)
         combined_df = list(company_production.values())[0]
         for key in list(company_production.keys())[1:]:
             combined_df = combined_df.add(company_production[key], fill_value=0)

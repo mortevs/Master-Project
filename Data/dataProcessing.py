@@ -118,7 +118,9 @@ def monthly_produced_DF(field: str, df: DataFrame) ->DataFrame:
     df = df.assign(Watercut=(100*df["WaterSm3Monthly"]/(df["WaterSm3Monthly"] + df['OilSm3Monthly'] + df['CondensateSm3Monthly'] + df['NGLSm3Monthly'])))
     return df
 
-def addProducedYears(field: str, df: DataFrame, adjustLength=True) -> DataFrame:
+import pandas as pd
+
+def addProducedYears(field: str, df: pd.DataFrame, adjustLength=True) -> pd.DataFrame:
     try:
         sY = min(get.CSVProducedYears(field))
         years = [sY]
@@ -128,9 +130,12 @@ def addProducedYears(field: str, df: DataFrame, adjustLength=True) -> DataFrame:
             while len(years) < len(df.iloc[:, 0]):
                 years.append(sY + i)
                 i += 1
-
-        df.index = years
+        
+        date_format = '%Y'
+        period = "Y"
+        df.index = pd.to_datetime(years, format=date_format).to_period(period).to_timestamp(period)
         return df
+
     except Exception as e:
         st.warning(f"Field has not produced anything yet. Could not get the produced years due to the following error: {e}.")
         return df
@@ -142,7 +147,7 @@ def check_addProducedYears(field: str) -> DataFrame:
     except Exception as e:
         return False
 
-def addProducedMonths(field: str, df: DataFrame) -> DataFrame:
+def addProducedMonthsOLD(field: str, df: DataFrame) -> DataFrame:
     try:
         dates = []
         years, months = get.CSVProducedMonths(field)
@@ -156,13 +161,11 @@ def addProducedMonths(field: str, df: DataFrame) -> DataFrame:
         st.warning(f"Field has likely not produced anything yet. Could not get the produced year-months due to the following error: {e}.")
         return df
 
-def addProducedMonths2(field: str, df: pd.DataFrame) -> pd.DataFrame:
+def addProducedMonths(field: str, df: pd.DataFrame) -> pd.DataFrame:
     try:
         years, months = get.CSVProducedMonths(field)
         dates = [datetime.strptime(f"{month}:{year}", "%m:%Y") for year, month in zip(years, months)]
-        
-        df.index = pd.to_datetime(dates)
-        st.write(df)
+        df.index = pd.to_datetime(dates).to_period('M').to_timestamp('M')
         return df
     except Exception as e:
         print(f"An error occurred: {e}")

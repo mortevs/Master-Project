@@ -212,12 +212,6 @@ def multi_plot(dfs, addAll=True, addProduced=False, num=None, comp=False):
 
     st.plotly_chart(fig, use_container_width=True)
 def multi_plot_SODIR(dfs, time_frame):
-    if time_frame == "Monthly":
-        date_format = '%m:%Y'
-        period = "M"
-    else:
-        date_format = '%Y'
-        period = "Y"
     fig = go.Figure()
     axis_titles = {
         'GasSm3Yearly': ('Date', 'Sm3'),
@@ -252,11 +246,6 @@ def multi_plot_SODIR(dfs, time_frame):
 
     for i in range(len(dfs)):
         df = dfs[i]
-        if time_frame == "Monthly":
-            date_format = '%m:%Y'
-        else:
-            date_format = '%Y'
-
         for column in df.columns:
             if column not in columns_set:
                 columns_set.add(column)
@@ -265,7 +254,8 @@ def multi_plot_SODIR(dfs, time_frame):
             for column in columns_to_plot:
                 fig.add_trace(
                     go.Scatter(
-                        x = pd.to_datetime(df.index, format=date_format).to_period(period).to_timestamp(period),
+                        #x = pd.to_datetime(df.index, format=date_format).to_period(period).to_timestamp(period),
+                        x = df.index,
                         y=df[column],
                         visible='legendonly' if column != df.columns[4] else True,
                         showlegend=False,
@@ -298,13 +288,6 @@ def multi_plot_SODIR(dfs, time_frame):
 
     st.plotly_chart(fig, use_container_width=True)
 def multi_plot_SODIR_compare(dfs, fields, res, comp_align, time_frame):
-    if time_frame == "Monthly":
-        date_format = '%m:%Y'
-        period = "M"
-    else:
-        date_format = '%Y'
-        period = "Y"
-
     fig = go.Figure()
     columns_to_plot = []
     axis_titles = {
@@ -347,7 +330,7 @@ def multi_plot_SODIR_compare(dfs, fields, res, comp_align, time_frame):
                 for column in df.columns:
                     fig.add_trace(
                         go.Scatter(
-                            x = pd.to_datetime(df.index, format=date_format).to_period(period).to_timestamp(period),
+                            x = df.index,
                             y=df[column],
                             mode = 'lines',
                             name = f"{fields[i]} - {column}",
@@ -419,12 +402,10 @@ def multi_plot_SODIR_compare(dfs, fields, res, comp_align, time_frame):
 
 def multi_plot_SODIR_forecast(fields, res, res_forecast, time_frame):
     if time_frame == "Monthly":
-        date_format = '%m:%Y'
-        period = "M"
+        pass
     else:
         res = [el[0:-1] for el in res] 
-        date_format = '%Y'
-        period = "Y"
+
 
     fig = go.Figure()
     columns_to_plot = []
@@ -466,7 +447,7 @@ def multi_plot_SODIR_forecast(fields, res, res_forecast, time_frame):
             for column in df.columns:
                 fig.add_trace(
                     go.Scatter(
-                        x=pd.to_datetime(df.index, format=date_format).to_period(period).to_timestamp(period),
+                        x = df.index,
                         y=df[column],
                         mode='lines',
                         name=f"{fields[i]} - {column}",
@@ -486,7 +467,7 @@ def multi_plot_SODIR_forecast(fields, res, res_forecast, time_frame):
             for column in df.columns:
                 fig.add_trace(
                     go.Scatter(
-                        x=pd.to_datetime(df.index, format=date_format).to_period(period).to_timestamp(period),
+                        x = df.index,
                         y=df[column],
                         mode='lines',
                         name=f"{fields[i]} - {column} (Forecast)",
