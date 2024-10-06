@@ -73,7 +73,7 @@ class Sodir_prod():
     def runCompanyM(self):
         self.append_field(self.__company)
         self.append_time_frame(self.__time_frame)
-        company_licences = dP.company_licences(self.__company)
+        company_licences = dP.company_licences(self.__company) #
         company_production = {}
         for key in company_licences:
             if dP.check_addProducedYears(key):
@@ -87,7 +87,7 @@ class Sodir_prod():
         st.write("Field ownerships:")
         for key, value in company_licences.items():
             st.write(f"{key}: {value}")        
-        
+        #hola
         st.write(combined_df)
         #df = dP.add_cumulative_columns(df, columns_to_ignore = ["Watercut"])
         return combined_df
