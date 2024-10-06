@@ -1,6 +1,5 @@
 import streamlit as st, time, os
 from Data.Storage.Cache import SessionState
-import datetime
     
 class main_page_GUI:
     def __init__(self):
@@ -49,21 +48,18 @@ class main_page_GUI:
             load = st.button('Load New Data from Sodir',  'sodir')
         if load:
             from Data.getData import deleteAndLoadNewDataFromNPD
-            deleteAndLoadNewDataFromNPD()
-            timestamp = time.ctime()
-            timestamp_datetime = datetime.datetime.strptime(timestamp, '%a %b %d %H:%M:%S %Y')
-            new_time_utc = timestamp_datetime + datetime.timedelta(hours=2)
-            new_time_utc_str = new_time_utc.strftime('%a %b %d %H:%M:%S %Y')
-            alert00 = st.warning('Data downloaded from Sodir ' + str(new_time_utc_str))
-            time.sleep(5)
-            alert00.empty()
-            write_timestamp_to_file(new_time_utc_str)
+            if deleteAndLoadNewDataFromNPD() == True:
+                timestamp = time.ctime()
+                alert00 = st.warning('Data downloaded from Sodir ' + timestamp)
+                time.sleep(5)
+                alert00.empty()
+                write_timestamp_to_file(timestamp)
             #SessionState.store_one("main", "timestamp", timestamp)
 
         with col4:
             try:
                 stamp = read_timestamp_from_file()
-                mym = "Data last downloaded:" + stamp
+                mym = "Data last downloaded:" + str(stamp)
                 st.write(mym)
             except:
                 pass

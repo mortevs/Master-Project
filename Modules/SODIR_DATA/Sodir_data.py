@@ -3,6 +3,8 @@ from Data.Storage.Cache import SessionState
 from shapely.wkt import loads
 from shapely.geometry import Polygon, MultiPolygon
 from pandas import DataFrame
+import Data.dataProcessing as dP
+
 class Sodir_prod(): 
     def __init__(self, parent, session_id:str, field:str = 'No field chosen'):
         self.__field = field
@@ -12,8 +14,8 @@ class Sodir_prod():
         self.__state = SessionState.get(id=session_id, result=[], field=[], time_frame = [])
         self.parent  = parent
 
-    def updateFromDropDown(self, fieldName, time, align):
-         self.__field, self.__time_frame, self._aligned = fieldName, time, align
+    def updateFromDropDown(self, fieldName, time, align, company):
+         self.__field, self.__time_frame, self._aligned, self.__company = fieldName, time, align, company
 
 
     def get_current_time_frame(self):
@@ -29,7 +31,6 @@ class Sodir_prod():
     def runY(self):
         self.append_field(self.__field)
         self.append_time_frame(self.__time_frame)  
-        import Data.dataProcessing as dP
         df = dP.yearly_produced_DF(self.__field, df = pd.DataFrame())
         df = dP.add_cumulative_columns(df, columns_to_ignore = ["Watercut"])
         df = dP.addProducedYears(self.__field, df)
@@ -38,11 +39,59 @@ class Sodir_prod():
     def runM(self):
         self.append_field(self.__field)
         self.append_time_frame(self.__time_frame)  
-        import Data.dataProcessing as dP
         df = dP.monthly_produced_DF(self.__field, df = pd.DataFrame())
         df = dP.add_cumulative_columns(df, columns_to_ignore = ["Watercut"])
-        df = dP.addProducedMonths(self.__field, df)
+        df = dP.addProducedMonths(self.__field, df) 
         return df
+
+    def runCompanyY(self):
+        #self.append_company(self.__company)
+        self.append_field(self.__company)
+
+        self.append_time_frame(self.__time_frame)
+        company_licences = dP.company_licences(self.__company)
+        company_production = {}
+        for key in company_licences:
+            if dP.check_addProducedYears(key):
+                df = dP.yearly_produced_DF(key, df = pd.DataFrame())
+                df = dP.addProducedYears(key, df)    
+                company_production[key] = df.mul(company_licences[key]/100) #need to multiply license in, and i need to have license with time
+        combined_df = list(company_production.values())[0]
+        for key in list(company_production.keys())[1:]:
+            combined_df = combined_df.add(company_production[key], fill_value=0)
+    
+        combined_df['Watercut'] = (100*combined_df["WaterSm3Yearly"]/(combined_df["WaterSm3Yearly"] + combined_df['OilSm3Yearly'] + combined_df['CondensateSm3Yearly'] + combined_df['NGLSm3Yearly']))
+        
+        st.write("Field ownerships:")
+        for key, value in company_licences.items():
+            st.write(f"{key}: {value}")        
+                
+        #df = dP.add_cumulative_columns(df, columns_to_ignore = ["Watercut"])
+        return combined_df
+    
+    
+    def runCompanyM(self):
+        self.append_field(self.__company)
+        self.append_time_frame(self.__time_frame)
+        company_licences = dP.company_licences(self.__company) #
+        company_production = {}
+        for key in company_licences:
+            if dP.check_addProducedYears(key):
+                df = dP.monthly_produced_DF(key, df = pd.DataFrame())
+                df = dP.addProducedMonths(key, df)
+                company_production[key] = df.mul(company_licences[key]/100) #need to multiply license in, and i need to have license with time
+        combined_df = list(company_production.values())[0]
+        for key in list(company_production.keys())[1:]:
+            combined_df = combined_df.add(company_production[key], fill_value=0)
+        combined_df['Watercut'] = (100*combined_df["WaterSm3Monthly"]/(combined_df["WaterSm3Monthly"] + combined_df['OilSm3Monthly'] + combined_df['CondensateSm3Monthly'] + combined_df['NGLSm3Monthly']))
+        st.write("Field ownerships:")
+        for key, value in company_licences.items():
+            st.write(f"{key}: {value}")        
+        #hola
+        st.write(combined_df)
+        #df = dP.add_cumulative_columns(df, columns_to_ignore = ["Watercut"])
+        return combined_df
+     
     
     def plot_forecast(self, res_forcast):
         lst = self.get_time_frame()
@@ -78,7 +127,7 @@ class Sodir_prod():
     def clear_output(self):
         from Data.Storage.Cache import SessionState
         SessionState.delete(id = self.__session_id)
-        self.__state = SessionState.get(id=self.__session_id, result=[], field=[], time_frame = [])
+        self.__state = SessionState.get(id=self.__session_id, result=[], field=[], time_frame = [], company = [])
     
     def getResult(self) -> list:
         session_state = self.__state.get(self.__session_id)
@@ -91,6 +140,11 @@ class Sodir_prod():
     def getField(self) -> pd.DataFrame:
         session_state = self.__state.get(self.__session_id)
         return getattr(session_state, 'field', pd.DataFrame())
+    
+    def getCompany(self) -> pd.DataFrame:
+        session_state = self.__state.get(self.__session_id)
+        return getattr(session_state, 'company', pd.DataFrame())
+
     def getPolyPlot(self) -> pd.DataFrame:
         session_state = self.__state.get(self.__session_id)
         return getattr(session_state, 'polyPlot', pd.DataFrame())
@@ -107,6 +161,9 @@ class Sodir_prod():
     
     def append_field(self, item) -> str:
         SessionState.append(id = self.__session_id, key = 'field', value = item)
+    
+    def append_company(self, item) -> str:
+        SessionState.append(id = self.__session_id, key = 'company', value = item)
 
     def store_polyPlot(self, item) -> str:
         SessionState.store_one(id = self.__session_id, key = 'polyPlot', value = item)
