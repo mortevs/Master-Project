@@ -88,7 +88,6 @@ class Sodir_prod():
         for key, value in company_licences.items():
             st.write(f"{key}: {value}")        
         #hola
-        st.write(combined_df)
         #df = dP.add_cumulative_columns(df, columns_to_ignore = ["Watercut"])
         return combined_df
      
