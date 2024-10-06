@@ -98,8 +98,10 @@ class SODIR_feature:
                 st.write(fields[i], ':')
                 st.dataframe(dfs[i])
 
+
         with tab1:
             if clear:
+
                 sodir_obj.clear_output()
             if comp and len(sodir_obj.getResult()) == 0:
                 st.error("""No fields/companies to compare. Choose a field and press Plot production profile. Choose another field and then press

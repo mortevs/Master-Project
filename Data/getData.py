@@ -32,7 +32,7 @@ def ZiptoDF(zipname='fldArea.zip', zipFileUrl='https://factpages.sodir.no/downlo
     return df
 
 def CompanyNames():
-    if c.checkKeyCached('ownerships'):
+    if c.checkKeyinDict('ownerships'):
         p = c.CacheDF(df = None, key ='ownerships')  
     else:
         csvURL = 'https://factpages.sodir.no/public?/Factpages/external/tableview/field_licensee_hst&rs:Command=Render&rc:Toolbar=false&rc:Parameters=f&IpAddress=not_used&CultureCode=nb-no&rs:Format=CSV&Top100=false'
@@ -45,7 +45,7 @@ def CompanyNames():
     return set(p[ 'cmpLongName'])
 
 def licenseData():
-    if c.checkKeyCached('ownerships'):
+    if c.checkKeyinDict('ownerships'):
         p = c.CacheDF(df = None, key ='ownerships')  
     else:
         csvURL = 'https://factpages.sodir.no/public?/Factpages/external/tableview/field_licensee_hst&rs:Command=Render&rc:Toolbar=false&rc:Parameters=f&IpAddress=not_used&CultureCode=nb-no&rs:Format=CSV&Top100=false'
@@ -119,7 +119,7 @@ def junked_wlb(fieldName):
     return p
 
 def Ownerships(company):
-    if c.checkKeyCached('ownerships'):
+    if c.checkKeyinDict('ownerships'):
         p = c.CacheDF(df = None, key ='ownerships')  
     else:
         csvURL = 'https://factpages.sodir.no/public?/Factpages/external/tableview/field_licensee_hst&rs:Command=Render&rc:Toolbar=false&rc:Parameters=f&IpAddress=not_used&CultureCode=nb-no&rs:Format=CSV&Top100=false'
@@ -133,9 +133,10 @@ def Ownerships(company):
 
 
 def CSVProductionMonthly(fieldName: str):
-    if c.checkKeyCached('monthlyProduction'):
+    if c.checkKeyinDict('monthlyProduction'):
         p = c.CacheDF(df = None, key ='monthlyProduction')  
     else:
+        st.write("no")
         csvURL = 'https://factpages.sodir.no/public?/Factpages/external/tableview/field_production_monthly&rs:Command=Render&rc:Toolbar=false&rc:Parameters=f&IpAddress=not_used&CultureCode=nb-no&rs:Format=CSV&Top100=false'
         response = requests.get(csvURL)
         if response.status_code == 200:
