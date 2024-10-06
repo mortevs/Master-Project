@@ -2,6 +2,7 @@ import Data.getData as get
 import streamlit as st
 from pandas import DataFrame
 import pandas as pd
+from datetime import datetime
 
 def get_field_list_inc_No_field_chosen():
     fieldnames = get.fieldNames()
@@ -155,6 +156,17 @@ def addProducedMonths(field: str, df: DataFrame) -> DataFrame:
         st.warning(f"Field has likely not produced anything yet. Could not get the produced year-months due to the following error: {e}.")
         return df
 
+def addProducedMonths2(field: str, df: pd.DataFrame) -> pd.DataFrame:
+    try:
+        years, months = get.CSVProducedMonths(field)
+        dates = [datetime.strptime(f"{month}:{year}", "%m:%Y") for year, month in zip(years, months)]
+        
+        df.index = pd.to_datetime(dates)
+        st.write(df)
+        return df
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return df
 
 
 

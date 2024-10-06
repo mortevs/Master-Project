@@ -41,7 +41,7 @@ class Sodir_prod():
         self.append_time_frame(self.__time_frame)  
         df = dP.monthly_produced_DF(self.__field, df = pd.DataFrame())
         df = dP.add_cumulative_columns(df, columns_to_ignore = ["Watercut"])
-        df = dP.addProducedMonths(self.__field, df)
+        df = dP.addProducedMonths(self.__field, df) 
         return df
 
     def runCompanyY(self):
@@ -55,31 +55,43 @@ class Sodir_prod():
             if dP.check_addProducedYears(key):
                 df = dP.yearly_produced_DF(key, df = pd.DataFrame())
                 df = dP.addProducedYears(key, df)    
-                company_production[key] = df.mul(company_licences[key]) #need to multiply license in, and i need to have license with time
+                company_production[key] = df.mul(company_licences[key]/100) #need to multiply license in, and i need to have license with time
         combined_df = list(company_production.values())[0]
         for key in list(company_production.keys())[1:]:
             combined_df = combined_df.add(company_production[key], fill_value=0)
     
         combined_df['Watercut'] = (100*combined_df["WaterSm3Yearly"]/(combined_df["WaterSm3Yearly"] + combined_df['OilSm3Yearly'] + combined_df['CondensateSm3Yearly'] + combined_df['NGLSm3Yearly']))
+        
         st.write("Field ownerships:")
         for key, value in company_licences.items():
             st.write(f"{key}: {value}")        
-        
-        st.write(combined_df)
-        
-
+                
         #df = dP.add_cumulative_columns(df, columns_to_ignore = ["Watercut"])
         return combined_df
     
     
     def runCompanyM(self):
-        self.append_company(self.__company)
-        self.append_time_frame(self.__time_frame)  
-        import Data.dataProcessing as dP
-        df = dP.monthly_produced_DF(self.__field, df = pd.DataFrame())
-        df = dP.add_cumulative_columns(df, columns_to_ignore = ["Watercut"])
-        df = dP.addProducedMonths(self.__field, df)
-        return df
+        self.append_field(self.__company)
+        self.append_time_frame(self.__time_frame)
+        company_licences = dP.company_licences(self.__company)
+        company_production = {}
+        for key in company_licences:
+            if dP.check_addProducedYears(key):
+                df = dP.monthly_produced_DF(key, df = pd.DataFrame())
+                df = dP.addProducedMonths2(key, df)    
+                company_production[key] = df.mul(company_licences[key]/100) #need to multiply license in, and i need to have license with time
+        combined_df = list(company_production.values())[0]
+        for key in list(company_production.keys())[1:]:
+            combined_df = combined_df.add(company_production[key], fill_value=0)
+        combined_df['Watercut'] = (100*combined_df["WaterSm3Monthly"]/(combined_df["WaterSm3Monthly"] + combined_df['OilSm3Monthly'] + combined_df['CondensateSm3Monthly'] + combined_df['NGLSm3Monthly']))
+        st.write("Field ownerships:")
+        for key, value in company_licences.items():
+            st.write(f"{key}: {value}")        
+        
+        st.write(combined_df)
+        #df = dP.add_cumulative_columns(df, columns_to_ignore = ["Watercut"])
+        return combined_df
+     
     
     def plot_forecast(self, res_forcast):
         lst = self.get_time_frame()
