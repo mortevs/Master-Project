@@ -3,10 +3,13 @@ data_storage_folder = os.path.join(os.getcwd(), 'Data', 'Storage')
 cacheDF = {}
 
 def csvURLtoDF(csvURL: str) ->pd.DataFrame:
-    df = pd.read_csv((csvURL), sep = ";", low_memory=False)
+    df = pd.read_csv(csvURL, sep=",", encoding='utf-8', low_memory=False)
     return df
 def commaCSVURLtoDF(csvURL: str) ->pd.DataFrame:
     df = pd.read_csv(csvURL, sep=",", encoding='utf-8', low_memory=False)
+    return df
+def OLDcsvURLtoDF(csvURL: str) ->pd.DataFrame:
+    df = pd.read_csv((csvURL), sep = ";", low_memory=False)
     return df
 
 def CacheDF(df, key):

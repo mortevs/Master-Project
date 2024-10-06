@@ -23,14 +23,14 @@ def get_all_company_list():
     comps_list.insert(0, 'No company chosen')
     return comps_list
 
-def get_company_production(company):
+def company_licences(company):
     df = get.licenseData()
-    fieldNames = get.fieldNames()
-    st.write(df)
-    
-
-
-    return ['Aker BP']
+    comp_df = df[df['cmpLongName'].isin([company])]
+    comp_df['fldLicenseeFrom'] = pd.to_datetime(comp_df['fldLicenseeFrom'], format='%d.%m.%Y')
+    result = comp_df.groupby('fldName').apply(
+        lambda x: x.loc[x['fldLicenseeFrom'].idxmax(), 'fldCompanyShare']
+    ).to_dict()
+    return result
 
 
 
@@ -131,8 +131,15 @@ def addProducedYears(field: str, df: DataFrame, adjustLength=True) -> DataFrame:
         df.index = years
         return df
     except Exception as e:
-        st.warning(f"Field has likely not produced anything yet. Could not get the produced years due to the following error: {e}.")
+        st.warning(f"Field has not produced anything yet. Could not get the produced years due to the following error: {e}.")
         return df
+
+def check_addProducedYears(field: str) -> DataFrame:
+    try:
+        sY = min(get.CSVProducedYears(field))
+        return True
+    except Exception as e:
+        return False
 
 def addProducedMonths(field: str, df: DataFrame) -> DataFrame:
     try:
@@ -147,6 +154,8 @@ def addProducedMonths(field: str, df: DataFrame) -> DataFrame:
     except Exception as e:
         st.warning(f"Field has likely not produced anything yet. Could not get the produced year-months due to the following error: {e}.")
         return df
+
+
 
 
 

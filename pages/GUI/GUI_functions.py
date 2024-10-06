@@ -410,7 +410,7 @@ def multi_plot_SODIR_compare(dfs, fields, res, comp_align, time_frame):
         height=450,
         showlegend=True  
     )
-    active_column = list(columns_to_plot)[0]
+    active_column = list(columns_to_plot)[4]
     for trace in fig.data:
         if trace.name.split(' - ')[1] != active_column:
             trace.showlegend = False
