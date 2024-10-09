@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from datetime import datetime, timedelta
 class Curve_fitting():
     def __init__(self, dfs, FC_length, time, data_points):
         self._data_points = data_points
@@ -13,26 +14,30 @@ class Curve_fitting():
                 self.__custom_index = [(df.index[-2]+i) for i in range(0, FC_length)]
             else:
                 prev_ind = df.index[-1]
-                def next_month_year(prev_ind):
-                    month, year = prev_ind.split(':')
-                    if int(month)<12:
-                        string = str(int(month)+1)+':'+year
-                        return string
-                    else:
-                        string = str(1)+':'+str((int(year)+1))
-                        return string
-                self.__custom_index = [(prev_ind)]
-                for i in range(FC_length-1):
-                     last_el = self.__custom_index[-1]
-                     self.__custom_index.append(next_month_year(last_el))
-            empty_df.index = self.__custom_index
-            for column in empty_df:
-                if time[0] == 'Yearly':
-                    empty_df[column] = self.curve_fit(df[column][-(self._data_points)-1:-1], FC_length, time)
-                else:
-                    empty_df[column] = self.curve_fit(df[column][-self._data_points:], FC_length, time)                
-            curve_fitted_df = empty_df
-            self._curve_fitted_dfs.append(curve_fitted_df)
+
+    def next_month_year(prev_ind):
+        # Assuming prev_ind is a datetime object
+        if prev_ind.month < 12:
+            next_month = prev_ind.replace(month=prev_ind.month + 1)
+        else:
+            next_month = prev_ind.replace(month=1, year=prev_ind.year + 1)
+        return next_month
+    
+    self.__custom_index = [prev_ind]
+    for i in range(FC_length - 1):
+        last_el = self.__custom_index[-1]
+        self.__custom_index.append(next_month_year(last_el))
+    
+    empty_df.index = self.__custom_index
+
+for column in empty_df:
+    if time == 'Yearly':
+        empty_df[column] = self.curve_fit(df[column][-(self._data_points)-1:-1], FC_length, time)
+    else:
+        empty_df[column] = self.curve_fit(df[column][-self._data_points:], FC_length, time)
+
+curve_fitted_df = empty_df
+self._curve_fitted_dfs.append(curve_fitted_df)
     
     def curve_fit(self, list, FC_length, time ):
         if time[0] == 'Yearly':
