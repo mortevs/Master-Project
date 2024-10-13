@@ -1,3 +1,5 @@
+For latest repository concerning this work, see the Smipps repository
+
 Modeling and simulating an integrated petroleum production system in Excel can be a demanding 
 and time-consuming task. In the following project a Python application has been developed to
 streamline this process. The application is to function as a platform for investigation, modeling,
